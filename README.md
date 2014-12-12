@@ -1,4 +1,6 @@
 pm2-gui
 =======
 
-An elegant web GUI for Unitech/pm2.
+An elegant web interface for Unitech/pm2.
+
+> In progress.
