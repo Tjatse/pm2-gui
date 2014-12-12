@@ -1,0 +1,54 @@
+{
+  "name": "pm2-gui",
+  "version": "0.0.1",
+  "description": "An elegant web interface for Unitech/pm2.",
+  "scripts": {
+  },
+  "bin": {
+    "fw": "bin/pm2-gui"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/Tjatse/pm2-gui.git"
+  },
+  "keywords": [
+    "monitor",
+    "dashboard",
+    "pm2",
+    "pm2 web",
+    "pm2 ui",
+    "pm2 gui",
+    "pm2 dashboard",
+    "pm2 monitor"
+  ],
+  "author": {
+    "name": "Tjatse"
+  },
+  "license": "Apache, Version 2.0",
+  "bugs": {
+    "url": "https://github.com/Tjatse/pm2-gui/issues"
+  },
+  "engines": [
+    "node >= 0.8.0"
+  ],
+  "dependencies": {
+    "async":"~0.9.0",
+    "lodash":"~2.4.1",
+    "commander": "~2.5.0",
+    "chalk": "~0.5.1",
+    "express": "~4.10.1",
+    "swig": "~1.4.2",
+    "usage": "~0.5.0",
+    "ansi_up": "~1.1.2",
+    "windows-cpu": "~0.1.1",
+    "socket.io": "~1.2.0",
+    "nconf": "~0.6.9",
+    "pm2-axon":"~2.0.7",
+    "pm2-axon-rpc":"~0.3.6",
+    "chokidar":"~0.12.0"
+  },
+  "devDependencies": {
+  },
+  "readmeFilename": "README.md",
+  "homepage": "https://github.com/Tjatse/pm2-gui"
+}
