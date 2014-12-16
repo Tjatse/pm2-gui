@@ -126,7 +126,6 @@ Above command will remove `refresh` config and it will be set to `5000` by defau
 <a name="cauts" />
 # Cautions
 - Web Interface is wrote by CSS3 && HTML5, so view it with the latest version of the browser (WebGL, Animation, WebSocket supports), e.g. Chrome, Safari and Firefox.
-- `PM2` publish nothing (event) when a **STOPPED** process is being deleted, so unfortunately `pm2-gui` can not refresh the processes immediately (Polling is not graceful :p).
 - I've never test it on Internet Explorer / Windows.
 
 <a name="ui" />
