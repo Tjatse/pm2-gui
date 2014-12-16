@@ -3,7 +3,7 @@ pm2-gui [![NPM version](https://badge.fury.io/js/pm2-gui.svg)](http://badge.fury
 
 An elegant web interface for Unitech/PM2.
 
-> In progress.
+> Compatible with PM2 v0.12.2.
 
 # Guide
 - [Installation](#ins)
