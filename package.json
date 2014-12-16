@@ -39,14 +39,13 @@
     "express": "~4.10.1",
     "swig": "~1.4.2",
     "usage": "~0.5.0",
-    "ansi2html": "~0.0.1",
     "windows-cpu": "~0.1.1",
     "socket.io": "~1.2.0",
     "nconf": "~0.6.9",
     "pm2-axon": "~2.0.7",
     "pm2-axon-rpc": "~0.3.6",
     "chokidar": "~0.12.3",
-    "ansi-html": "~0.0.3"
+    "ansi-html": "~0.0.4"
   },
   "devDependencies": {
   },
