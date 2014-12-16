@@ -1,0 +1,86 @@
+/**
+ * jquery.sticky 0.0.1
+ * https://github.com/Tjatse/sticky
+ *
+ * Apache, License 2.0
+ * Copyright (C) 2014 Tjatse
+ */
+.sticky-holder {
+  position: fixed;
+  z-index: 99999;
+  font-family: Verdana, Helvetica, STHeiti, 'sans-serif'
+}
+
+.sticky {
+  box-shadow: 1px 1px 2px #000, -1px -1px 1px #444, inset -1px -1px 2px #fff, inset 1px 1px 2px #fff;
+  -moz-box-shadow: 1px 1px 2px #000, -1px -1px 1px #444, inset -1px -1px 2px #fff, inset 1px 1px 2px #fff;
+  -webkit-box-shadow: 1px 1px 2px #000, -1px -1px 1px #444, inset -1px -1px 2px #fff, inset 1px 1px 2px #fff;
+  -o-box-shadow: 1px 1px 2px #000, -1px -1px 1px #444, inset -1px -1px 2px #fff, inset 1px 1px 2px #fff;
+  background: #fafafa;
+  border-radius: 4px;
+  -moz-border-radius: 4px;
+  -webkit-border-radius: 4px;
+  -o-border-radius: 4px;
+  position: absolute;
+  border: solid 1px #000;
+  background-image: -moz-linear-gradient(top, #fff, #eee);
+  background-image: -o-linear-gradient(top, #fff, #eee);
+  background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0, #fff), color-stop(1, #eee));
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#fff', endColorstr='#eee', GradientType=0);
+  animation-duration: 500ms;
+  animation-delay: 0s;
+  animation-iteration-count: 1;
+  -moz-animation-duration: 500ms;
+  -moz-animation-delay: 0s;
+  -moz-animation-iteration-count: 1;
+  -webkit-animation-duration: 500ms;
+  -webkit-animation-delay: 0s;
+  -webkit-animation-iteration-count: 1;
+  -o-animation-duration: 500ms;
+  -o-animation-delay: 0s;
+  -o-animation-iteration-count: 1
+}
+
+.sticky div.sticky-title {
+  font-weight: bold;
+  font-size: 14px;
+  margin: 0 10px 0 10px;
+  padding: 5px 10px 8px 0;
+  border-bottom: solid 1px #eee
+}
+
+.sticky p.sticky-body {
+  font-size: 14px;
+  line-height: 22px;
+  color: #555;
+  padding: 10px;
+  margin: 0;
+  clear: both;
+  float: none
+}
+
+.sticky img.sticky-icon {
+  float: left;
+  margin: 5px 5px 5px 0;
+  max-width: 32px;
+  max-height: 32px
+}
+
+.sticky > span {
+  font-size: 18px;
+  font-weight: bold;
+  position: absolute;
+  right: 5px;
+  top: 5px;
+  width: 20px;
+  height: 20px;
+  line-height: 20px;
+  display: block;
+  text-align: center;
+  cursor: pointer;
+  color: #ccc
+}
+
+.sticky > span:hover {
+  color: #000
+}
