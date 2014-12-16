@@ -347,7 +347,8 @@ html, body {
 }
 
 .proc-info ul.proc-content li.proc-file {
-  width: 350px;
+  width: 300px;
+  padding-left: 0;
 }
 
 .proc-info ul.proc-content li.proc-mem {
@@ -364,7 +365,7 @@ html, body {
   color: #888;
   float: right;
   text-align: right;
-  width: 100px;
+  width: 150px;
 }
 
 .proc-info ul.proc-content li.proc-mode {

@@ -109,7 +109,7 @@
       </ul>
       <ul class="proc-content">
         <li class="proc-file">
-          <%- (proc.pm2_env.pm_exec_path.length > 45 ? '...':'') +proc.pm2_env.pm_exec_path.slice(-45) %>
+          <%- (proc.pm2_env.pm_exec_path.length > 35 ? '...':'') +proc.pm2_env.pm_exec_path.slice(-35) %>
         </li>
         <li class="proc-mode proc-mode-<%- mode %>">
           <span><%- mode %></span>
