@@ -21,6 +21,7 @@ An elegant web interface for Unitech/PM2.
   - [Processes](#procs)
   - [Describe Complete Information](#info)
   - [Tail Logs](#tail_logs)
+  - [Tips](#tip)
 - [TODO](#todo)
 
 
@@ -125,6 +126,7 @@ Above command will remove `refresh` config and it will be set to `5000` by defau
 <a name="cauts" />
 # Cautions
 - Web Interface is wrote by CSS3 && HTML5, so view it with the latest version of the browser (WebGL, Animation, WebSocket supports), e.g. Chrome, Safari and Firefox.
+- `PM2` publish nothing (event) when a **STOPPED** process is being deleted, so unfortunately `pm2-gui` can not refresh the processes immediately (Polling is not graceful :p).
 - I've never test it on Internet Explorer / Windows.
 
 <a name="ui" />
@@ -135,23 +137,41 @@ Above command will remove `refresh` config and it will be set to `5000` by defau
 <a name="back" />
 Backend (without `--no-debug` option):
 
+![image](screenshots/term.jpg)
+
 <a name="home" />
 Home
+
+![image](screenshots/home.jpg)
 
 <a name="no_proc" />
 Empty List
 
+![image](screenshots/no-proc.jpg)
+
 <a name="procs" />
 Processes
+
+![image](screenshots/procs.jpg)
 
 <a name="info" />
 Describe Complete Information
 
+![image](screenshots/proc-info.jpg)
+
 <a name="tail_logs" />
 Tail Logs
 
+![image](screenshots/tail-logs.jpg)
+
+<a name="tip" />
+Tips
+
+![image](screenshots/tip.jpg)
+
 <a name="todo" />
 # TODO
+- [ ] Authentication
 - [ ] Multiple operations.
 - [ ] Configured JSON files.
 - [ ] Memory and CPU usage gauge of each process.
