@@ -1,7 +1,7 @@
 {
   "name": "pm2-gui",
-  "version": "0.0.1",
-  "description": "An elegant web interface for Unitech/pm2.",
+  "version": "0.0.2",
+  "description": "An elegant web interface for Unitech/PM2.",
   "scripts": {
   },
   "bin": {
