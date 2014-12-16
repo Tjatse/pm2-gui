@@ -1,6 +1,6 @@
 {
   "name": "pm2-gui",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "An elegant web interface for Unitech/PM2.",
   "scripts": {
   },
@@ -14,12 +14,13 @@
   "keywords": [
     "monitor",
     "dashboard",
-    "pm2",
-    "pm2 web",
-    "pm2 ui",
-    "pm2 gui",
-    "pm2 dashboard",
-    "pm2 monitor"
+    "PM2",
+    "PM2 interface",
+    "PM2 web",
+    "PM2 ui",
+    "PM2 gui",
+    "PM2 dashboard",
+    "PM2 monitor"
   ],
   "author": {
     "name": "Tjatse"
