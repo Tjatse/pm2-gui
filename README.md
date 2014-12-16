@@ -1,7 +1,7 @@
 pm2-gui [![NPM version](https://badge.fury.io/js/pm2-gui.svg)](http://badge.fury.io/js/pm2-gui)
 =======
 
-An elegant web interface for Unitech/pm2.
+An elegant web interface for Unitech/PM2.
 
 > In progress.
 
@@ -27,13 +27,13 @@ An elegant web interface for Unitech/pm2.
 <a name="ins" />
 # Installation
 ```
-$ npm install -g pm2-gui
+$ npm install -g PM2-gui
 ```
 
 <a name="cli" />
 # CLI
 ```
-  Usage: pm2-gui [cmd] [options]
+  Usage: PM2-gui [cmd] [options]
 
   Commands:
 
@@ -50,10 +50,10 @@ $ npm install -g pm2-gui
   Basic Examples:
 
     Start the web server, by default port (8088):
-    $ fw start
+    $ pm2-gui start
 
     Start the web server, by specific port (8090):
-    $ fw start 8090
+    $ pm2-gui start 8090
 
 ```
 
@@ -74,24 +74,24 @@ $ npm install -g pm2-gui
 {
   "refresh": 3000
   "manipulation": true
-  "pm2": "~/.pm2"
+  "PM2": "~/.PM2"
 }
 ```
 
 - **refresh** The heartbeat duration of monitor (backend), `5000` by default.
 - **manupulation** A value indicates whether the client has permission to restart/stop processes, `true` by default.
-- **pm2** Root directory of Unitech/PM2, `~/.pm2` by default.
+- **PM2** Root directory of Unitech/PM2, `~/.PM2` by default.
 
 <a name="cli_conf_set">
 ### Set Config
 Usage
 ```bash
-$ pm2-gui set <key> <value>
+$ PM2-gui set <key> <value>
 ```
 
 Example
 ```bash
-$ pm2-gui set refresh 2000
+$ PM2-gui set refresh 2000
 ```
 
 Above command will set `refresh` to two second.
@@ -100,12 +100,12 @@ Above command will set `refresh` to two second.
 ### Remove Config
 Usage
 ```bash
-$ pm2-gui rm <key>
+$ PM2-gui rm <key>
 ```
 
 Example
 ```bash
-$ pm2-gui rm refresh
+$ PM2-gui rm refresh
 ```
 
 Above command will remove `refresh` config and it will be set to `5000` by default.
@@ -114,12 +114,12 @@ Above command will remove `refresh` config and it will be set to `5000` by defau
 <a name="feats" />
 # Feature
 - All the heartbeats (no matter **monitor** or **tail (logs)**) are automatic destroyed.
-- The `pm2` processes are watched by a FSWatcher ([chokidar](https://www.npmjs.org/package/chokidar)), but not manually polling.
-- Communicated with `pm2` through **RPC** socket directly, but not `pm2` programmatic API and no more **sub/sub-emitter** bullshit (consumes memory and CPU usage).
+- The `PM2` processes are watched by a FSWatcher ([chokidar](https://www.npmjs.org/package/chokidar)), but not manually polling.
+- Communicated with `PM2` through **RPC** socket directly, but not `PM2` programmatic API and no more **sub/sub-emitter** bullshit (consumes memory and CPU usage).
 - Socket.io between client and server.
 - Monitor CPU and Memory usage of server in a real-time.
-- Monitor `pm2` processes in a real-time.
-- Supports: process memory monitor, pm2 restart/stop.
+- Monitor `PM2` processes in a real-time.
+- Supports: process memory monitor, PM2 restart/stop.
 - Supports [ANSI color codes](#tail_logs) by [ansi-html](https://github.com/Tjatse/ansi-html).
 
 <a name="cauts" />
