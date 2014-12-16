@@ -1,6 +1,6 @@
 "use strict";
 
-var sysStat, socket, pageIndex = 1, pageLoaded, procAnimated, procs, prevProcs, tmps = {}, eles = {}, timer, popupShown, popupProc, tailBeatTimer;
+var sysStat, socket, pageIndex = 1, pageLoaded, procAnimated, procs, prevProcs, tmps = {}, eles = {}, timer, popupShown, popupProc, tailBeatTimer, scrolled;
 
 /**
  * Initialization.
@@ -479,7 +479,7 @@ function createProcs(_procs, noproc, noAnimation){
     eles.procs.data('slimScroll', true);
     eles.procs.slimScroll({
       height     : '600px',
-      width      : '600px',
+      width      : '720px',
       color      : '#fff',
       opacity    : 0.8,
       railVisible: true,
@@ -621,7 +621,7 @@ function procEvents(o){
     ops.find('ul').fadeOut().next().animate({opacity: 1});
 
     socket.emit('action', method, pm_id);
-  }).end().find('[data-toggle="tooltip"]').tooltip();
+  }).end().find('[data-toggle="tooltip"]').tooltip({container: 'body'});
 }
 
 /**
@@ -651,6 +651,7 @@ function bindPopup(o){
       showPopupTab(getProcByEle(ele));
     },
     onUnload       : function(ele){
+      scrolled = false;
       popupShown = false;
       setFPEnable(true, false);
       destroyTailBeat(popupProc && popupProc.pm_id);
@@ -758,9 +759,9 @@ function appendLogs(log){
 
   var offset = lo.get(0).scrollHeight - 300,
       poffset = lo.parent().scrollTop() || 0;
-
   // Scroll down if necessary.
-  if (poffset >= offset - 30) {
+  if (!scrolled || poffset >= offset - 30) {
+    !scrolled && (scrolled = poffset < offset - 30)
     lo.parent().slimScroll({
       scrollTo: offset
     });

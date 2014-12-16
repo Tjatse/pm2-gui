@@ -97,10 +97,19 @@
       <ul class="proc-title">
         <li class="proc-name" data-pmid="<%- proc.pm_id %>"><%- proc.name %></li>
         <li><sup><%- proc.pm_id %></sup></li>
+        <li class="proc-ops">
+          <ul>
+            <li><i class="glyphicon glyphicon-refresh" data-toggle="tooltip" data-placement="top" title="Restart"></i></li>
+            <% if(proc.pm2_env.status == 'online'){ %>
+            <li><i class="glyphicon glyphicon-ban-circle" data-toggle="tooltip" data-placement="top" title="Stop"></i></li>
+            <% } %>
+            <li><i class="glyphicon glyphicon-trash" data-toggle="tooltip" data-placement="top" title="Delete"></i></li>
+          </ul>
+        </li>
       </ul>
       <ul class="proc-content">
         <li class="proc-file">
-          <%- (proc.pm2_env.pm_exec_path.length > 35 ? '...':'') +proc.pm2_env.pm_exec_path.slice(-35) %>
+          <%- (proc.pm2_env.pm_exec_path.length > 45 ? '...':'') +proc.pm2_env.pm_exec_path.slice(-45) %>
         </li>
         <li class="proc-mode proc-mode-<%- mode %>">
           <span><%- mode %></span>
@@ -112,19 +121,9 @@
           <%- proc.pm2_env.restart_time %>
         </li>
         <li class="proc-uptime">
-          -
-          <span data-ctime="<%- proc.pm2_env.pm_uptime %>"
-                data-running="<%- proc.pm2_env.status == 'online' ? 'YES':'NO' %>">0s</span>
+          [<span data-ctime="<%- proc.pm2_env.pm_uptime %>"
+                data-running="<%- proc.pm2_env.status == 'online' ? 'YES':'NO' %>">0s</span>]
         </li>
-      </ul>
-    </div>
-    <div class="proc-col proc-ops">
-      <ul>
-        <li><i class="glyphicon glyphicon-refresh" data-toggle="tooltip" data-placement="top" title="Restart"></i></li>
-        <% if(proc.pm2_env.status == 'online'){ %>
-          <li><i class="glyphicon glyphicon-ban-circle" data-toggle="tooltip" data-placement="top" title="Stop"></i></li>
-        <% } %>
-        <li><i class="glyphicon glyphicon-trash" data-toggle="tooltip" data-placement="top" title="Delete"></i></li>
       </ul>
     </div>
   </div>
