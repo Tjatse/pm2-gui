@@ -83,7 +83,7 @@ $ npm install -g pm2-gui
 - **manupulation** A value indicates whether the client has permission to restart/stop processes, `true` by default.
 - **PM2** Root directory of Unitech/PM2, `~/.pm2` by default.
 
-<a name="cli_conf_set">
+<a name="cli_conf_set" />
 ### Set Config
 Usage
 ```bash
@@ -95,9 +95,9 @@ Example
 $ pm2-gui set refresh 2000
 ```
 
-Above command will set `refresh` to two second.
+Above command will set `refresh` to 2 seconds.
 
-<a name="cli_conf_remove">
+<a name="cli_conf_remove" />
 ### Remove Config
 Usage
 ```bash
@@ -109,7 +109,7 @@ Example
 $ pm2-gui rm refresh
 ```
 
-Above command will remove `refresh` config and it will be set to `5000` by default.
+Above command will remove `refresh` config and it will be set to `5000` (milliseconds) by default.
 
 
 <a name="feats" />
@@ -120,7 +120,9 @@ Above command will remove `refresh` config and it will be set to `5000` by defau
 - Socket.io between client and server.
 - Monitor CPU and Memory usage of server in a real-time.
 - Monitor `PM2` processes in a real-time.
-- PM2 restart/stop/delete.
+- PM2 *restart/stop/delete*.
+ - *stopWatch* files before *restart/stop/delete*
+ - *restartWatch* files before *restart*
 - Supports [ANSI color codes](#tail_logs) by [ansi-html](https://github.com/Tjatse/ansi-html).
 
 <a name="cauts" />
