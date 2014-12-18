@@ -733,6 +733,8 @@ function showPopupTab(proc, delayed){
     }
     // Reset log tab to `loading` status
     $('#log').html('<div class="load"></div>');
+    scrolled = false;
+    
     // Destroy tail immediately.
     destroyTail();
     popupProc = null;
@@ -794,7 +796,6 @@ function destroyTail(){
     return;
   }
   sockets.log.disconnect();
-  $('#logs').html('');
 }
 
 /**
