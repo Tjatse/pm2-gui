@@ -3,7 +3,8 @@ var express = require('express'),
     path    = require('path'),
     chalk   = require('chalk'),
     Monitor = require('../lib/mon'),
-    Debug   = require('../lib/util/debug');
+    Debug   = require('../lib/util/debug'),
+    session = require('express-session');
 
 module.exports = runServer;
 
@@ -15,6 +16,11 @@ function runServer(port, debug){
   app.set('views', path.join(__dirname, 'views'));
   app.engine('html', swig.renderFile);
   app.use(express.static(path.join(__dirname, 'public')));
+  app.use(session({
+    secret           : 'pm2@gui',
+    resave           : false,
+    saveUninitialized: true
+  }));
 
   var log = Debug(({namespace: 'pm2-gui', debug: !!debug}));
   // router

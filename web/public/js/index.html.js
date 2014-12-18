@@ -118,7 +118,7 @@ function listenSocket(){
 
     // Bind system information.
     var tmp = _.template($('#sysInfoTmp').html());
-    $('.system_info').html(tmp({
+    $('.system-info').html(tmp({
       data: {
         cpu   : sysStat.cpus.length,
         arch  : sysStat.arch,
@@ -188,7 +188,7 @@ function polarUsage(){
     });
 
   // Initialize polar.
-  var svg = d3.select('.polar_usage').style({
+  var svg = d3.select('.polar-usage').style({
     height: height + 'px',
     width : width + 'px'
   }).append('svg')
