@@ -6,26 +6,33 @@ An elegant web interface for Unitech/PM2.
 > Compatible with PM2 v0.12.2.
 
 # Guide
+- [Features](#feats)
+- [Cautions](#cauts)
 - [Installation](#ins)
 - [CLI](#cli)
   - [Run Web Interface](#cli_web)
   - [Configs](#cli_confs)
-    - [Set](#cli_conf_set)
-    - [Remove](#cli_conf_remove)
 - [Authorization](#auth)
-- [Features](#feats)
-- [Cautions](#cauts)
 - [UI/UX](#ui)
-  - [Login](#login)
-  - [Backend](#back)
-  - [Home](#home)
-  - [Empty List](#no_proc)
-  - [Processes](#procs)
-  - [Describe Complete Information](#info)
-  - [Tail Logs](#tail_logs)
-  - [Tips](#tip)
 - [TODO](#todo)
 
+<a name="feats" />
+# Feature
+- All the heartbeats (no matter **monitor** or **tail (logs)**) are automatic destroyed.
+- The `PM2` processes are watched by a subscribed emitter.
+- Communicated with `PM2` through **RPC** socket directly.
+- Socket.io between client and server.
+- Monitor CPU and Memory usage of server in a real-time.
+- Monitor `PM2` processes in a real-time.
+- PM2 *restart/stop/delete*.
+ - *stopWatch* files before *restart/stop/delete*
+ - *restartWatch* files before *restart*
+- Supports [ANSI color codes](#tail_logs) by [ansi-html](https://github.com/Tjatse/ansi-html).
+
+<a name="cauts" />
+# Cautions
+- Web Interface is wrote by CSS3 && HTML5, so view it with the latest version of the browser (WebGL, Animation, WebSocket supports), e.g. Chrome, Safari and Firefox.
+- I've never test it on Internet Explorer / Windows.
 
 <a name="ins" />
 # Installation
@@ -86,7 +93,6 @@ $ npm install -g pm2-gui
 - **pm2** Root directory of Unitech/PM2, `~/.pm2` by default.
 - **password** The encrypted authentication code, if this config is set, users need to be authorized before accessing the index page.
 
-<a name="cli_conf_set" />
 ### Set Config
 Usage
 ```bash
@@ -100,7 +106,6 @@ $ pm2-gui set refresh 2000
 
 Above command will set `refresh` to 2 seconds.
 
-<a name="cli_conf_remove" />
 ### Remove Config
 Usage
 ```bash
@@ -124,74 +129,44 @@ $ pm2-gui start
 
 When you visiting `http://[domain]:8088` in your browser, it will be redirected to `http://[domain]:8088/auth`, and you need to typo the password (`1234`) to login.
 
-Otherwise, if you wanna anybody visit your Monitor without authorization, just simply remove it:
+Otherwise, if you do not want to deny anybody, just simply remove it:
 ```bash
 $ pm2-gui rm password
 $ pm2-gui start
 ```
-
-<a name="feats" />
-# Feature
-- All the heartbeats (no matter **monitor** or **tail (logs)**) are automatic destroyed.
-- The `PM2` processes are watched by a subscribed emitter.
-- Communicated with `PM2` through **RPC** socket directly.
-- Socket.io between client and server.
-- Monitor CPU and Memory usage of server in a real-time.
-- Monitor `PM2` processes in a real-time.
-- PM2 *restart/stop/delete*.
- - *stopWatch* files before *restart/stop/delete*
- - *restartWatch* files before *restart*
-- Supports [ANSI color codes](#tail_logs) by [ansi-html](https://github.com/Tjatse/ansi-html).
-
-<a name="cauts" />
-# Cautions
-- Web Interface is wrote by CSS3 && HTML5, so view it with the latest version of the browser (WebGL, Animation, WebSocket supports), e.g. Chrome, Safari and Firefox.
-- I've never test it on Internet Explorer / Windows.
 
 <a name="ui" />
 # UI/UX
 - Amazing and smooth animations.
 - High performance.
 
-<a name="back" />
 Backend (without `--no-debug` option):
 
 ![image](screenshots/term.jpg)
 
-<a name="login" />
 Login
 
 ![image](screenshots/login.jpg)
 
-<a name="home" />
 Home
 
 ![image](screenshots/home.jpg)
 
-<a name="no_proc" />
 Empty List
 
 ![image](screenshots/no-proc.jpg)
 
-<a name="procs" />
 Processes
 
 ![image](screenshots/procs.jpg)
 
-<a name="info" />
 Describe Complete Information
 
 ![image](screenshots/proc-info.jpg)
 
-<a name="tail_logs" />
 Tail Logs
 
 ![image](screenshots/tail-logs.jpg)
-
-<a name="tip" />
-Tips
-
-![image](screenshots/tip.jpg)
 
 <a name="todo" />
 # TODO
@@ -199,7 +174,7 @@ Tips
 - [ ] Multiple operations.
 - [ ] Configured JSON files.
 - [ ] Memory and CPU usage gauge of each process.
-- [ ] Test on Windows (need environment).
+- [ ] Test on Internet Explorer (need environment && PRs).
 - [ ] Need feedback/test.
 
 
