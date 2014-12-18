@@ -5,7 +5,8 @@ var commander = require('commander'),
     chalk     = require('chalk'),
     _         = require('lodash'),
     pkg       = require('../package.json'),
-    Monitor       = require('../lib/mon'),
+    Monitor   = require('../lib/mon'),
+    crypto    = require('crypto'),
     interface = require('../web/index');
 
 commander.version(pkg.version, '-v, --version')
@@ -34,13 +35,13 @@ commander.command('start [port]')
   });
 
 // Configuration
-var acceptKeys = ['pm2', 'refresh', 'manipulation'];
+var acceptKeys = ['pm2', 'refresh', 'manipulation', 'password'];
 function showConfigs(cmd, mon){
-  if(!mon){
-    mon =  Monitor();
+  if (!mon) {
+    mon = Monitor();
   }
   var storage = mon._config.store, prints = '';
-  for(var k in storage){
+  for (var k in storage) {
     prints += Array(15 - k.length).join(' ') + chalk.bold(k + ': ') + '  ' + chalk.blue(storage[k] + '\n');
   }
   console.log(prints);
@@ -53,10 +54,17 @@ commander.command('config')
 commander.command('set <key> <value>')
   .description('set config by key-value pairs')
   .action(function(key, value, cmd){
-    if(!~acceptKeys.indexOf(key)){
-      return console.log('key could only be one of below:', acceptKeys.map(function(m){ return '\n' + chalk.magenta(m)}).join(''));
+    if (!~acceptKeys.indexOf(key)) {
+      return console.log('key could only be one of below:', acceptKeys.map(function(m){
+        return '\n' + chalk.magenta(m)
+      }).join(''));
     }
     var mon = Monitor();
+    if (key == acceptKeys[acceptKeys.length - 1]) {
+      var md5 = crypto.createHash('md5');
+      md5.update(value);
+      value = md5.digest('hex');
+    }
     mon.config(key, value);
     showConfigs(cmd, mon);
   });
