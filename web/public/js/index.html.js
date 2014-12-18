@@ -1,6 +1,18 @@
 "use strict";
 
-var sysStat, socket, pageIndex = 1, pageLoaded, procAnimated, procs, prevProcs, tmps = {}, eles = {}, timer, popupShown, popupProc, tailBeatTimer, scrolled;
+var sysStat,
+    sockets = {},
+    pageIndex = 1,
+    pageLoaded,
+    procAnimated,
+    procs,
+    prevProcs,
+    tmps = {},
+    eles = {},
+    timer,
+    popupShown,
+    popupProc,
+    scrolled;
 
 /**
  * Initialization.
@@ -92,23 +104,23 @@ function setFPEnable(enable, exceptScroll){
  * Initialize socket.io client and add listeners.
  */
 function listenSocket(){
-  socket = io();
+  sockets.sys = io('/sys');
 
   // error handler.
-  socket.on('error', function(err){
+  sockets.sys.on('error', function(err){
     info(err.message);
   });
   // information from server.
-  socket.on('info', info);
+  sockets.sys.on('info', info);
   // processes
-  socket.on('procs', onProcsChange);
+  sockets.sys.on('procs', onProcsChange);
 
   // The first time to request system state.
-  socket.on('system_stat', onSysStat);
+  sockets.sys.on('system_stat', onSysStat);
 
   function onSysStat(data){
     // Remove listen immediately.
-    socket.removeEventListener('system_stat', onSysStat);
+    sockets.sys.removeEventListener('system_stat', onSysStat);
 
     // Store system states.
     sysStat = data;
@@ -137,12 +149,12 @@ function listenSocket(){
     $('.spinner').remove();
   }
 
-  socket.on('pm2_ver', function(ver){
+  sockets.sys.on('pm2_ver', function(ver){
     $('.repo > span').text('PM2 v' + ver);
   });
 
   // Show alert when stopping process by pm_id failed.
-  socket.on('action', function(id, errMsg){
+  sockets.sys.on('action', function(id, errMsg){
     info(errMsg);
     $('#proc_' + id).find('.proc-ops').find('.load').fadeOut(function(){
       $(this).prev().fadeIn().end().fadeOut(function(){
@@ -272,7 +284,7 @@ function polarUsage(){
   }
 
   // When receiving data from server, refresh polar.
-  socket.on('system_stat', function(data){
+  sockets.sys.on('system_stat', function(data){
     if (pageIndex != 1) {
       return;
     }
@@ -620,7 +632,7 @@ function procEvents(o){
 
     ops.find('ul').fadeOut().next().animate({opacity: 1});
 
-    socket.emit('action', method, pm_id);
+    sockets.sys.emit('action', method, pm_id);
   }).end().find('[data-toggle="tooltip"]').tooltip({container: 'body'});
 }
 
@@ -654,7 +666,7 @@ function bindPopup(o){
       scrolled = false;
       popupShown = false;
       setFPEnable(true, false);
-      destroyTailBeat(popupProc && popupProc.pm_id);
+      destroyTail();
       popupProc = null;
     },
     template       : '<div id="popup"><div class="load"></div></div>'
@@ -721,8 +733,8 @@ function showPopupTab(proc, delayed){
     }
     // Reset log tab to `loading` status
     $('#log').html('<div class="load"></div>');
-    // Destroy tail heartbeat immediately.
-    destroyTailBeat(popupProc && popupProc.pm_id);
+    // Destroy tail immediately.
+    destroyTail();
     popupProc = null;
   })
 }
@@ -732,13 +744,19 @@ function showPopupTab(proc, delayed){
  * @returns {*}
  */
 function tailLogs(){
-  // Heart beat of tail.
-  tailBeat();
-
-  if (!popupProc) {
-    return destroyTailBeat();
+  if(!popupProc){
+    $('#log').html('<span style="color:#ff0000">Process does not exist.</span>')
+    return;
   }
-  socket.on('tail', appendLogs);
+  if(!sockets.log) {
+    sockets.log = io('/log');
+    sockets.log.on('log', appendLogs);
+    sockets.log.on('connect', function(){
+      sockets.log.emit('tail', popupProc.pm_id);
+    });
+  }else{
+    sockets.log.connect();
+  }
 }
 
 /**
@@ -769,27 +787,14 @@ function appendLogs(log){
 }
 
 /**
- * Heart beat of tail.
+ * Destroy heart beat of tail.
  */
-function tailBeat(){
-  tailBeatTimer && clearTimeout(tailBeatTimer);
-  if (!popupProc) {
+function destroyTail(){
+  if(!sockets.log){
     return;
   }
-  socket.emit('tail_beat', popupProc.pm_id);
-  tailBeatTimer = setTimeout(tailBeat, 3000);
-}
-
-/**
- * Destroy heart beat of tail.
- * @param {String} pm_id
- */
-function destroyTailBeat(pm_id){
-  if (pm_id) {
-    socket.emit('tail_destroy', pm_id);
-  }
-  // Remove listener.
-  socket.removeEventListener('tail', appendLogs);
+  sockets.log.disconnect();
+  $('#logs').html('');
 }
 
 /**
