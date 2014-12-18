@@ -12,9 +12,11 @@ An elegant web interface for Unitech/PM2.
   - [Configs](#cli_confs)
     - [Set](#cli_conf_set)
     - [Remove](#cli_conf_remove)
+- [Authorization](#auth)
 - [Features](#feats)
 - [Cautions](#cauts)
 - [UI/UX](#ui)
+  - [Login](#login)
   - [Backend](#back)
   - [Home](#home)
   - [Empty List](#no_proc)
@@ -81,7 +83,8 @@ $ npm install -g pm2-gui
 
 - **refresh** The heartbeat duration of monitor (backend), `5000` by default.
 - **manupulation** A value indicates whether the client has permission to restart/stop processes, `true` by default.
-- **PM2** Root directory of Unitech/PM2, `~/.pm2` by default.
+- **pm2** Root directory of Unitech/PM2, `~/.pm2` by default.
+- **password** The encrypted authentication code, if this config is set, users need to be authorized before accessing the index page.
 
 <a name="cli_conf_set" />
 ### Set Config
@@ -111,6 +114,21 @@ $ pm2-gui rm refresh
 
 Above command will remove `refresh` config and it will be set to `5000` (milliseconds) by default.
 
+<a name="auth" />
+# Authorization
+Run the following commands:
+```bash
+$ pm2-gui set password 1234
+$ pm2-gui start
+```
+
+When you visiting `http://[domain]:8088` in your browser, it will be redirected to `http://[domain]:8088/auth`, and you need to typo the password (`1234`) to login.
+
+Otherwise, if you wanna anybody visit your Monitor without authorization, just simply remove it:
+```bash
+$ pm2-gui rm password
+$ pm2-gui start
+```
 
 <a name="feats" />
 # Feature
@@ -139,6 +157,11 @@ Above command will remove `refresh` config and it will be set to `5000` (millise
 Backend (without `--no-debug` option):
 
 ![image](screenshots/term.jpg)
+
+<a name="login" />
+Login
+
+![image](screenshots/login.jpg)
 
 <a name="home" />
 Home
@@ -172,7 +195,7 @@ Tips
 
 <a name="todo" />
 # TODO
-- [ ] Authentication
+- [x] Authentication
 - [ ] Multiple operations.
 - [ ] Configured JSON files.
 - [ ] Memory and CPU usage gauge of each process.
