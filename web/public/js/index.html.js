@@ -824,13 +824,6 @@ function monitorProc(){
     sockets.proc.on('proc', appendData);
     sockets.proc.on('connect', function(){
       sockets.proc.emit('proc', popupProc.pid);
-      var now = Date.now(),
-          delay = 3000,
-          len = lineChart.settings.queueLength;
-
-      lineChart.data = d3.range(len).map(function(n){
-        return {time: now - (len - n) * delay, usage: {cpu: 0, memory: 0}};
-      });
     });
   } else {
     sockets.proc.connect();
@@ -846,6 +839,14 @@ function appendData(proc){
     return;
   }
   var loadEl = $('#monitor>.load');
+  if(lineChart.data.length == 0){
+    var now = proc.time,
+        len = lineChart.settings.queueLength;
+
+    lineChart.data = d3.range(len).map(function(n){
+      return {time: now - (len - n) * 3000, usage: {cpu: 0, memory: 0}};
+    });
+  }
   lineChart.data.push(proc);
   if (loadEl.length > 0) {
     loadEl.remove();
