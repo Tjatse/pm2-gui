@@ -1,14 +1,14 @@
 "use strict";
 
 var sysStat,
-    sockets = {},
+    sockets   = {},
     pageIndex = 1,
     pageLoaded,
     procAnimated,
     procs,
     prevProcs,
-    tmps = {},
-    eles = {},
+    tmps      = {},
+    eles      = {},
     timer,
     popupShown,
     popupProc,
@@ -667,6 +667,7 @@ function bindPopup(o){
       popupShown = false;
       setFPEnable(true, false);
       destroyTail();
+      destroyMonitor();
       popupProc = null;
     },
     template       : '<div id="popup"><div class="load"></div></div>'
@@ -726,18 +727,30 @@ function showPopupTab(proc, delayed){
       scrollTo: 0
     });
 
+    var tab = $(this).text().trim();
+
+    if (tab != 'Log') {
+      destroyTail();
+      $('#log').html('<div class="load"></div>');
+      scrolled = false;
+      popupProc = null;
+    }
+
+    if (tab != 'Monitor') {
+      destroyMonitor();
+      $('#monitor').html('<div class="load"></div>');
+      popupProc = null;
+    }
+
     // Tail logs.
-    if ($(this).text().trim() == 'Log') {
+    if (tab == 'Log') {
       popupProc = proc;
       return tailLogs();
     }
-    // Reset log tab to `loading` status
-    $('#log').html('<div class="load"></div>');
-    scrolled = false;
-    
-    // Destroy tail immediately.
-    destroyTail();
-    popupProc = null;
+    if (tab == 'Monitor') {
+      popupProc = proc;
+      return monitorProc();
+    }
   })
 }
 
@@ -746,17 +759,17 @@ function showPopupTab(proc, delayed){
  * @returns {*}
  */
 function tailLogs(){
-  if(!popupProc){
+  if (!popupProc) {
     $('#log').html('<span style="color:#ff0000">Process does not exist.</span>')
     return;
   }
-  if(!sockets.log) {
+  if (!sockets.log) {
     sockets.log = io('/log');
     sockets.log.on('log', appendLogs);
     sockets.log.on('connect', function(){
       sockets.log.emit('tail', popupProc.pm_id);
     });
-  }else{
+  } else {
     sockets.log.connect();
   }
 }
@@ -789,13 +802,68 @@ function appendLogs(log){
 }
 
 /**
- * Destroy heart beat of tail.
+ * Destroy tail socket.
  */
 function destroyTail(){
-  if(!sockets.log){
+  if (!sockets.log) {
     return;
   }
   sockets.log.disconnect();
+}
+
+/**
+ * Monitor the memory && CPU usage of process.
+ */
+function monitorProc(){
+  if (!popupProc || popupProc.pid == 0) {
+    $('#monitor').html('<span style="color:#ff0000">Process does not exist or is not running.</span>')
+    return;
+  }
+  if (!sockets.proc) {
+    sockets.proc = io('/proc');
+    sockets.proc.on('proc', appendData);
+    sockets.proc.on('connect', function(){
+      sockets.proc.emit('proc', popupProc.pid);
+      var now = Date.now(),
+          delay = 3000,
+          len = lineChart.settings.queueLength;
+
+      lineChart.data = d3.range(len).map(function(n){
+        return {time: now - (len - n) * delay, usage: {cpu: 0, memory: 0}};
+      });
+    });
+  } else {
+    sockets.proc.connect();
+  }
+}
+
+/**
+ * Append data to lineChart.
+ * @param proc
+ */
+function appendData(proc){
+  if (!popupProc || popupProc.pid != proc.pid) {
+    return;
+  }
+  var loadEl = $('#monitor>.load');
+  lineChart.data.push(proc);
+  if (loadEl.length > 0) {
+    loadEl.remove();
+    lineChart.next();
+  }
+}
+
+/**
+ * Destroy monitor socket.
+ */
+function destroyMonitor(){
+  if (!sockets.proc) {
+    return;
+  }
+  sockets.proc.disconnect();
+
+  lineChart.data = [];
+  lineChart.eles = {};
 }
 
 /**
@@ -907,4 +975,158 @@ function highlight(data, indent){
     }
     return '<span style="color: #' + color + '">' + m + '</span>';
   }).replace(/\n/, '<br />');
+};
+
+/**
+ * Line chart represents memory / CPU usage.
+ */
+var lineChart = {
+  settings: {
+    id             : '#monitor',
+    width          : 580,
+    height         : 270,
+    ticks          : 5,
+    tension        : 0.8,
+    padding        : 10,
+    queueLength    : 20,
+    transitionDelay: 3000,
+    fancyDelay     : 1000,
+    tickFormat     : '%H:%M:%S',
+    series         : ['cpu', 'memory'],
+    colors         : {
+      line: {cpu: 'rgba(0, 200, 0, 1)', memory: 'rgba(200, 200, 0, 1)'},
+      dot : '#ff5400'
+    }
+  },
+  data    : [],
+  eles    : {},
+  next    : function(){
+    var ng = !this.eles.svg;
+    if (ng) {
+      this._graph();
+    }
+    var st = this.settings;
+
+    if (this.data.length < st.queueLength) {
+      return;
+    }
+
+    this.eles.path.attr('transform', 'translate(0, ' + st.padding + ')');
+    this.eles.xAxis.call(this.eles.x.axis);
+
+    this.eles.x.domain([this.data[1].time, this.data[st.queueLength - 1].time]);
+
+    st.series.forEach(function(key){
+      lineChart.eles[key + 'LineEl']
+        .attr('d', lineChart.eles[key + 'Line'])
+        .attr('transform', null);
+    });
+
+    if (ng) {
+      return this.next();
+    }
+
+    this.eles.path
+      .transition()
+      .duration(st.transitionDelay)
+      .ease('linear')
+      .attr('transform', 'translate(' + this.eles.x(this.data[0].time) + ', ' + st.padding + ')')
+      .each('end', function(){
+        lineChart.next();
+      });
+
+    this.eles.xAxis.transition()
+      .duration(st.transitionDelay)
+      .ease('basic')
+      .call(this.eles.x.axis);
+
+    this.data.shift();
+  },
+  _graph  : function(){
+    var st = this.settings;
+    st.gWidth = st.width;
+    st.gHeight = st.height - 50;
+
+    var series = '<ul>';
+    st.series.forEach(function(key){
+      series += '<li style="color:' + st.colors.line[key] + '">' + key + '</li>';
+    });
+    series += '</ul>';
+
+    $(series).appendTo(st.id);
+
+    this.eles.x = d3.time
+      .scale()
+      .range([0, st.gWidth]);
+
+    this.eles.x.axis = d3.svg.axis()
+      .scale(this.eles.x)
+      .tickFormat(d3.time.format(st.tickFormat))
+      .ticks(st.ticks)
+      .orient('bottom');
+
+    this.eles.y = d3.scale
+      .linear()
+      .domain([0, 100])
+      .range([st.gHeight, 0])
+      .clamp(true);
+
+    this.eles.y.axis = d3.svg
+      .axis()
+      .scale(this.eles.y)
+      .orient('right')
+      .ticks(st.ticks);
+
+    this.eles.svg = d3
+      .select(lineChart.settings.id)
+      .append('svg')
+      .attr('width', st.width)
+      .attr('height', st.height);
+
+    this.eles.svg.append('defs').append('clipPath')
+      .attr('id', 'clip')
+      .append('rect')
+      .attr('width', st.gWidth)
+      .attr('height', st.height);
+
+    this.eles.g = this.eles.svg
+      .append('g')
+      .attr('clip-path', 'url(#clip)')
+      .selectAll('g')
+      .data([this.data])
+      .enter()
+      .append('g')
+      .attr('transform', 'translate(0, 0)');
+
+    this.eles.path = this.eles.g.append('g')
+      .attr('transform', 'translate(0, ' + st.padding + ')');
+
+    st.series.forEach(function(key){
+      lineChart.eles[key + 'Line'] = d3.svg
+        .line()
+        .interpolate('cardinal')
+        .tension(st.tension)
+        .x(function(d){
+          return lineChart.eles.x(d.time);
+        })
+        .y(function(d){
+          return lineChart.eles.y(d.usage[key]);
+        });
+
+      lineChart.eles[key + 'LineEl'] = lineChart.eles.path.append('path')
+        .attr('class', 'line')
+        .style('stroke', st.colors.line[key])
+        .attr('d', lineChart.eles[key + 'Line']);
+    });
+
+    this.eles.g.append('g')
+      .attr('class', 'y axis')
+      .attr('transform', 'translate(1, ' + st.padding + ')')
+      .call(this.eles.y.axis);
+
+    this.eles.xAxis = this.eles.g.append('g')
+      .attr('class', 'x axis')
+      .attr('transform', 'translate(0,' + (st.gHeight + st.padding) + ')')
+      .call(this.eles.x.axis);
+  }
 };

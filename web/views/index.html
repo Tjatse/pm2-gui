@@ -139,12 +139,18 @@
         <a href="#info" aria-controls="info" role="tab" data-toggle="tab">Info</a>
       </li>
       <li role="presentation">
+        <a href="#monitor" aria-controls="monitor" role="tab" data-toggle="tab">Monitor</a>
+      </li>
+      <li role="presentation">
         <a href="#log" aria-controls="log" role="tab" data-toggle="tab">Log</a>
       </li>
     </ul>
     <div class="tab-content">
       <div role="tabpanel" class="tab-pane active" id="info">
         <pre><%= info %></pre>
+      </div>
+      <div role="tabpanel" class="tab-pane graph" id="monitor">
+        <div class="load"></div>
       </div>
       <div role="tabpanel" class="tab-pane" id="log">
         <div class="load"></div>

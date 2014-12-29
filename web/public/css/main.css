@@ -20,7 +20,6 @@ html, body {
    END OF COMMON
 ******************/
 
-
 /*****************
     SPINNER
 ******************/
@@ -487,4 +486,56 @@ END OF REPO && VER
 
 /*****************
    END OF POPUP
+******************/
+
+/*****************
+      GRAPH
+******************/
+.graph svg {
+  font-size: 10px;
+  margin: 5px 20px;
+}
+
+.graph .line {
+  fill: none;
+  stroke-width: 1px;
+}
+
+.graph .axis path,
+.graph .axis line {
+  fill: none;
+  stroke: #999999;
+  shape-rendering: crispEdges;
+}
+
+.graph .axis text {
+  fill: #999999
+}
+
+.graph ul, .graph ul li {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.graph ul {
+  position: absolute;
+  right: 0;
+  top: 0;
+}
+
+.graph ul li {
+  height: 18px;
+  line-height: 18px;
+  list-style-type: square;
+}
+
+.graph ul li span {
+  width: 10px;
+  height: 5px;
+  display: block;
+}
+
+/*****************
+   END OF GRAPH
 ******************/
