@@ -536,6 +536,12 @@ END OF REPO && VER
   display: block;
 }
 
+.graph span{
+  padding-top: 100px;
+  display: block;
+  text-align: center;
+}
+
 /*****************
    END OF GRAPH
 ******************/
