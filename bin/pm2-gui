@@ -2,6 +2,7 @@
 
 var commander = require('commander'),
     path      = p = require('path'),
+    fs        = require('fs'),
     chalk     = require('chalk'),
     _         = require('lodash'),
     pkg       = require('../package.json'),
@@ -25,17 +26,68 @@ commander.on('-c', function(){
   console.log(arguments);
 })
 
+var defaultConfigFileName = 'pm2-gui.json';
+var acceptKeys = ['pm2', 'refresh', 'manipulation', 'password'];
 
 // Web interface
 commander.command('start [port]')
+  .option('--config <file>', 'pass json config file with options')
   .option('--no-debug', 'hide stdout/stderr information')
   .description('Launch the web server, port default by 8088')
   .action(function(port, cmd){
+
+    function setupOptions(jsonConfig) {
+      var mon = Monitor();
+      var passwordKeyName = acceptKeys[acceptKeys.length - 1];
+      acceptKeys.forEach(function(keyName) {
+        var value = jsonConfig[keyName];
+        if (!value) {
+          return;
+        }
+        if (keyName === passwordKeyName) {
+          var md5 = crypto.createHash('md5');
+          md5.update(value);
+          value = md5.digest('hex');
+        }
+        mon.config(keyName, value);
+      });
+    }
+
+    var configData;
+    if (cmd.config){ //if config file passed
+
+      try {
+        configData = fs.readFileSync(cmd.config);
+      } catch (e) {
+        if (e.code === 'ENOENT') {
+          console.log('Config file %s not found', cmd.config);
+          process.exit(1);
+        } else {
+          console.log('Error read config file %s, error: %j', cmd.config, err);
+          process.exit(2);
+        }
+      }
+    } else {
+      try {
+        configData = fs.readFileSync(defaultConfigFileName);
+      } catch (e) {}
+    }
+
+    try {
+      var jsonConfig = JSON.parse(configData);
+      setupOptions(jsonConfig);
+    } catch (e) {
+      console.log('Cant convert file %s to JSON', cmd.config);
+      process.exit(3);
+    }
+
+    if (!port && jsonConfig.port) { // setup port from config file
+      port = jsonConfig.port;
+    }
     interface(port, cmd.debug);
   });
 
 // Configuration
-var acceptKeys = ['pm2', 'refresh', 'manipulation', 'password'];
 function showConfigs(cmd, mon){
   if (!mon) {
     mon = Monitor();
