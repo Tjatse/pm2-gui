@@ -1,9 +1,9 @@
-pm2-gui [![NPM version](https://badge.fury.io/js/pm2-gui.svg)](http://badge.fury.io/js/pm2-gui)
+pm2-gui [![NPM version](https://badge.fury.io/js/pm2-gui.svg)](http://badge.fury.io/js/pm2-gui) [![Build Status](https://travis-ci.org/Tjatse/pm2-gui.svg?branch=master)](https://travis-ci.org/Tjatse/pm2-gui)
 =======
 
 An elegant web interface for Unitech/PM2.
 
-> Compatible with PM2 v0.12.2.
+> Compatible with PM2 v0.12.3.
 
 # Guide
 - [Features](#feats)
@@ -14,7 +14,6 @@ An elegant web interface for Unitech/PM2.
   - [Configs](#cli_confs)
 - [Authorization](#auth)
 - [UI/UX](#ui)
-- [TODO](#todo)
 
 <a name="feats" />
 # Feature
@@ -74,7 +73,8 @@ $ npm install -g pm2-gui
 
   Options:
 
-    -h, --help  output usage information
+    -h, --help       output usage information
+    --config [file]  pass JSON config file with options
     --no-debug  hide stdout/stderr information
     --config    path to custom .json config. Default value pm2-gui.json
 ```
@@ -91,20 +91,22 @@ $ npm install -g pm2-gui
 ```
 
 - **refresh** The heartbeat duration of monitor (backend), `5000` by default.
-- **manupulation** A value indicates whether the client has permission to restart/stop processes, `true` by default.
+- **manipulation** A value indicates whether the client has permission to restart/stop processes, `true` by default.
 - **pm2** Root directory of Unitech/PM2, `~/.pm2` by default.
-- **password** The encrypted authentication code, if this config is set, users need to be authorized before accessing the index page.
+- **password** The encrypted authentication code, if this config is set, users need to be authorized before accessing the index page, `password` could only be set by `pm2-gui set password [password]`.
 - **port** Web GUI port, can be set only from config file
 
 ### Config file
-Config file can be set with option --config
+You can quit set configurations by `pm2-gui start --config [file]`, the `[file]` must be an valid JSON, and can including all the above keys.
 
 Example
 ```bash
-$ pm2-gui start --config pm2-gui.json
-```
+# Load the JSON configured file which is named as `pm2-gui.json` in current directory.
+$ pm2-gui start --config
 
-If config name pm2-gui.json - option can be omitted
+# Load the specific JSON configured file in current directory.
+$ pm2-gui start --config conf.json
+```
 
 ### Set Config
 Usage
@@ -180,15 +182,6 @@ Describe Complete Information
 Tail Logs
 
 ![image](screenshots/tail-logs.jpg)
-
-<a name="todo" />
-# TODO
-- [x] Authentication
-- [ ] Multiple operations.
-- [ ] Configured JSON files.
-- [ ] Memory and CPU usage gauge of each process.
-- [ ] Test on Internet Explorer (need environment && PRs).
-- [ ] Need feedback/test.
 
 
 ## License
