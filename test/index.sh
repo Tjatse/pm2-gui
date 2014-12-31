@@ -14,6 +14,7 @@ echo -e ""
 
 if [ ! -z "$TRAVIS" ]; then
   export PM2_HOME="/home/travis/.pm2"
+  mkdir "$PM2_HOME"
 fi
 
 bash ./test/bash/config.sh
