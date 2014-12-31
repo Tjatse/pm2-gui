@@ -15,7 +15,7 @@ echo -e ""
 if [ ! -z "$TRAVIS" ]; then
   export PM2_HOME="/home/travis/.pm2"
   mkdir "$PM2_HOME"
-  cp "fixtures/conf.js" "$PM2_HOME/conf.js"
+  cp "$fixtures/conf.js" "$PM2_HOME/conf.js"
 fi
 
 bash ./test/bash/config.sh
