@@ -8,7 +8,7 @@ var express = require('express'),
 
 module.exports = runServer;
 
-function runServer(port, debug){
+function runServer(debug){
   var app = express();
 
   // all environments
@@ -26,19 +26,16 @@ function runServer(port, debug){
   // router
   require('../lib/util/router')(app, log);
 
-  if (!port || isNaN(port)) {
-    port = 8088;
-  }
-
   var server = require('http').Server(app);
   var io = require('socket.io')(server);
-  server.listen(port);
-  log.i('http', 'Web server of', chalk.bold.underline('Unitech/PM2'), 'is listening on port', chalk.bold(port));
 
   var mon = Monitor({
     sockio: io,
     debug : !!debug
   });
+  var port = mon.config('port');
+  server.listen(port);
+  log.i('http', 'Web server of', chalk.bold.underline('Unitech/PM2'), 'is listening on port', chalk.bold(port));
 
   mon.run();
 }

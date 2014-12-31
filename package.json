@@ -3,6 +3,7 @@
   "version": "0.0.7",
   "description": "An elegant web interface for Unitech/PM2.",
   "scripts": {
+    "test": "NODE_ENV=test bash test/index.sh"
   },
   "bin": {
     "pm2-gui": "bin/pm2-gui"
