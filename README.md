@@ -76,15 +76,17 @@ $ npm install -g pm2-gui
 
     -h, --help  output usage information
     --no-debug  hide stdout/stderr information
+    --config    path to custom .json config. Default value pm2-gui.json
 ```
 
 <a name="cli_confs" />
 ## Configs
 ```javascript
 {
-  "refresh": 3000
-  "manipulation": true
-  "pm2": "~/.pm2"
+  "refresh": 3000,
+  "manipulation": true,
+  "pm2": "~/.pm2",
+  "port": 8088
 }
 ```
 
@@ -92,6 +94,17 @@ $ npm install -g pm2-gui
 - **manupulation** A value indicates whether the client has permission to restart/stop processes, `true` by default.
 - **pm2** Root directory of Unitech/PM2, `~/.pm2` by default.
 - **password** The encrypted authentication code, if this config is set, users need to be authorized before accessing the index page.
+- **port** Web GUI port, can be set only from config file
+
+### Config file
+Config file can be set with option --config
+
+Example
+```bash
+$ pm2-gui start --config pm2-gui.json
+```
+
+If config name pm2-gui.json - option can be omitted
 
 ### Set Config
 Usage
