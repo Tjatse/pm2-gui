@@ -5,92 +5,98 @@ source "${SRC}/include.sh"
 
 cd $fixtures
 
+function port(){
+  local result=""
+  result=`netstat -an | grep "$1" | egrep "tcp" | grep "LISTEN"`
+  echo "$result"
+}
+
 $pg set port 8088 > /dev/null
 
 head "run web server (default port)"
 nohup $pg start > /dev/null 2>&1 &
 pid=$!
 sleep 1
-ret=`nc 127.0.0.1 8088 < /dev/null; echo $?`
-[ $ret -eq 0 ] || fail "expect 127.0.0.1:8088 can be connected"
+ret=$(port 8088)
+[ ! -z "$ret" ] || fail "expect 127.0.0.1:8088 can be connected"
 success "127.0.0.1:8088 should be connected"
 
 kill "$pid"
 sleep 1
 
-ret=`nc 127.0.0.1 8088 < /dev/null; echo $?`
-[ $ret -eq 1 ] || fail "expect 127.0.0.1:8088 can not be connected"
+ret=$(port 8088)
+[ -z "$ret" ] || fail "expect 127.0.0.1:8088 can not be connected"
 success "127.0.0.1:8088 should be disconnected"
 
 head "run web server (customized port: 9000)"
 nohup $pg start 9000 > /dev/null 2>&1 &
 pid=$!
 sleep 1
-ret=`nc 127.0.0.1 9000 < /dev/null; echo $?`
-[ $ret -eq 0 ] || fail "expect 127.0.0.1:9000 can be connected"
+ret=$(port 9000)
+[ ! -z "$ret" ] || fail "expect 127.0.0.1:9000 can be connected"
 success "127.0.0.1:9000 should be connected"
 
 kill "$pid"
 sleep 1
 
-ret=`nc 127.0.0.1 9000 < /dev/null; echo $?`
-[ $ret -eq 1 ] || fail "expect 127.0.0.1:9000 can not be connected"
+ret=$(port 9000)
+[ -z "$ret" ] || fail "expect 127.0.0.1:9000 can not be connected"
 success "127.0.0.1:9000 should be disconnected"
 
 head "run web server (--config verify)"
 ret=`$pg start --config not_exist.json | grep "does not exist" | wc -c`
-[ $ret -gt 0 ] || fail "expect throw out error message"
+[ "$ret" -gt 0 ] || fail "expect throw out error message"
 success "JSON file does not exist"
 
 ret=`$pg start --config invalid.conf | grep "invalid" | wc -c`
-[ $ret -gt 0 ] || fail "expect throw out error message"
+[ "$ret" -gt 0 ] || fail "expect throw out error message"
 success "JSON file invalid"
 
 head "run web server (--config specific file)"
 nohup $pg start --config pm2-gui-cp.conf > /dev/null 2>&1 &
 pid=$!
 sleep 1
-ret=`nc 127.0.0.1 27130 < /dev/null; echo $?`
-[ $ret -eq 0 ] || fail "expect 127.0.0.1:27130 can be connected"
+ret=$(port 27130)
+[ ! -z "$ret" ] || fail "expect 127.0.0.1:27130 can be connected"
 success "127.0.0.1:27130 should be connected"
 
 kill "$pid"
 sleep 1
 
-ret=`nc 127.0.0.1 27130 < /dev/null; echo $?`
-[ $ret -eq 1 ] || fail "expect 127.0.0.1:27130 can not be connected"
+ret=$(port 27130)
+[ -z "$ret" ] || fail "expect 127.0.0.1:27130 can not be connected"
 success "127.0.0.1:27130 should be disconnected"
 
-val=`$pg config | grep "refresh:" | egrep -oh "\d+"`
-[ $val -eq 3000 ] || fail "expect the value of refresh to be 3000, but current is $val"
+val=$(config "refresh:" "^[^0-9]*([0-9]+).*")
+[ "$val" -eq 3000 ] || fail "expect the value of refresh to be 3000, but current is $val"
 success "the value of refresh should be 3000"
-val=`$pg config | grep "manipulation:" | egrep -oh "(true|false)"`
-[ $val = false ] || fail "expect the value of manipulation to be false, but current is $val"
+val=$(config "manipulation:" ".*(true|false).*")
+[ "$val" = false ] || fail "expect the value of manipulation to be false, but current is $val"
 success "the value of manipulation should be false"
-val=`$pg config | grep "pm2:" | egrep -oh "/tmp/\.pm2$" | wc -c`
-[ $val -gt 0 ] || fail "expect the value of pm2 to be /tmp/.pm2"
+val=$(config "pm2:" ".*(\/.+).*")
+[ ! "$val" = "/tmp/.pm2" ] || fail "expect the value of pm2 to be /tmp/.pm2"
 success "the value of pm2 should be /tmp/.pm2"
 
 head "run web server (--config default file)"
 nohup $pg start --config > /dev/null 2>&1 &
 pid=$!
 sleep 1
-ret=`nc 127.0.0.1 8088 < /dev/null; echo $?`
-[ $ret -eq 0 ] || fail "expect 127.0.0.1:8088 can be connected"
+ret=$(port 8088)
+[ ! -z "$ret" ] || fail "expect 127.0.0.1:8088 can be connected"
 success "127.0.0.1:8088 should be connected"
 
 kill "$pid"
 sleep 1
 
-ret=`nc 127.0.0.1 8088 < /dev/null; echo $?`
-[ $ret -eq 1 ] || fail "expect 127.0.0.1:8088 can not be connected"
+ret=$(port 8088)
+[ -z "$ret" ] || fail "expect 127.0.0.1:8088 can not be connected"
 success "127.0.0.1:8088 should be disconnected"
 
-val=`$pg config | grep "refresh:" | egrep -oh "\d+"`
-[ $val -eq 5000 ] || fail "expect the value of refresh to be 5000, but current is $val"
+val=$(config "refresh:" "^[^0-9]*([0-9]+).*")
+[ "$val" -eq 5000 ] || fail "expect the value of refresh to be 5000, but current is $val"
 success "the value of refresh should be 3000"
-val=`$pg config | grep "manipulation:" | egrep -oh "(true|false)"`
-[ $val = true ] || fail "expect the value of manipulation to be true, but current is $val"
+val=$(config "manipulation:" ".*(true|false).*")
+[ "$val" = true ] || fail "expect the value of manipulation to be true, but current is $val"
 success "the value of manipulation should be true"
 root="~/.pm2"
 if [ -z "$PM2_HOME" ]
@@ -107,8 +113,8 @@ else
     fi
   fi
 fi
-val=`$pg config | grep "pm2:" | egrep -oh "$root$" | wc -c`
-[ $val -gt 0 ] || fail "expect the value of pm2 to be $root"
+val=$(config "pm2:" ".*(\/.+).*")
+[ ! "$val" = "$root" ] || fail "expect the value of pm2 to be $root"
 success "the value of pm2 should be $root"
 
 $pg set port 8088 > /dev/null

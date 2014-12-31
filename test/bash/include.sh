@@ -7,6 +7,16 @@ pg="`type -P node` `pwd`/bin/pm2-gui"
 
 fixtures="test/fixtures"
 
+function config(){
+  local result=""
+  if [[ "$OSTYPE" =~ ^darwin ]]; then
+    result=`$pg config | grep "$1" | sed -E "s/$2/\1/"`
+  else
+    result=`$pg config | grep "$1" | sed -r "s/$2/\1/"`
+  fi
+  echo "$result"
+}
+
 function success {
   echo -e "\033[32m  ✔ $1\033[0m"
 }
