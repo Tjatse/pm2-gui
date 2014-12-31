@@ -22,82 +22,38 @@ commander.on('--help', function(){
     chalk.grey('    $ pm2-gui start 8090\n')
   );
 });
-commander.on('-c', function(){
-  console.log(arguments);
-})
 
-var defaultConfigFileName = 'pm2-gui.json';
-var acceptKeys = ['pm2', 'refresh', 'manipulation', 'password'];
-
-// Web interface
+/**
+ * Run web interface.
+ */
 commander.command('start [port]')
-  .option('--config <file>', 'pass json config file with options')
-  .option('--no-debug', 'hide stdout/stderr information')
+  .option('--config [file]', 'pass JSON config file with options')
+  .option('--no-debug', 'hide stdout / stderr information')
   .description('Launch the web server, port default by 8088')
   .action(function(port, cmd){
-
-    function setupOptions(jsonConfig) {
-      var mon = Monitor();
-      var passwordKeyName = acceptKeys[acceptKeys.length - 1];
-      acceptKeys.forEach(function(keyName) {
-        var value = jsonConfig[keyName];
-        if (!value) {
-          return;
-        }
-        if (keyName === passwordKeyName) {
-          var md5 = crypto.createHash('md5');
-          md5.update(value);
-          value = md5.digest('hex');
-        }
-        mon.config(keyName, value);
-      });
-    }
-
-    var configData;
-    if (cmd.config){ //if config file passed
-
-      try {
-        configData = fs.readFileSync(cmd.config);
-      } catch (e) {
-        if (e.code === 'ENOENT') {
-          console.log('Config file %s not found', cmd.config);
-          process.exit(1);
-        } else {
-          console.log('Error read config file %s, error: %j', cmd.config, err);
-          process.exit(2);
-        }
+    if (cmd.config) {
+      var jsonFile;
+      if (typeof cmd.config != 'string') {
+        jsonFile = 'pm2-gui.json';
+      } else {
+        jsonFile = cmd.config;
       }
-    } else {
+      if (!fs.existsSync(jsonFile)) {
+        console.log(chalk.red('✘ JSON configured file does not exist!\n'));
+        process.exit();
+      }
+
       try {
-        configData = fs.readFileSync(defaultConfigFileName);
-      } catch (e) {}
+        var config = JSON.parse(fs.readFileSync(jsonFile, {encoding: 'utf-8'}));
+        setConfig(config);
+      } catch (err) {
+        console.log(chalk.red('✘ JSON configured file is invalid!\n'));
+        process.exit();
+      }
     }
-
-    try {
-      var jsonConfig = JSON.parse(configData);
-      setupOptions(jsonConfig);
-    } catch (e) {
-      console.log('Cant convert file %s to JSON', cmd.config);
-      process.exit(3);
-    }
-
-    if (!port && jsonConfig.port) { // setup port from config file
-      port = jsonConfig.port;
-    }
-    interface(port, cmd.debug);
+    port && setConfig('port', port);
+    interface(cmd.debug);
   });
-
-// Configuration
-function showConfigs(cmd, mon){
-  if (!mon) {
-    mon = Monitor();
-  }
-  var storage = mon._config.store, prints = '';
-  for (var k in storage) {
-    prints += Array(15 - k.length).join(' ') + chalk.bold(k + ': ') + '  ' + chalk.blue(storage[k] + '\n');
-  }
-  console.log(prints);
-}
 
 commander.command('config')
   .description('show all configs')
@@ -106,19 +62,8 @@ commander.command('config')
 commander.command('set <key> <value>')
   .description('set config by key-value pairs')
   .action(function(key, value, cmd){
-    if (!~acceptKeys.indexOf(key)) {
-      return console.log('key could only be one of below:', acceptKeys.map(function(m){
-        return '\n' + chalk.magenta(m)
-      }).join(''));
-    }
-    var mon = Monitor();
-    if (key == acceptKeys[acceptKeys.length - 1]) {
-      var md5 = crypto.createHash('md5');
-      md5.update(value);
-      value = md5.digest('hex');
-    }
-    mon.config(key, value);
-    showConfigs(cmd, mon);
+    var mon = setConfig(key, value);
+    mon && showConfigs(cmd, mon);
   });
 
 commander.command('rm <key>')
@@ -134,4 +79,51 @@ commander.parse(process.argv);
 if (process.argv.length == 2) {
   commander.outputHelp();
   process.exit(0);
+}
+
+/**
+ * Set configuration.
+ * @param key
+ * @param value
+ * @returns {*}
+ */
+function setConfig(key, value){
+  var mon = Monitor(),
+      acceptKeys = Object.keys(mon.options).filter(function(key){
+        return !~['socketio', 'pm2Conf', 'debug'].indexOf(key);
+      });
+
+  (function config(pairs){
+    if (pairs.length == 0) {
+      return;
+    }
+    var pair = pairs.shift();
+    if (!~acceptKeys.indexOf(pair[0])) {
+      return config(pairs);
+    }
+    if (pair[0] == 'password') {
+      var md5 = crypto.createHash('md5');
+      md5.update(pair[1]);
+      pair[1] = md5.digest('hex');
+    }
+    mon.config(pair[0], pair[1]);
+    config(pairs);
+  })(typeof key == 'object' ? _.pairs(key) : [[key, value]]);
+
+  return mon;
+}
+/**
+ * Show all configurations.
+ * @param cmd
+ * @param mon
+ */
+function showConfigs(cmd, mon){
+  if (!mon) {
+    mon = Monitor();
+  }
+  var storage = mon._config.store, prints = '';
+  for (var k in storage) {
+    prints += Array(15 - k.length).join(' ') + chalk.bold(k + ': ') + '  ' + chalk.blue(storage[k] + '\n');
+  }
+  console.log(prints);
 }
