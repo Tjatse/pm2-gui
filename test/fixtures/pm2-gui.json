@@ -1,0 +1,6 @@
+{
+  "pm2": "~/.pm2",
+  "refresh": 5000,
+  "manipulation": true,
+  "port": 8088
+}
