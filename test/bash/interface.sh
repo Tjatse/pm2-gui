@@ -99,16 +99,13 @@ val=$(config "manipulation:" ".*(true|false).*")
 [ "$val" = true ] || fail "expect the value of manipulation to be true, but current is $val"
 success "the value of manipulation should be true"
 root="~/.pm2"
-if [ -z "$PM2_HOME" ]
-then
+if [ ! -z "$PM2_HOME" ]; then
   root="$PM2_HOME"
 else
-  if [ -z "$HOME" ]
-  then
+  if [ ! -z "$HOME" ]; then
     root="$HOME/.pm2"
   else
-    if [ -z "$HOMEPATH" ]
-    then
+    if [ ! -z "$HOMEPATH" ]; then
       root="$HOMEPATH/.pm2"
     fi
   fi
