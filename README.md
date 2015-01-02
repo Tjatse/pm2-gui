@@ -26,7 +26,8 @@ An elegant web interface for Unitech/PM2.
 - PM2 *restart/stop/delete*.
  - *stopWatch* files before *restart/stop/delete*
  - *restartWatch* files before *restart*
-- Supports [ANSI color codes](#tail_logs) by [ansi-html](https://github.com/Tjatse/ansi-html).
+- Supports [ANSI color codes](#ss_logs) by [ansi-html](https://github.com/Tjatse/ansi-html).
+- High performance. In my case, there are near one hundred processes, but `pm2-gui` works fine.
 
 <a name="cauts" />
 # Cautions
@@ -93,8 +94,8 @@ $ npm install -g pm2-gui
 - **refresh** The heartbeat duration of monitor (backend), `5000` by default.
 - **manipulation** A value indicates whether the client has permission to restart/stop processes, `true` by default.
 - **pm2** Root directory of Unitech/PM2, `~/.pm2` by default.
-- **password** The encrypted authentication code, if this config is set, users need to be authorized before accessing the index page, `password` could only be set by `pm2-gui set password [password]`.
 - **port** Port of web interface.
+- **password** The encrypted authentication code, if this config is set, users need to be authorized before accessing the index page, `password` could only be set by `pm2-gui set password [password]` ([authorization](#authorization)).
 
 ### Config file
 You can quit set configurations by `pm2-gui start --config [file]`, the `[file]` must be an valid JSON, and can including all the above keys.
@@ -161,10 +162,11 @@ Backend (without `--no-debug` option):
 
 ![image](screenshots/term.jpg)
 
-Login
+Auth
 
 ![image](screenshots/auth.jpg)
 
+<a name="ss_home" />
 Home
 
 ![image](screenshots/home.jpg)
@@ -181,6 +183,7 @@ CPU && Memory Usage
 
 ![image](screenshots/usage.jpg)
 
+<a name="ss_logs" />
 Tail Logs
 
 ![image](screenshots/logs.jpg)
