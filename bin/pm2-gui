@@ -93,12 +93,15 @@ function setConfig(key, value){
         return !~['socketio', 'pm2Conf', 'debug'].indexOf(key);
       });
 
+  acceptKeys.push('password');
+
   (function config(pairs){
     if (pairs.length == 0) {
       return;
     }
     var pair = pairs.shift();
     if (!~acceptKeys.indexOf(pair[0])) {
+      console.log(chalk.bold.yellow('[WARN]'), chalk.cyan(pair[0]), 'is not an acceptable configuration.');
       return config(pairs);
     }
     if (pair[0] == 'password') {
@@ -122,8 +125,13 @@ function showConfigs(cmd, mon){
     mon = Monitor();
   }
   var storage = mon._config.store, prints = '';
+  var maxLen = 0;
   for (var k in storage) {
-    prints += Array(15 - k.length).join(' ') + chalk.bold(k + ': ') + '  ' + chalk.blue(storage[k] + '\n');
+    maxLen = Math.max(k.length, maxLen);
+  }
+  maxLen += 1;
+  for (var k in storage) {
+    prints += chalk.bold(k + Array(maxLen - k.length).join(' ') + ': ') + ' ' + chalk.blue(storage[k] + '\n');
   }
   console.log(prints);
 }
