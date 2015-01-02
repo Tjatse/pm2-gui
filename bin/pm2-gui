@@ -131,7 +131,7 @@ function showConfigs(cmd, mon){
   }
   maxLen += 1;
   for (var k in storage) {
-    prints += chalk.bold(k + Array(maxLen - k.length).join(' ') + ': ') + ' ' + chalk.blue(storage[k] + '\n');
+    prints += chalk.bold(Array(maxLen - k.length).join(' ') + k + ': ') + ' ' + chalk.blue(storage[k] + '\n');
   }
   console.log(prints);
 }
