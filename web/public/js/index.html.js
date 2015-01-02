@@ -839,7 +839,7 @@ function appendData(proc){
     return;
   }
   var loadEl = $('#monitor>.load');
-  if(lineChart.data.length == 0){
+  if (lineChart.data.length == 0) {
     var now = proc.time,
         len = lineChart.settings.queueLength;
 
@@ -862,9 +862,7 @@ function destroyMonitor(){
     return;
   }
   sockets.proc.disconnect();
-
-  lineChart.data = [];
-  lineChart.eles = {};
+  lineChart.destroy();
 }
 
 /**
@@ -1001,8 +999,19 @@ var lineChart = {
   },
   data    : [],
   eles    : {},
-  next    : function(){
+  destroy : function(){
+    this.eles.path && this.eles.path.interrupt().transition();
+    this.eles.xAxis && this.eles.xAxis.interrupt().transition();
+    d3.timer.flush();
+    this.data = [];
+    this.eles = {};
+  },
+  next    : function(forceQuit){
     var ng = !this.eles.svg;
+    if (ng && forceQuit) {
+      return;
+    }
+
     if (ng) {
       this._graph();
     }
@@ -1024,7 +1033,9 @@ var lineChart = {
     });
 
     if (ng) {
-      return this.next();
+      return setTimeout(function(ctx){
+        ctx.next(true);
+      }, 10, this);
     }
 
     this.eles.path
@@ -1033,7 +1044,7 @@ var lineChart = {
       .ease('linear')
       .attr('transform', 'translate(' + this.eles.x(this.data[0].time) + ', ' + st.padding + ')')
       .each('end', function(){
-        lineChart.next();
+        lineChart.next(true);
       });
 
     this.eles.xAxis.transition()

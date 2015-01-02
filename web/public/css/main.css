@@ -493,12 +493,12 @@ END OF REPO && VER
 ******************/
 .graph svg {
   font-size: 10px;
-  margin: 5px 20px;
+  margin: 20px auto 0 20px;
 }
 
 .graph .line {
   fill: none;
-  stroke-width: 1px;
+  stroke-width: 2px;
 }
 
 .graph .axis path,
@@ -520,14 +520,16 @@ END OF REPO && VER
 
 .graph ul {
   position: absolute;
-  right: 0;
-  top: 0;
+  right: 10px;
+  top: 10px;
 }
 
 .graph ul li {
   height: 18px;
   line-height: 18px;
   list-style-type: square;
+  font-size: 10px;
+  font-weight: normal;
 }
 
 .graph ul li span {
