@@ -16,7 +16,7 @@ An elegant web interface for Unitech/PM2.
 - [UI/UX](#ui)
 
 <a name="feats" />
-# Feature
+# Features
 - All the heartbeats (no matter **monitor** or **tail (logs)**) are automatic destroyed.
 - The `PM2` processes are watched by a subscribed emitter.
 - Communicated with `PM2` through **RPC** socket directly.
@@ -94,7 +94,7 @@ $ npm install -g pm2-gui
 - **manipulation** A value indicates whether the client has permission to restart/stop processes, `true` by default.
 - **pm2** Root directory of Unitech/PM2, `~/.pm2` by default.
 - **password** The encrypted authentication code, if this config is set, users need to be authorized before accessing the index page, `password` could only be set by `pm2-gui set password [password]`.
-- **port** Web GUI port, can be set only from config file
+- **port** Port of web interface.
 
 ### Config file
 You can quit set configurations by `pm2-gui start --config [file]`, the `[file]` must be an valid JSON, and can including all the above keys.
@@ -155,21 +155,19 @@ $ pm2-gui start
 - Amazing and smooth animations.
 - High performance.
 
+Some screenshots:
+
 Backend (without `--no-debug` option):
 
 ![image](screenshots/term.jpg)
 
 Login
 
-![image](screenshots/login.jpg)
+![image](screenshots/auth.jpg)
 
 Home
 
 ![image](screenshots/home.jpg)
-
-Empty List
-
-![image](screenshots/no-proc.jpg)
 
 Processes
 
@@ -177,11 +175,15 @@ Processes
 
 Describe Complete Information
 
-![image](screenshots/proc-info.jpg)
+![image](screenshots/info.jpg)
+
+CPU && Memory Usage
+
+![image](screenshots/usage.jpg)
 
 Tail Logs
 
-![image](screenshots/tail-logs.jpg)
+![image](screenshots/logs.jpg)
 
 ## Test
 ```bash
