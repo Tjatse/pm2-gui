@@ -85,6 +85,14 @@ $ npm install -g pm2-gui
     --no-debug       hide stdout / stderr information
 ```
 
+**Daemonic:**
+```bash
+# start
+$ nohup pm2-gui start > /dev/null 2>&1 & echo $! > /path/to/pm2-gui.pid
+# stop
+$ kill -9 `cat /path/to/pm2-gui.pid`
+```
+
 <a name="cli_confs" />
 ## Configs
 ```ini
@@ -97,6 +105,7 @@ port = 8088
 - **refresh** The heartbeat duration of monitor (backend), `5000` by default.
 - **pm2** Root directory of Unitech/PM2, `~/.pm2` by default.
 - **port** Port of web interface.
+- **debug** A value indicates whether show the debug information or not, `true` by default.
 - **password** The encrypted authentication code, if this config is set, users need to be authorized before accessing the index page, `password` could only be set by `pm2-gui set password [password]` ([authorization](#authorization)).
 
 ### File
