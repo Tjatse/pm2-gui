@@ -95,13 +95,12 @@ port = 8088
 ```
 
 - **refresh** The heartbeat duration of monitor (backend), `5000` by default.
-- **manipulation** A value indicates whether the client has permission to restart/stop processes, `true` by default.
 - **pm2** Root directory of Unitech/PM2, `~/.pm2` by default.
 - **port** Port of web interface.
 - **password** The encrypted authentication code, if this config is set, users need to be authorized before accessing the index page, `password` could only be set by `pm2-gui set password [password]` ([authorization](#authorization)).
 
 ### File
-You can quit set configurations by `pm2-gui start --config [file]`, the `[file]` must be an valid **ini** file, and can including all the above keys.
+You can quick set configurations by `pm2-gui start --config [file]`, the `[file]` must be a valid **ini** file, and can include all the above keys.
 
 Example
 ```bash

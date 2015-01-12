@@ -5,6 +5,12 @@ source "${SRC}/include.sh"
 
 cd $fixtures
 
+head "set config (Encrypt)(password)"
+$pg set password "passw@rd" > /dev/null
+val=$(config "password:" "password:\s*([^\s]+)" | grep -o "[^ ]\+\( \+[^ ]\+\)*")
+[ "$val" = "ebc4c06b266b84263efafa47003244cc" ] || fail "expect the password to be encrypted, but current not"
+success "the password should be encrypted"
+
 head "set config (Number)(refresh)"
 $pg set refresh 4000 > /dev/null
 val=$(config "refresh:" "^[^0-9]*([0-9]+).*")

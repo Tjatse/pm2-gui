@@ -20,7 +20,13 @@ commander.on('--help', function(){
     chalk.grey('    $ pm2-gui start\n') +
     '\n' +
     '    Start the web server, by specific port (8090):\n' +
-    chalk.grey('    $ pm2-gui start 8090\n')
+    chalk.grey('    $ pm2-gui start 8090\n') +
+    '\n' +
+    '    Start the web server, by specific configuration file (pm2-gui.ini):\n' +
+    chalk.grey('    $ pm2-gui start --config\n') +
+    '\n' +
+    '    Start the web server, by specific configuration file:\n' +
+    chalk.grey('    $ pm2-gui start --config my-config.ini\n')
   );
 });
 
