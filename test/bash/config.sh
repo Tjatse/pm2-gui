@@ -20,8 +20,8 @@ val=$(config "port:" "^[^0-9]*([0-9]+).*")
 success "the value should be 9000"
 
 head "set config (Boolean)"
-$pg set manipulation false > /dev/null
-val=$(config "manipulation:" ".*(true|false).*")
+$pg set debug false > /dev/null
+val=$(config "debug:" ".*(true|false).*")
 
 [ "$val" = false ] || fail "expect the value to be false, but current is $val"
 success "the value should be false"

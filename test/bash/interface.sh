@@ -44,16 +44,12 @@ ret=$(port 9000)
 success "127.0.0.1:9000 should be disconnected"
 
 head "run web server (--config verify)"
-ret=`$pg start --config not_exist.json | grep "does not exist" | wc -c`
+ret=`$pg start --config not_exist.ini | grep "does not exist" | wc -c`
 [ "$ret" -gt 0 ] || fail "expect throw out error message"
-success "JSON file does not exist"
-
-ret=`$pg start --config invalid.conf | grep "invalid" | wc -c`
-[ "$ret" -gt 0 ] || fail "expect throw out error message"
-success "JSON file invalid"
+success ".ini file does not exist"
 
 head "run web server (--config specific file)"
-nohup $pg start --config pm2-gui-cp.conf > /dev/null 2>&1 &
+nohup $pg start --config pm2-gui-cp > /dev/null 2>&1 &
 pid=$!
 sleep 1
 ret=$(port 27130)
@@ -70,9 +66,9 @@ success "127.0.0.1:27130 should be disconnected"
 val=$(config "refresh:" "^[^0-9]*([0-9]+).*")
 [ "$val" -eq 3000 ] || fail "expect the value of refresh to be 3000, but current is $val"
 success "the value of refresh should be 3000"
-val=$(config "manipulation:" ".*(true|false).*")
-[ "$val" = false ] || fail "expect the value of manipulation to be false, but current is $val"
-success "the value of manipulation should be false"
+val=$(config "debug:" ".*(true|false).*")
+[ "$val" = false ] || fail "expect the value of debug to be false, but current is $val"
+success "the value of debug should be false"
 val=$(config "pm2:" ".*(\/.+).*")
 [ ! "$val" = "/tmp/.pm2" ] || fail "expect the value of pm2 to be /tmp/.pm2"
 success "the value of pm2 should be /tmp/.pm2"
@@ -95,9 +91,9 @@ success "127.0.0.1:8088 should be disconnected"
 val=$(config "refresh:" "^[^0-9]*([0-9]+).*")
 [ "$val" -eq 5000 ] || fail "expect the value of refresh to be 5000, but current is $val"
 success "the value of refresh should be 3000"
-val=$(config "manipulation:" ".*(true|false).*")
-[ "$val" = true ] || fail "expect the value of manipulation to be true, but current is $val"
-success "the value of manipulation should be true"
+val=$(config "debug:" ".*(true|false).*")
+[ "$val" = true ] || fail "expect the value of debug to be true, but current is $val"
+success "the value of debug should be true"
 root="~/.pm2"
 if [ ! -z "$PM2_HOME" ]; then
   root="$PM2_HOME"

@@ -65,6 +65,12 @@ $ npm install -g pm2-gui
     Start the web server, by specific port (8090):
     $ pm2-gui start 8090
 
+    Start the web server, by specific configuration file (pm2-gui.ini):
+    $ pm2-gui start --config
+
+    Start the web server, by specific configuration file:
+    $ pm2-gui start --config my-config.ini
+
 ```
 
 <a name="cli_web" />
@@ -75,20 +81,17 @@ $ npm install -g pm2-gui
   Options:
 
     -h, --help       output usage information
-    --config [file]  pass JSON config file with options
-    --no-debug  hide stdout/stderr information
-    --config    path to custom .json config. Default value pm2-gui.json
+    --config [file]  pass ".ini" configuration file (with options)
+    --no-debug       hide stdout / stderr information
 ```
 
 <a name="cli_confs" />
 ## Configs
-```javascript
-{
-  "refresh": 3000,
-  "manipulation": true,
-  "pm2": "~/.pm2",
-  "port": 8088
-}
+```ini
+pm2 = ~/.pm2
+refresh = 5000
+debug = false
+port = 8088
 ```
 
 - **refresh** The heartbeat duration of monitor (backend), `5000` by default.
@@ -97,19 +100,20 @@ $ npm install -g pm2-gui
 - **port** Port of web interface.
 - **password** The encrypted authentication code, if this config is set, users need to be authorized before accessing the index page, `password` could only be set by `pm2-gui set password [password]` ([authorization](#authorization)).
 
-### Config file
-You can quit set configurations by `pm2-gui start --config [file]`, the `[file]` must be an valid JSON, and can including all the above keys.
+### File
+You can quit set configurations by `pm2-gui start --config [file]`, the `[file]` must be an valid **ini** file, and can including all the above keys.
 
 Example
 ```bash
-# Load the JSON configured file which is named as `pm2-gui.json` in current directory.
+# Load the configuration file which is named as `pm2-gui.ini` in current directory.
 $ pm2-gui start --config
 
-# Load the specific JSON configured file in current directory.
-$ pm2-gui start --config conf.json
+# Load the specific configuration file in current directory.
+$ pm2-gui start --config conf
+$ pm2-gui start --config conf.ini
 ```
 
-### Set Config
+### Set
 Usage
 ```bash
 $ pm2-gui set <key> <value>
@@ -122,7 +126,7 @@ $ pm2-gui set refresh 2000
 
 Above command will set `refresh` to 2 seconds.
 
-### Remove Config
+### Remove
 Usage
 ```bash
 $ pm2-gui rm <key>
@@ -134,6 +138,18 @@ $ pm2-gui rm refresh
 ```
 
 Above command will remove `refresh` config and it will be set to `5000` (milliseconds) by default.
+
+### Update via `vi`
+```bash
+$ vi $PM2_ROOT/.pm2/pm2-gui.ini
+```
+
+### Cleanup
+```bash
+$ rm $PM2_ROOT/.pm2/pm2-gui.ini
+```
+
+> The value of `$PM2_ROOT` is `~/` by default.
 
 <a name="auth" />
 # Authorization

@@ -8,6 +8,7 @@ var commander = require('commander'),
     pkg       = require('../package.json'),
     Monitor   = require('../lib/mon'),
     crypto    = require('crypto'),
+    conf      = require('../lib/util/conf'),
     interface = require('../web/index');
 
 commander.version(pkg.version, '-v, --version')
@@ -27,27 +28,30 @@ commander.on('--help', function(){
  * Run web interface.
  */
 commander.command('start [port]')
-  .option('--config [file]', 'pass JSON config file with options')
+  .option('--config [file]', 'pass ".ini" configuration file (with options)')
   .option('--no-debug', 'hide stdout / stderr information')
   .description('Launch the web server, port default by 8088')
   .action(function(port, cmd){
     if (cmd.config) {
       var jsonFile;
       if (typeof cmd.config != 'string') {
-        jsonFile = 'pm2-gui.json';
+        jsonFile = 'pm2-gui.ini';
       } else {
         jsonFile = cmd.config;
+        if (jsonFile.indexOf('.') < 0) {
+          jsonFile += '.ini';
+        }
       }
       if (!fs.existsSync(jsonFile)) {
-        console.log(chalk.red('✘ JSON configured file does not exist!\n'));
+        console.log(chalk.red('✘ .ini configuration file does not exist!\n'));
         process.exit();
       }
 
       try {
-        var config = JSON.parse(fs.readFileSync(jsonFile, {encoding: 'utf-8'}));
+        var config = conf.File(path.resolve(process.cwd(), jsonFile)).loadSync().valueOf();
         setConfig(config);
       } catch (err) {
-        console.log(chalk.red('✘ JSON configured file is invalid!\n'));
+        console.log(chalk.red('✘ .ini configuration file is invalid!\n'));
         process.exit();
       }
     }
@@ -90,7 +94,7 @@ if (process.argv.length == 2) {
 function setConfig(key, value){
   var mon = Monitor(),
       acceptKeys = Object.keys(mon.options).filter(function(key){
-        return !~['socketio', 'pm2Conf', 'debug'].indexOf(key);
+        return !~['socketio', 'pm2Conf'].indexOf(key);
       });
 
   acceptKeys.push('password');
@@ -124,7 +128,7 @@ function showConfigs(cmd, mon){
   if (!mon) {
     mon = Monitor();
   }
-  var storage = mon._config.store, prints = '';
+  var storage = mon._config.valueOf(), prints = '';
   var maxLen = 0;
   for (var k in storage) {
     maxLen = Math.max(k.length, maxLen);
