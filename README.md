@@ -105,7 +105,7 @@ port = 8088
 - **refresh** The heartbeat duration of monitor (backend), `5000` by default.
 - **pm2** Root directory of Unitech/PM2, `~/.pm2` by default.
 - **port** Port of web interface.
-- **debug** A value indicates whether show the debug information or not, `true` by default.
+- **debug** A value indicates whether show the debug information, `true` by default.
 - **password** The encrypted authentication code, if this config is set, users need to be authorized before accessing the index page, `password` could only be set by `pm2-gui set password [password]` ([authorization](#authorization)).
 
 ### File
@@ -116,7 +116,7 @@ Example
 # Load the configuration file which is named as `pm2-gui.ini` in current directory.
 $ pm2-gui start --config
 
-# Load the specific configuration file in current directory.
+# Load the specific configuration file under current directory, `.ini` postfix is optional.
 $ pm2-gui start --config conf
 $ pm2-gui start --config conf.ini
 ```
