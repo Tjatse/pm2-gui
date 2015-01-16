@@ -36,5 +36,5 @@ action(function auth_api(req, res){
     req.session['auth_code'] = encryptedPwd;
     return res.json({status: 200});
   }
-  return res.json({error: 'Authorize failed, password is not correct.'});
+  return res.json({error: 'Authorize failed, password is incorrect.'});
 });
