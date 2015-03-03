@@ -31,7 +31,7 @@ function login(){
   // Post data to server.
   lightUp();
   $.ajax({
-    url     : '/auth_api?t=' + Math.random(),
+    url     : 'auth_api?t=' + Math.random(),
     data    : {
       pwd: val
     },

@@ -14,6 +14,7 @@ An elegant web interface for Unitech/PM2.
   - [Configs](#cli_confs)
 - [Authorization](#auth)
 - [UI/UX](#ui)
+- [Serving apps locally with nginx and custom domain](#serv)
 
 <a name="feats" />
 # Features
@@ -211,6 +212,47 @@ CPU && Memory Usage
 Tail Logs
 
 ![image](screenshots/logs.jpg)
+
+<a name="serv" />
+# Serving apps locally with nginx and custom domain
+
+```ini
+map $http_upgrade $connection_upgrade {
+    default upgrade;
+    '' close;
+}
+
+upstream pm2-gui {
+    server 127.0.0.1:8000;
+}
+
+server {
+    listen 80;
+    server_name pm2-gui.dev;
+
+    #useless but can not get rid of.
+    root /path/to/pm2-gui/web/public;
+
+    try_files $uri/index.html $uri.html $uri @app;
+
+    # paths
+    location @app {
+      proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+      proxy_set_header Host $http_host;
+      proxy_redirect off;
+
+      proxy_pass http://pm2-gui;
+    }
+
+    # socket.io
+    location /socket.io {
+        proxy_pass http://pm2-gui;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection $connection_upgrade;
+    }
+}
+```
 
 ## Test
 ```bash
