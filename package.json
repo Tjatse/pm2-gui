@@ -1,6 +1,6 @@
 {
   "name": "pm2-gui",
-  "version": "0.0.8",
+  "version": "0.0.9",
   "description": "An elegant web interface for Unitech/PM2.",
   "scripts": {
     "test": "NODE_ENV=test bash test/index.sh"
