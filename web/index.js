@@ -29,13 +29,17 @@ function runServer(debug){
   var server = require('http').Server(app);
   var io = require('socket.io')(server);
 
-  var mon = Monitor({
-    sockio: io,
-    debug : !!debug
-  });
-  var port = mon.config('port');
-  server.listen(port);
-  log.i('http', 'Web server of', chalk.bold.underline('Unitech/PM2'), 'is listening on port', chalk.bold(port));
+  try {
+    var mon = Monitor({
+      sockio: io,
+      debug : !!debug
+    });
+    var port = mon.config('port');
+    server.listen(port);
+    log.i('http', 'Web server of', chalk.bold.underline('Unitech/PM2'), 'is listening on port', chalk.bold(port));
 
-  mon.run();
+    mon.run();
+  }catch(err){
+    log.e(chalk.red(err.message));
+  }
 }

@@ -14,6 +14,7 @@ An elegant web interface for Unitech/PM2.
   - [Configs](#cli_confs)
 - [Authorization](#auth)
 - [UI/UX](#ui)
+- [Serving apps locally with nginx and custom domain](#serv)
 
 <a name="feats" />
 # Features
@@ -65,6 +66,12 @@ $ npm install -g pm2-gui
     Start the web server, by specific port (8090):
     $ pm2-gui start 8090
 
+    Start the web server, by specific configuration file (pm2-gui.ini):
+    $ pm2-gui start --config
+
+    Start the web server, by specific configuration file:
+    $ pm2-gui start --config my-config.ini
+
 ```
 
 <a name="cli_web" />
@@ -75,41 +82,47 @@ $ npm install -g pm2-gui
   Options:
 
     -h, --help       output usage information
-    --config [file]  pass JSON config file with options
-    --no-debug  hide stdout/stderr information
-    --config    path to custom .json config. Default value pm2-gui.json
+    --config [file]  pass ".ini" configuration file (with options)
+    --no-debug       hide stdout / stderr information
+```
+
+**Daemonic:**
+```bash
+# start
+$ nohup pm2-gui start > /dev/null 2>&1 & echo $! > /path/to/pm2-gui.pid
+# stop
+$ kill -9 `cat /path/to/pm2-gui.pid`
 ```
 
 <a name="cli_confs" />
 ## Configs
-```javascript
-{
-  "refresh": 3000,
-  "manipulation": true,
-  "pm2": "~/.pm2",
-  "port": 8088
-}
+```ini
+pm2 = ~/.pm2
+refresh = 5000
+debug = false
+port = 8088
 ```
 
 - **refresh** The heartbeat duration of monitor (backend), `5000` by default.
-- **manipulation** A value indicates whether the client has permission to restart/stop processes, `true` by default.
 - **pm2** Root directory of Unitech/PM2, `~/.pm2` by default.
 - **port** Port of web interface.
+- **debug** A value indicates whether show the debug information, `true` by default.
 - **password** The encrypted authentication code, if this config is set, users need to be authorized before accessing the index page, `password` could only be set by `pm2-gui set password [password]` ([authorization](#authorization)).
 
-### Config file
-You can quit set configurations by `pm2-gui start --config [file]`, the `[file]` must be an valid JSON, and can including all the above keys.
+### File
+You can quick set configurations by `pm2-gui start --config [file]`, the `[file]` must be a valid **ini** file, and can include all the above keys.
 
 Example
 ```bash
-# Load the JSON configured file which is named as `pm2-gui.json` in current directory.
+# Load the configuration file which is named as `pm2-gui.ini` in current directory.
 $ pm2-gui start --config
 
-# Load the specific JSON configured file in current directory.
-$ pm2-gui start --config conf.json
+# Load the specific configuration file under current directory, `.ini` postfix is optional.
+$ pm2-gui start --config conf
+$ pm2-gui start --config conf.ini
 ```
 
-### Set Config
+### Set
 Usage
 ```bash
 $ pm2-gui set <key> <value>
@@ -122,7 +135,7 @@ $ pm2-gui set refresh 2000
 
 Above command will set `refresh` to 2 seconds.
 
-### Remove Config
+### Remove
 Usage
 ```bash
 $ pm2-gui rm <key>
@@ -134,6 +147,18 @@ $ pm2-gui rm refresh
 ```
 
 Above command will remove `refresh` config and it will be set to `5000` (milliseconds) by default.
+
+### Update via `vi`
+```bash
+$ vi $PM2_ROOT/.pm2/pm2-gui.ini
+```
+
+### Cleanup
+```bash
+$ rm $PM2_ROOT/.pm2/pm2-gui.ini
+```
+
+> The value of `$PM2_ROOT` is `~/` by default.
 
 <a name="auth" />
 # Authorization
@@ -187,6 +212,47 @@ CPU && Memory Usage
 Tail Logs
 
 ![image](screenshots/logs.jpg)
+
+<a name="serv" />
+# Serving apps locally with nginx and custom domain
+
+```ini
+map $http_upgrade $connection_upgrade {
+    default upgrade;
+    '' close;
+}
+
+upstream pm2-gui {
+    server 127.0.0.1:8000;
+}
+
+server {
+    listen 80;
+    server_name pm2-gui.dev;
+
+    #useless but can not get rid of.
+    root /path/to/pm2-gui/web/public;
+
+    try_files $uri/index.html $uri.html $uri @app;
+
+    # paths
+    location @app {
+      proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+      proxy_set_header Host $http_host;
+      proxy_redirect off;
+
+      proxy_pass http://pm2-gui;
+    }
+
+    # socket.io
+    location /socket.io {
+        proxy_pass http://pm2-gui;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection $connection_upgrade;
+    }
+}
+```
 
 ## Test
 ```bash

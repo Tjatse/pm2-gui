@@ -23,6 +23,7 @@ function success {
 
 function fail {
   echo -e "######## \033[31m  ✘ $1\033[0m"
+  ps aux | grep pm2-gui | grep node | xargs kill -9
   exit 1
 }
 

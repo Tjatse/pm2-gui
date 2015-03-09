@@ -1,0 +1,1 @@
+console.log('ni'.slice(-4));

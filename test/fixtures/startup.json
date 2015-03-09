@@ -1,0 +1,48 @@
+{
+  "apps": [
+    {
+      "name": "Colorful",
+      "script": "colorful.js",
+      "cwd": "test/fixtures",
+      "args": [
+        "--color"
+      ]
+    },
+    {
+      "name": "Exit Immediately",
+      "script": "exit.js",
+      "cwd": "test/fixtures"
+    },
+    {
+      "name": "Fibonacci",
+      "script": "fib-slow.js",
+      "cwd": "test/fixtures"
+    },
+    {
+      "name": "Fibonacci",
+      "script": "fib-slow.js",
+      "cwd": "test/fixtures"
+    },
+    {
+      "name": "Randomize",
+      "script": "rand.js",
+      "instances": 0,
+      "cwd": "test/fixtures"
+    },
+    {
+      "name": "Throw Error",
+      "script": "throw.js",
+      "cwd": "test/fixtures"
+    },
+    {
+      "name": "Tick",
+      "script": "tick.js",
+      "cwd": "test/fixtures"
+    },
+    {
+      "name": "Tock",
+      "script": "tock.js",
+      "cwd": "test/fixtures"
+    }
+  ]
+}

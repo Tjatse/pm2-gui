@@ -25,6 +25,8 @@ $(window).ready(function(){
 
   listenSocket();
 
+  renderFanavi();
+
 });
 
 /**
@@ -39,6 +41,7 @@ function prepareDOM(){
 
   eles.procsHint = eles.procsHintContainer.find('div').eq(0);
   eles.procsHintNum = eles.procsHintContainer.find('span').eq(0);
+  eles.procsAction = $('#procs_action');
 
   // Enable/Disable when mouseenter/mouseleave processes list.
   eles.procs.hover(function(){
@@ -162,6 +165,67 @@ function listenSocket(){
       });
     });
   });
+}
+
+/**
+ * Render the fanavi component.
+ */
+function renderFanavi(){
+  var icons = [{
+    icon : 'img/restart.png',
+    title: 'Restart All'
+  }, {
+    icon : 'img/stop.png',
+    title: 'Stop All'
+  }, {
+    icon : 'img/save.png',
+    title: 'Save All'
+  }, {
+    icon : 'img/delete.png',
+    title: 'Delete All'
+  }];
+
+  d3.menu('#procs_action')
+    .option({
+      backgroundColor      : '#303552',
+      buttonForegroundColor: '#fff',
+      startAngle           : -90,
+      endAngle             : 90,
+      innerRadius:36,
+      shadow               : {
+        color: '#4e5786',
+        x    : 1,
+        y    : 1
+      },
+      iconSize             : 24,
+      speed                : 500,
+      hideTooltip          : true
+    })
+    .load(icons)
+    .on('click', function(index, data){
+      sockets.sys.emit('action', ['restart', 'stop', 'save', 'delete'][index], 'all');
+    });
+}
+
+/**
+ * Reset the status of navigator.
+ */
+function resetFanavi(){
+  var isVisible = eles.procsAction.is(':visible');
+  if(procs.data.length > 0 && !isVisible){
+    eles.procsAction.css({
+      opacity: 0.01,
+      display: 'inherit'
+    }).stop().animate({
+      opacity: 1
+    });
+  }else if(procs.data.length == 0 && isVisible){
+    eles.procsAction.stop().animate({
+      opacity: 0.01
+    }, function(){
+      $(this).css('display', 'none');
+    });
+  }
 }
 
 /**
@@ -324,6 +388,8 @@ function onProcsChange(_procs){
     // Update processes' layout on fullPage 2.
     updateProcsLayout();
   }
+
+  resetFanavi();
 }
 
 /**

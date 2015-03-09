@@ -547,3 +547,11 @@ END OF REPO && VER
 /*****************
    END OF GRAPH
 ******************/
+
+#procs_action{
+  position: absolute;
+  left: 50%;
+  margin-left: -140px;
+  bottom: -145px;
+  display: none;
+}
