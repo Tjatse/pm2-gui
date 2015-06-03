@@ -3,7 +3,7 @@ pm2-gui [![NPM version](https://badge.fury.io/js/pm2-gui.svg)](http://badge.fury
 
 An elegant web interface for Unitech/PM2.
 
-> Compatible with PM2 v0.12.7.
+> Compatible with PM2 v0.12.7+
 > If you wanna update to pm2-gui@latest, make sure you've read the [change logs](CHANGELOG.md).
 
 # Guide
@@ -19,6 +19,7 @@ An elegant web interface for Unitech/PM2.
 
 <a name="feats" />
 # Features
+- Curses-like dashboard
 - All the heartbeats (no matter **monitor** or **tail (logs)**) are automatic destroyed.
 - The `PM2` processes are watched by a subscribed emitter.
 - Communicated with `PM2` through **RPC** socket directly.
@@ -183,6 +184,9 @@ $ pm2-gui start
 - High performance.
 
 Some screenshots:
+Curses-like dashboard:
+
+![image](screenshots/mon.gif)
 
 Backend (without `--no-debug` option):
 
