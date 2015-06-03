@@ -1,3 +1,7 @@
+0.1.0
+**Enhancements**
+- Terminal dashboard.
+
 0.0.9
 **Breaking Changes**
 - Using `.ini` config file instead of `.json`.

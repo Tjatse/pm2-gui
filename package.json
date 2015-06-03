@@ -46,7 +46,9 @@
     "pm2-axon-rpc": "~0.3.6",
     "ansi-html": "~0.0.4",
     "express-session": "~1.9.3",
-    "pidusage": "~0.1.0"
+    "pidusage": "~0.1.0",
+    "blessed": "^0.1.60",
+    "socket.io-client": "^1.3.5"
   },
   "devDependencies": {
   },

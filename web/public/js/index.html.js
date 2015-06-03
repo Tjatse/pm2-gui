@@ -853,16 +853,23 @@ function appendLogs(log){
   // Remove `loading` status.
   $('#log>.load').remove();
 
-  var lo = $('#log');
-  $(log.msg).appendTo(lo);
+  var lo = $('#log'), 
+      loDom = lo.get(0);
 
-  var offset = lo.get(0).scrollHeight - 300,
-      poffset = lo.parent().scrollTop() || 0;
+  var offset = loDom.scrollHeight - 300,
+      poffset = lo.parent().scrollTop() || 0,
+      scrollable = false;
+
   // Scroll down if necessary.
   if (!scrolled || poffset >= offset - 30) {
-    !scrolled && (scrolled = poffset < offset - 30)
+    !scrolled && (scrolled = poffset < offset - 30);
+    scrollable = true;
+  }
+  $(log.msg).appendTo(lo);
+
+  if(scrollable){
     lo.parent().slimScroll({
-      scrollTo: offset
+      scrollTo: loDom.scrollHeight - 300
     });
   }
 }
@@ -906,12 +913,21 @@ function appendData(proc){
   }
   var loadEl = $('#monitor>.load');
   if (lineChart.data.length == 0) {
-    var now = proc.time,
+    var now = proc.time || Date.now(),
         len = lineChart.settings.queueLength;
 
     lineChart.data = d3.range(len).map(function(n){
       return {time: now - (len - n) * 3000, usage: {cpu: 0, memory: 0}};
     });
+  }
+  // handle error
+  if (proc.msg) {
+    delete proc.msg;
+    proc.time = Date.now();
+    proc.usage = {
+      cpu: 0,
+      memory: 0
+    };
   }
   lineChart.data.push(proc);
   if (loadEl.length > 0) {
@@ -1185,10 +1201,10 @@ var lineChart = {
         .interpolate('cardinal')
         .tension(st.tension)
         .x(function(d){
-          return lineChart.eles.x(d.time);
+          return lineChart.eles.x(d.time || Date.now());
         })
         .y(function(d){
-          return lineChart.eles.y(d.usage[key]);
+          return lineChart.eles.y(!d.usage ? 0 : d.usage[key]);
         });
 
       lineChart.eles[key + 'LineEl'] = lineChart.eles.path.append('path')

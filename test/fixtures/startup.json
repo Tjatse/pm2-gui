@@ -4,6 +4,7 @@
       "name": "Colorful",
       "script": "colorful.js",
       "cwd": "test/fixtures",
+      "exec_mode": "cluster",
       "args": [
         "--color"
       ]
