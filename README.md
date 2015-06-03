@@ -184,6 +184,7 @@ $ pm2-gui start
 - High performance.
 
 Some screenshots:
+
 Curses-like dashboard:
 
 ![image](screenshots/mon.gif)
