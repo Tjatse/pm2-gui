@@ -11,6 +11,7 @@ An elegant web interface for Unitech/PM2.
 - [Cautions](#cauts)
 - [Installation](#ins)
 - [CLI](#cli)
+  - [Curses-like dashboard](#dashboard)
   - [Run Web Interface](#cli_web)
   - [Configs](#cli_confs)
 - [Authorization](#auth)
@@ -51,6 +52,7 @@ $ npm install -g pm2-gui
   Commands:
 
     start [options] [port]  Launch the web server, port default by 8088
+    mon                     curses-like dashboard
     config                  show all configs
     set <key> <value>       set config by key-value pairs
     rm <key>                remove config by key
@@ -73,7 +75,16 @@ $ npm install -g pm2-gui
 
     Start the web server, by specific configuration file:
     $ pm2-gui start --config my-config.ini
+```
+<a name="dashboard" />
+## Curses-like dashboard
+**Only working on unix system**
+```bash
+  Usage: mon [options]
 
+  Options:
+
+    -h, --help  output usage information
 ```
 
 <a name="cli_web" />

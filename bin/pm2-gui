@@ -66,7 +66,7 @@ commander.command('start [port]')
   });
 
 commander.command('mon')
-  .description('build terminal dashboard')
+  .description('curses-like dashboard')
   .action(function(){
     var mon = Monitor({
       debug: false
@@ -96,7 +96,7 @@ commander.command('set <key> <value>')
  */
 commander.command('rm <key>')
   .description('remove config by key')
-  .action(function unsetConfig(key, cmd){
+  .action(function(key, cmd){
     var mon = Monitor();
     mon.config(key, null);
     showConfigs(cmd, mon);
