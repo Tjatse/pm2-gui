@@ -1,3 +1,7 @@
+0.1.1
+**Enhancements**
+- Terminal dashboard processes amount.
+
 0.1.0
 **Enhancements**
 - Terminal dashboard.

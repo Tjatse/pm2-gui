@@ -1,10 +1,12 @@
 pm2-gui [![NPM version](https://badge.fury.io/js/pm2-gui.svg)](http://badge.fury.io/js/pm2-gui) [![Build Status](https://travis-ci.org/Tjatse/pm2-gui.svg?branch=master)](https://travis-ci.org/Tjatse/pm2-gui)
 =======
 
-An elegant web interface for Unitech/PM2.
+An elegant web & terminal interface for Unitech/PM2.
 
 > Compatible with PM2 v0.12.7+
 > If you wanna update to pm2-gui@latest, make sure you've read the [change logs](CHANGELOG.md).
+
+![image](screenshots/pm2-web.gif)
 
 # Guide
 - [Features](#feats)
@@ -13,6 +15,7 @@ An elegant web interface for Unitech/PM2.
 - [CLI](#cli)
   - [Curses-like dashboard](#dashboard)
   - [Run Web Interface](#cli_web)
+  - [Daemonic](#daemonic)
   - [Configs](#cli_confs)
 - [Authorization](#auth)
 - [UI/UX](#ui)
@@ -76,6 +79,7 @@ $ npm install -g pm2-gui
     Start the web server, by specific configuration file:
     $ pm2-gui start --config my-config.ini
 ```
+
 <a name="dashboard" />
 ## Curses-like dashboard
 **Only working on unix system**
@@ -99,7 +103,8 @@ $ npm install -g pm2-gui
     --no-debug       hide stdout / stderr information
 ```
 
-**Daemonic:**
+<a name="daemonic" />
+## Daemonic
 ```bash
 # start
 $ nohup pm2-gui start > /dev/null 2>&1 & echo $! > /path/to/pm2-gui.pid
@@ -198,7 +203,7 @@ Some screenshots:
 
 Curses-like dashboard:
 
-![image](screenshots/mon.gif)
+![image](screenshots/pm2-gui.gif)
 
 Backend (without `--no-debug` option):
 
