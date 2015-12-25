@@ -1,22 +1,14 @@
-var Monitor = require('../../lib/mon'),
-    crypto  = require('crypto');
-
-// Authorize
+// Authorization
 action(function auth(req, res){
-  var authCode = req.session['auth_code'],
-      storedCode = Monitor().config('password');
-
-  if (!storedCode || (storedCode == authCode)) {
+  if (!req._config.password || (req._config.password === req.session['password'])) {
     return res.redirect('/');
   }
-  res.render('auth', {title: 'Authorize'});
+  res.render('auth', {title: 'Authorization'});
 });
 
 // Index
 action(function(req, res){
-  var authCode = req.session['auth_code'],
-      storedCode = Monitor().config('password');
-  if (storedCode && storedCode != authCode) {
+  if (req._config.password && (req._config.password !== req.session['password'])) {
     return res.redirect('/auth');
   }
   res.render('index', {title: 'Monitor'});
@@ -25,16 +17,12 @@ action(function(req, res){
 // API
 action(function auth_api(req, res){
   if (!req.query || !req.query.pwd) {
-    return res.json({error: 'Authorize failed, password is required!'});
+    return res.json({error: 'Authorization failed, password is required!'});
   }
 
-  var mon = Monitor(),
-      md5 = crypto.createHash('md5');
-  md5.update(req.query.pwd);
-  encryptedPwd = md5.digest('hex');
-  if (encryptedPwd == mon.config('password')) {
-    req.session['auth_code'] = encryptedPwd;
+  if (req.query.pwd === req._config.password) {
+    req.session['password'] = req.query.pwd;
     return res.json({status: 200});
   }
-  return res.json({error: 'Authorize failed, password is incorrect.'});
+  return res.json({error: 'Authorization failed, password is incorrect.'});
 });
