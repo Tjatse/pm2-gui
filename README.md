@@ -13,10 +13,8 @@ An elegant web & terminal interface for Unitech/PM2.
 - [Cautions](#cauts)
 - [Installation](#ins)
 - [CLI](#cli)
-  - [Curses-like dashboard](#dashboard)
   - [Run Web Interface](#cli_web)
-  - [Daemonic](#daemonic)
-  - [Configs](#cli_confs)
+  - [Curses-like dashboard](#dashboard)
 - [Authorization](#auth)
 - [UI/UX](#ui)
 - [Serving apps locally with nginx and custom domain](#serv)
@@ -103,8 +101,8 @@ $ npm install -g pm2-gui
     --no-debug       hide stdout / stderr information
 ```
 
-<a name="daemonic" />
-## Daemonic
+<a name="daemonize" />
+## daemonize
 ```bash
 # start
 $ nohup pm2-gui start > /dev/null 2>&1 & echo $! > /path/to/pm2-gui.pid
@@ -119,79 +117,6 @@ pm2 = ~/.pm2
 refresh = 5000
 debug = false
 port = 8088
-```
-
-- **refresh** The heartbeat duration of monitor (backend), `5000` by default.
-- **pm2** Root directory of Unitech/PM2, `~/.pm2` by default.
-- **port** Port of web interface.
-- **debug** A value indicates whether show the debug information, `true` by default.
-- **password** The encrypted authentication code, if this config is set, users need to be authorized before accessing the index page, `password` could only be set by `pm2-gui set password [password]` ([authorization](#authorization)).
-
-### File
-You can quick set configurations by `pm2-gui start --config [file]`, the `[file]` must be a valid **ini** file, and can include all the above keys.
-
-Example
-```bash
-# Load the configuration file which is named as `pm2-gui.ini` in current directory.
-$ pm2-gui start --config
-
-# Load the specific configuration file under current directory, `.ini` postfix is optional.
-$ pm2-gui start --config conf
-$ pm2-gui start --config conf.ini
-```
-
-### Set
-Usage
-```bash
-$ pm2-gui set <key> <value>
-```
-
-Example
-```bash
-$ pm2-gui set refresh 2000
-```
-
-Above command will set `refresh` to 2 seconds.
-
-### Remove
-Usage
-```bash
-$ pm2-gui rm <key>
-```
-
-Example
-```bash
-$ pm2-gui rm refresh
-```
-
-Above command will remove `refresh` config and it will be set to `5000` (milliseconds) by default.
-
-### Update via `vi`
-```bash
-$ vi $PM2_ROOT/.pm2/pm2-gui.ini
-```
-
-### Cleanup
-```bash
-$ rm $PM2_ROOT/.pm2/pm2-gui.ini
-```
-
-> The value of `$PM2_ROOT` is `~/` by default.
-
-<a name="auth" />
-# Authorization
-Run the following commands:
-```bash
-$ pm2-gui set password 1234
-$ pm2-gui start
-```
-
-When you visiting `http://[domain]:8088` in your browser, it will be redirected to `http://[domain]:8088/auth`, and you need to typo the password (`1234`) to login.
-
-Otherwise, if you do not want to deny anybody, just simply remove it:
-```bash
-$ pm2-gui rm password
-$ pm2-gui start
 ```
 
 <a name="ui" />

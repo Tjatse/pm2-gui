@@ -2,7 +2,7 @@ var express = require('express'),
     swig    = require('swig'),
     path    = require('path'),
     chalk   = require('chalk'),
-    Monitor = require('../lib/mon'),
+    Monitor = require('../lib/monitor'),
     Debug   = require('../lib/util/debug'),
     session = require('express-session');
 
