@@ -1,0 +1,26 @@
+doctype html
+html(lang=en)
+  head
+    meta(charset='UTF-8')
+    title= title + '- PM2 Monitor'
+    meta(name='viewport', content='width=device-width, initial-scale=1.0, maximum-scale=2.0')
+    link(rel='stylesheet', href='/css/bootstrap.min.css')
+    link(rel='stylesheet', href='/css/jquery.sticky.min.css')
+    link(rel='stylesheet', href='/css/animation.min.css')
+    link(rel='stylesheet', href='/css/jquery.avgrund.min.css')
+    link(rel='shortcut icon' href='/img/favicon.ico')
+    block head
+
+  - var bodyClassName = '';
+  block variables
+
+  body(class=bodyClassName)
+    block content
+
+  script(src='js/jquery-1.11.1.min.js')
+  script(src='js/jquery.slimscroll.min.js')
+  script(src='js/jquery.sticky.min.js')
+  script(src='js/jquery.avgrund.min.js')
+  script(src='js/bootstrap.min.js')
+  script(src='js/lodash.min.js')
+  block js

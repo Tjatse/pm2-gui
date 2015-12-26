@@ -1,23 +1,28 @@
 "use strict";
 
 var sysStat,
-    sockets   = {},
-    pageIndex = 1,
-    pageLoaded,
-    procAnimated,
-    procs,
-    prevProcs,
-    tmps      = {},
-    eles      = {},
-    timer,
-    popupShown,
-    popupProc,
-    scrolled;
+  sockets = {},
+  pageIndex = 1,
+  pageLoaded,
+  procAnimated,
+  procs,
+  prevProcs,
+  tmps = {},
+  eles = {},
+  NSP = {
+    SYS: '/sys',
+    PROC: '/proc',
+    LOG: '/log'
+  },
+  timer,
+  popupShown,
+  popupProc,
+  scrolled;
 
 /**
  * Initialization.
  */
-$(window).ready(function(){
+$(window).ready(function () {
 
   prepareDOM();
 
@@ -32,10 +37,10 @@ $(window).ready(function(){
 /**
  * Prepare DOM, cache elements, templates...
  */
-function prepareDOM(){
+function prepareDOM() {
   eles = {
-    fpNav             : $('#fp-nav'),
-    procs             : $('.procs').eq(0),
+    fpNav: $('#fp-nav'),
+    procs: $('.procs').eq(0),
     procsHintContainer: $('.procs-hint-container').eq(0)
   };
 
@@ -44,32 +49,32 @@ function prepareDOM(){
   eles.procsAction = $('#procs_action');
 
   // Enable/Disable when mouseenter/mouseleave processes list.
-  eles.procs.hover(function(){
+  eles.procs.hover(function () {
     !popupShown && setFPEnable(false, true);
-  }, function(){
+  }, function () {
     !popupShown && setFPEnable(true, true);
   });
 
   tmps = {
-    proc  : _.template($('#procTmp').html()),
+    proc: _.template($('#procTmp').html()),
     noproc: $('#noProcTmp').html(),
-    popup : _.template($('#popupTmp').html())
+    popup: _.template($('#popupTmp').html())
   };
 }
 
 /**
  * Initialize fullPage plugin.
  */
-function initFullPage(){
+function initFullPage() {
   $('#fullpage').fullpage({
-    sectionsColor     : ['#303552', '#3b4163'],
-    navigation        : true,
+    sectionsColor: ['#303552', '#3b4163'],
+    navigation: true,
     navigationPosition: 'right',
     navigationTooltips: ['System Stat', 'Processes'],
-    afterLoad         : function(){
+    afterLoad: function () {
       pageLoaded = true;
     },
-    onLeave           : function(index, nextIndex, direction){
+    onLeave: function (index, nextIndex, direction) {
       pageIndex = nextIndex;
       pageLoaded = false;
 
@@ -95,7 +100,7 @@ function initFullPage(){
  * @param {Boolean} enable
  * @param {Boolean} exceptScroll
  */
-function setFPEnable(enable, exceptScroll){
+function setFPEnable(enable, exceptScroll) {
   $.fn.fullpage.setAllowScrolling(enable);
   if (!exceptScroll) {
     $.fn.fullpage.setKeyboardScrolling(enable);
@@ -104,15 +109,19 @@ function setFPEnable(enable, exceptScroll){
 }
 
 /**
+ * Connect to socket server.
+ */
+function connectSocketServer(ns) {
+  var socket = io('127.0.0.1:8088' + ns + '?token=abc');
+  socket.on('error', info);
+  return socket;
+}
+
+/**
  * Initialize socket.io client and add listeners.
  */
-function listenSocket(){
-  sockets.sys = io('/sys');
-
-  // error handler.
-  sockets.sys.on('error', function(err){
-    info(err.message);
-  });
+function listenSocket() {
+  sockets.sys = connectSocketServer(NSP.SYS);
   // information from server.
   sockets.sys.on('info', info);
   // processes
@@ -121,7 +130,7 @@ function listenSocket(){
   // The first time to request system state.
   sockets.sys.on('system_stat', onSysStat);
 
-  function onSysStat(data){
+  function onSysStat(data) {
     // Remove listen immediately.
     sockets.sys.removeEventListener('system_stat', onSysStat);
 
@@ -135,13 +144,13 @@ function listenSocket(){
     var tmp = _.template($('#sysInfoTmp').html());
     $('.system-info').html(tmp({
       data: {
-        cpu   : sysStat.cpus.length,
-        arch  : sysStat.arch,
+        cpu: sysStat.cpus.length,
+        arch: sysStat.arch,
         uptime: fromNow(sysStat.uptime),
         memory: getMem(sysStat.memory.total)
       }
     })).css('opacity', 0.01).show().animate({
-      opacity  : 1,
+      opacity: 1,
       marginTop: -40
     });
 
@@ -152,15 +161,15 @@ function listenSocket(){
     $('.spinner').remove();
   }
 
-  sockets.sys.on('pm2_ver', function(ver){
+  sockets.sys.on('pm2_ver', function (ver) {
     $('.repo > span').text('PM2 v' + ver);
   });
 
   // Show alert when stopping process by pm_id failed.
-  sockets.sys.on('action', function(id, errMsg){
+  sockets.sys.on('action', function (id, errMsg) {
     info(errMsg);
-    $('#proc_' + id).find('.proc-ops').find('.load').fadeOut(function(){
-      $(this).prev().fadeIn().end().fadeOut(function(){
+    $('#proc_' + id).find('.proc-ops').find('.load').fadeOut(function () {
+      $(this).prev().fadeIn().end().fadeOut(function () {
         $(this).remove();
       });
     });
@@ -170,39 +179,39 @@ function listenSocket(){
 /**
  * Render the fanavi component.
  */
-function renderFanavi(){
+function renderFanavi() {
   var icons = [{
-    icon : 'img/restart.png',
+    icon: 'img/restart.png',
     title: 'Restart All'
   }, {
-    icon : 'img/stop.png',
+    icon: 'img/stop.png',
     title: 'Stop All'
   }, {
-    icon : 'img/save.png',
+    icon: 'img/save.png',
     title: 'Save All'
   }, {
-    icon : 'img/delete.png',
+    icon: 'img/delete.png',
     title: 'Delete All'
   }];
 
   d3.menu('#procs_action')
     .option({
-      backgroundColor      : '#303552',
+      backgroundColor: '#303552',
       buttonForegroundColor: '#fff',
-      startAngle           : -90,
-      endAngle             : 90,
-      innerRadius:36,
-      shadow               : {
+      startAngle: -90,
+      endAngle: 90,
+      innerRadius: 36,
+      shadow: {
         color: '#4e5786',
-        x    : 1,
-        y    : 1
+        x: 1,
+        y: 1
       },
-      iconSize             : 24,
-      speed                : 500,
-      hideTooltip          : true
+      iconSize: 24,
+      speed: 500,
+      hideTooltip: true
     })
     .load(icons)
-    .on('click', function(index, data){
+    .on('click', function (index, data) {
       sockets.sys.emit('action', ['restart', 'stop', 'save', 'delete'][index], 'all');
     });
 }
@@ -210,19 +219,19 @@ function renderFanavi(){
 /**
  * Reset the status of navigator.
  */
-function resetFanavi(){
+function resetFanavi() {
   var isVisible = eles.procsAction.is(':visible');
-  if(procs.data.length > 0 && !isVisible){
+  if (procs.data.length > 0 && !isVisible) {
     eles.procsAction.css({
       opacity: 0.01,
       display: 'inherit'
     }).stop().animate({
       opacity: 1
     });
-  }else if(procs.data.length == 0 && isVisible){
+  } else if (procs.data.length == 0 && isVisible) {
     eles.procsAction.stop().animate({
       opacity: 0.01
-    }, function(){
+    }, function () {
       $(this).css('display', 'none');
     });
   }
@@ -231,21 +240,21 @@ function resetFanavi(){
 /**
  * Render polar charset of usage (CPU and memory).
  */
-function polarUsage(){
+function polarUsage() {
   if (!sysStat) {
     return;
   }
   var width = 520,
-      height = 520,
-      radius = Math.min(width, height) / 2,
-      spacing = .15;
+    height = 520,
+    radius = Math.min(width, height) / 2,
+    spacing = .15;
 
   // Usage colors - green to red.
   var color = d3.scale.linear()
     .range(['hsl(-270,50%,50%)', 'hsl(0,50%,50%)'])
-    .interpolate(function(a, b){
+    .interpolate(function (a, b) {
       var i = d3.interpolateString(a, b);
-      return function(t){
+      return function (t) {
         return d3.hsl(i(t));
       };
     });
@@ -253,21 +262,21 @@ function polarUsage(){
   // Transform percentage to angle.
   var arc = d3.svg.arc()
     .startAngle(0)
-    .endAngle(function(d){
+    .endAngle(function (d) {
       return d.value * 2 * Math.PI;
     })
-    .innerRadius(function(d){
+    .innerRadius(function (d) {
       return d.index * radius;
     })
-    .outerRadius(function(d){
+    .outerRadius(function (d) {
       return (d.index + spacing) * radius;
     });
 
   // Initialize polar.
   var svg = d3.select('.polar-usage').style({
-    height: height + 'px',
-    width : width + 'px'
-  }).append('svg')
+      height: height + 'px',
+      width: width + 'px'
+    }).append('svg')
     .attr('width', width)
     .attr('height', height)
     .append('g')
@@ -296,30 +305,35 @@ function polarUsage(){
   d3.transition().duration(0).each(refresh);
 
   // arcTween
-  function arcTween(d){
+  function arcTween(d) {
     var i = d3.interpolateNumber(d.previousValue, d.value);
-    return function(t){
+    return function (t) {
       d.value = i(t);
       return arc(d);
     };
   }
 
   // Real-time.
-  function fields(){
-    return [
-      {index: .7, text: 'CPU ' + sysStat.cpu + '%', value: sysStat.cpu / 100},
-      {index: .4, text: 'MEM ' + sysStat.memory.percentage + '%', value: sysStat.memory.percentage / 100}
-    ];
+  function fields() {
+    return [{
+      index: .7,
+      text: 'CPU ' + sysStat.cpu + '%',
+      value: sysStat.cpu / 100
+    }, {
+      index: .4,
+      text: 'MEM ' + sysStat.memory.percentage + '%',
+      value: sysStat.memory.percentage / 100
+    }];
   }
 
   // Refresh system states.
-  function refresh(){
+  function refresh() {
     field = field
-      .each(function(d){
+      .each(function (d) {
         this._value = d.value;
       })
       .data(fields)
-      .each(function(d){
+      .each(function (d) {
         d.previousValue = this._value;
       });
 
@@ -327,20 +341,20 @@ function polarUsage(){
       .transition()
       .ease('elastic')
       .attrTween('d', arcTween)
-      .style('fill', function(d){
+      .style('fill', function (d) {
         return color(d.value);
       });
 
     field.select('text')
-      .attr('dy', function(d){
+      .attr('dy', function (d) {
         return d.value < .5 ? '0' : '10px';
       })
-      .text(function(d){
+      .text(function (d) {
         return d.text;
       })
       .transition()
       .ease('elastic')
-      .attr('transform', function(d){
+      .attr('transform', function (d) {
         return 'rotate(' + 360 * d.value + ') ' +
           'translate(0,' + -(d.index + spacing / 2) * radius + ') ' +
           'rotate(' + (d.value < .5 ? -90 : 90) + ')'
@@ -348,7 +362,7 @@ function polarUsage(){
   }
 
   // When receiving data from server, refresh polar.
-  sockets.sys.on('system_stat', function(data){
+  sockets.sys.on('system_stat', function (data) {
     if (pageIndex != 1) {
       return;
     }
@@ -363,10 +377,10 @@ function polarUsage(){
  * Be triggered after processes have been changed.
  * @param _procs
  */
-function onProcsChange(_procs){
+function onProcsChange(_procs) {
   // Stora processes.
   procs = {
-    data: _procs.filter(function(p){
+    data: _procs.filter(function (p) {
       return !!p;
     }),
     tick: Date.now()
@@ -396,7 +410,7 @@ function onProcsChange(_procs){
  * Update processes count.
  * @param {Boolean} withAnimation
  */
-function updateProcsCount(withAnimation){
+function updateProcsCount(withAnimation) {
   var len = procs.data.length;
   // If there has no change, return it.
   if (eles.procsHintContainer.data('count') == len) {
@@ -415,7 +429,7 @@ function updateProcsCount(withAnimation){
  * @param {Boolean} noAnimation
  * @returns {*}
  */
-function updateProcsLayout(noAnimation){
+function updateProcsLayout(noAnimation) {
   // If has no change, return it.
   if (!procs || eles.procs.data('tick') == procs.tick) {
     return cloneProcs();
@@ -426,7 +440,7 @@ function updateProcsLayout(noAnimation){
 
   // Has process or not.
   var noprocRendered = eles.procs.data('empty'),
-      isEmpty = eles.procs.is(':empty');
+    isEmpty = eles.procs.is(':empty');
 
   // If there has no process.
   if (procs.data.length == 0) {
@@ -469,13 +483,13 @@ function updateProcsLayout(noAnimation){
 
   // Read existing processes' Uids.
   var rps = [];
-  eles.procs.find('div.proc').each(function(){
+  eles.procs.find('div.proc').each(function () {
     rps.push(parseInt(this.id.substr(5)));
   });
   // Processes that waiting to be created.
   var cps = procs.data;
   // Processes that should be deleted.
-  var dps = _.difference(rps, cps.map(function(p){
+  var dps = _.difference(rps, cps.map(function (p) {
     return p.pm_id;
   }));
   // Processes that should be updated.
@@ -486,24 +500,24 @@ function updateProcsLayout(noAnimation){
 
   if (rps.length > 0) {
     // Remove existing.
-    cps = cps.filter(function(p){
+    cps = cps.filter(function (p) {
       return !~rps.indexOf(p.pm_id);
     });
 
     // Compare with previous processes to grep `ups`.
     if (prevProcs) {
-      rps.forEach(function(pm_id){
-        var proc1 = _.find(prevProcs.data, function(p){
-              return p.pm_id == pm_id;
-            }),
-            proc2 = _.find(procs.data, function(p){
-              return p.pm_id == pm_id;
-            });
+      rps.forEach(function (pm_id) {
+        var proc1 = _.find(prevProcs.data, function (p) {
+            return p.pm_id == pm_id;
+          }),
+          proc2 = _.find(procs.data, function (p) {
+            return p.pm_id == pm_id;
+          });
 
         if (proc1 && proc2 &&
           (proc1.pm2_env.status != proc2.pm2_env.status ||
-          proc1.pm2_env.pm_uptime != proc2.pm2_env.pm_uptime ||
-          proc1.pm2_env.restart_time != proc2.pm2_env.restart_time)) {
+            proc1.pm2_env.pm_uptime != proc2.pm2_env.pm_uptime ||
+            proc1.pm2_env.restart_time != proc2.pm2_env.restart_time)) {
           ups.push(proc2);
         }
       });
@@ -534,10 +548,13 @@ function updateProcsLayout(noAnimation){
  * @param {Boolean} noproc `empty tip` is rendered before.
  * @param {Boolean} noAnimation
  */
-function createProcs(_procs, noproc, noAnimation){
+function createProcs(_procs, noproc, noAnimation) {
   var html = '';
-  _procs.forEach(function(p){
-    html += tmps.proc({proc: p, noDiv: false});
+  _procs.forEach(function (p) {
+    html += tmps.proc({
+      proc: p,
+      noDiv: false
+    });
   });
 
   // Attach events of process.
@@ -556,12 +573,12 @@ function createProcs(_procs, noproc, noAnimation){
     }
     eles.procs.data('slimScroll', true);
     eles.procs.slimScroll({
-      height     : '600px',
-      width      : '720px',
-      color      : '#fff',
-      opacity    : 0.8,
+      height: '600px',
+      width: '720px',
+      color: '#fff',
+      opacity: 0.8,
       railVisible: true,
-      railColor  : '#fff'
+      railColor: '#fff'
     });
   } else {
     destroySlimScroll();
@@ -573,23 +590,26 @@ function createProcs(_procs, noproc, noAnimation){
  * @param {Array} _procs
  * @param {Boolean} noAnimation
  */
-function updateProcs(_procs, noAnimation){
+function updateProcs(_procs, noAnimation) {
   // Find elements and replace them new ones.
-  eles.procs.find(_procs.map(function(p){
+  eles.procs.find(_procs.map(function (p) {
     return '#proc_' + p.pm_id;
-  }).join(',')).each(function(){
+  }).join(',')).each(function () {
     var _id = parseInt(this.id.substr(5)),
-        proc = _.find(_procs, function(p){
-          return p.pm_id == _id;
-        });
+      proc = _.find(_procs, function (p) {
+        return p.pm_id == _id;
+      });
 
     // HTML
-    var procHTML = tmps.proc({proc: proc, noDiv: true});
+    var procHTML = tmps.proc({
+      proc: proc,
+      noDiv: true
+    });
 
     var ele = $(this);
     // Animate it or not.
     if (!noAnimation) {
-      animate(ele, 'flipOutX', function(){
+      animate(ele, 'flipOutX', function () {
         var newProc = $(procHTML);
         ele.replaceWith(newProc);
         animate(newProc, 'flipInX', startTimer);
@@ -606,11 +626,11 @@ function updateProcs(_procs, noAnimation){
  * @param {Array} pm_ids pm_ids of processes.
  * @param {Boolean} noAnimation
  */
-function removeProcs(pm_ids, noAnimation){
+function removeProcs(pm_ids, noAnimation) {
   // Find elements and remove them directly.
-  eles.procs.find(pm_ids.map(function(id){
+  eles.procs.find(pm_ids.map(function (id) {
     return '#proc_' + id;
-  }).join(',')).each(function(){
+  }).join(',')).each(function () {
     var ele = $(this);
     ele.next().remove();
     ele.remove();
@@ -628,7 +648,7 @@ function removeProcs(pm_ids, noAnimation){
 /**
  * Clone processes and count uptime from now.
  */
-function cloneProcs(){
+function cloneProcs() {
   // Clone processes.
   prevProcs = _.clone(procs);
 
@@ -639,7 +659,7 @@ function cloneProcs(){
 /**
  * Timer of uptime.
  */
-function startTimer(){
+function startTimer() {
   timer && clearTimeout(timer);
   updateUptime();
 }
@@ -647,13 +667,13 @@ function startTimer(){
 /**
  * Update the uptimes of processes.
  */
-function updateUptime(){
+function updateUptime() {
   var spans = eles.procs.find('span[data-ctime][data-running=YES]');
   if (spans.length == 0) {
     return;
   }
   var now = Date.now();
-  spans.each(function(){
+  spans.each(function () {
     var ele = $(this);
     ele.text(fromNow(Math.ceil((now - ele.data('ctime')) / 1000), true));
   });
@@ -665,7 +685,7 @@ function updateUptime(){
 /**
  * Flip processes' layout.
  */
-function flipProcs(){
+function flipProcs() {
   var p = eles.procs.parent();
   animate(p.hasClass('slimScrollDiv') ? p : eles.procs, 'flip');
 }
@@ -673,7 +693,7 @@ function flipProcs(){
 /**
  * Destroy slimScroll of processes' layout.
  */
-function destroySlimScroll(){
+function destroySlimScroll() {
   if (!eles.procs.data('slimScroll')) {
     return;
   }
@@ -687,26 +707,32 @@ function destroySlimScroll(){
  * Bind process events.
  * @param {jQuery} o
  */
-function procEvents(o){
-  o.find('.proc-ops').on('click', 'i', function(){
+function procEvents(o) {
+  o.find('.proc-ops').on('click', 'i', function () {
     var ele = $(this),
-        method = ele.data('original-title').toLowerCase(),
-        pm_id = parseInt(ele.closest('.proc').attr('id').substr(5));
+      method = ele.data('original-title').toLowerCase(),
+      pm_id = parseInt(ele.closest('.proc').attr('id').substr(5));
 
     var ops = ele.closest('.proc-ops');
-    $('<div class="load"></div>').css({opacity: 0.01}).appendTo(ops);
+    $('<div class="load"></div>').css({
+      opacity: 0.01
+    }).appendTo(ops);
 
-    ops.find('ul').fadeOut().next().animate({opacity: 1});
+    ops.find('ul').fadeOut().next().animate({
+      opacity: 1
+    });
 
     sockets.sys.emit('action', method, pm_id);
-  }).end().find('[data-toggle="tooltip"]').tooltip({container: 'body'});
+  }).end().find('[data-toggle="tooltip"]').tooltip({
+    container: 'body'
+  });
 }
 
 /**
  * Attach events to process layout.
  * @param {jQuery} o
  */
-function attachProcEvents(o){
+function attachProcEvents(o) {
   bindPopup(o);
   procEvents(o);
 }
@@ -715,20 +741,20 @@ function attachProcEvents(o){
  * Popup dialog to display full information of processes.
  * @param {jQuery} o
  */
-function bindPopup(o){
+function bindPopup(o) {
   o.find('.proc-name').avgrund({
-    width          : 640,
-    height         : 350,
-    showClose      : true,
-    holderClass    : 'proc-popup',
-    showCloseText  : 'CLOSE',
+    width: 640,
+    height: 350,
+    showClose: true,
+    holderClass: 'proc-popup',
+    showCloseText: 'CLOSE',
     onBlurContainer: '.section',
-    onLoad         : function(ele){
+    onLoad: function (ele) {
       popupShown = true;
       setFPEnable(false, false);
       showPopupTab(getProcByEle(ele));
     },
-    onUnload       : function(ele){
+    onUnload: function (ele) {
       scrolled = false;
       popupShown = false;
       setFPEnable(true, false);
@@ -736,7 +762,7 @@ function bindPopup(o){
       destroyMonitor();
       popupProc = null;
     },
-    template       : '<div id="popup"><div class="load"></div></div>'
+    template: '<div id="popup"><div class="load"></div></div>'
   });
 }
 
@@ -745,7 +771,7 @@ function bindPopup(o){
  * @param {Object} proc
  * @returns {*}
  */
-function showPopupTab(proc, delayed){
+function showPopupTab(proc, delayed) {
   if (!proc) {
     return info('Process does not exist, try to refresh current page manually (F5 or COMMAND+R)');
   }
@@ -756,9 +782,9 @@ function showPopupTab(proc, delayed){
 
   // Resort keys.
   var clonedProc = {};
-  Object.keys(proc).sort(function(a, b){
+  Object.keys(proc).sort(function (a, b) {
     return a.charCodeAt(0) - b.charCodeAt(0);
-  }).forEach(function(key){
+  }).forEach(function (key) {
     // Omit memory, just keep the original data.
     if (key == 'monit') {
       var monit = proc[key];
@@ -769,20 +795,22 @@ function showPopupTab(proc, delayed){
   });
 
   // Reset content HTML.
-  var popup = $('#popup').html(tmps.popup({info: highlight(clonedProc)}));
+  var popup = $('#popup').html(tmps.popup({
+    info: highlight(clonedProc)
+  }));
   // Find tabcontent.
   var tabContent = popup.find('.tab-content').eq(0);
   // Bind slimScroll.
   tabContent.slimScroll({
-    height     : '300px',
-    color      : '#000',
-    opacity    : 0.8,
+    height: '300px',
+    color: '#000',
+    opacity: 0.8,
     railVisible: true,
-    railColor  : '#f0f0f0'
+    railColor: '#f0f0f0'
   });
 
   // Bing tab change event.
-  popup.find('li').click(function(){
+  popup.find('li').click(function () {
     var ele = $(this);
     if (ele.hasClass('active')) {
       return;
@@ -824,15 +852,15 @@ function showPopupTab(proc, delayed){
  * Tail log of process
  * @returns {*}
  */
-function tailLogs(){
+function tailLogs() {
   if (!popupProc) {
     $('#log').html('<span style="color:#ff0000">Process does not exist.</span>')
     return;
   }
   if (!sockets.log) {
-    sockets.log = io('/log');
+    sockets.log = connectSocketServer(NSP.LOG);
     sockets.log.on('log', appendLogs);
-    sockets.log.on('connect', function(){
+    sockets.log.on('connect', function () {
       sockets.log.emit('tail', popupProc.pm_id);
     });
   } else {
@@ -844,7 +872,7 @@ function tailLogs(){
  * Append logs to DOM.
  * @param {Object} log
  */
-function appendLogs(log){
+function appendLogs(log) {
   // Check process and pm_id should be equalled.
   if (!popupProc || popupProc.pm_id != log.pm_id) {
     return;
@@ -853,12 +881,12 @@ function appendLogs(log){
   // Remove `loading` status.
   $('#log>.load').remove();
 
-  var lo = $('#log'), 
-      loDom = lo.get(0);
+  var lo = $('#log'),
+    loDom = lo.get(0);
 
   var offset = loDom.scrollHeight - 300,
-      poffset = lo.parent().scrollTop() || 0,
-      scrollable = false;
+    poffset = lo.parent().scrollTop() || 0,
+    scrollable = false;
 
   // Scroll down if necessary.
   if (!scrolled || poffset >= offset - 30) {
@@ -867,7 +895,7 @@ function appendLogs(log){
   }
   $(log.msg).appendTo(lo);
 
-  if(scrollable){
+  if (scrollable) {
     lo.parent().slimScroll({
       scrollTo: loDom.scrollHeight - 300
     });
@@ -877,7 +905,7 @@ function appendLogs(log){
 /**
  * Destroy tail socket.
  */
-function destroyTail(){
+function destroyTail() {
   if (!sockets.log) {
     return;
   }
@@ -887,15 +915,15 @@ function destroyTail(){
 /**
  * Monitor the memory && CPU usage of process.
  */
-function monitorProc(){
+function monitorProc() {
   if (!popupProc || popupProc.pid == 0) {
     $('#monitor').html('<span style="color:#ff0000">Process does not exist or is not running.</span>')
     return;
   }
   if (!sockets.proc) {
-    sockets.proc = io('/proc');
+    sockets.proc = connectSocketServer(NSP.PROC);
     sockets.proc.on('proc', appendData);
-    sockets.proc.on('connect', function(){
+    sockets.proc.on('connect', function () {
       sockets.proc.emit('proc', popupProc.pid);
     });
   } else {
@@ -907,17 +935,23 @@ function monitorProc(){
  * Append data to lineChart.
  * @param proc
  */
-function appendData(proc){
+function appendData(proc) {
   if (!popupProc || popupProc.pid != proc.pid) {
     return;
   }
   var loadEl = $('#monitor>.load');
   if (lineChart.data.length == 0) {
     var now = proc.time || Date.now(),
-        len = lineChart.settings.queueLength;
+      len = lineChart.settings.queueLength;
 
-    lineChart.data = d3.range(len).map(function(n){
-      return {time: now - (len - n) * 3000, usage: {cpu: 0, memory: 0}};
+    lineChart.data = d3.range(len).map(function (n) {
+      return {
+        time: now - (len - n) * 3000,
+        usage: {
+          cpu: 0,
+          memory: 0
+        }
+      };
     });
   }
   // handle error
@@ -939,7 +973,7 @@ function appendData(proc){
 /**
  * Destroy monitor socket.
  */
-function destroyMonitor(){
+function destroyMonitor() {
   if (!sockets.proc) {
     return;
   }
@@ -952,9 +986,9 @@ function destroyMonitor(){
  * @param {jQuery} ele
  * @returns {*}
  */
-function getProcByEle(ele){
+function getProcByEle(ele) {
   var id = parseInt(ele.data('pmid'));
-  return _.find(procs.data, function(p){
+  return _.find(procs.data, function (p) {
     return p.pm_id == id;
   });
 }
@@ -965,9 +999,9 @@ function getProcByEle(ele){
  * @param {String} a animation name
  * @param {Function} cb callback
  */
-function animate(o, a, cb){
+function animate(o, a, cb) {
   a += ' animated';
-  o.removeClass(a).addClass(a).one('webkitAnimationEnd mozAnimationEnd MSAnimationEnd oanimationend animationend', function(){
+  o.removeClass(a).addClass(a).one('webkitAnimationEnd mozAnimationEnd MSAnimationEnd oanimationend animationend', function () {
     var ele = $(this);
     ele.removeClass(a)
     cb && cb.call(ele);
@@ -978,10 +1012,13 @@ function animate(o, a, cb){
  * Show sticky information
  * @param {String} msg
  */
-function info(msg){
+function info(msg) {
+  if (msg instanceof Error) {
+    msg = msg.message;
+  }
   $.sticky({
-    body         : msg,
-    icon         : './img/info.png',
+    body: msg,
+    icon: './img/info.png',
     useAnimateCss: true
   });
 }
@@ -991,7 +1028,7 @@ function info(msg){
  * @param {Float} mem
  * @returns {string}
  */
-function getMem(mem){
+function getMem(mem) {
   if (typeof mem == 'string') {
     return mem;
   }
@@ -1014,7 +1051,7 @@ function getMem(mem){
  * @param {Boolean} tiny show all of it.
  * @returns {string}
  */
-function fromNow(tick, tiny){
+function fromNow(tick, tiny) {
   if (tick < 60) {
     return tick + 's';
   }
@@ -1036,16 +1073,20 @@ function fromNow(tick, tiny){
  * @param {Int} indent
  * @returns {string}
  */
-function highlight(data, indent){
+function highlight(data, indent) {
   indent = indent || 2;
 
   data = JSON.stringify(typeof data != 'string' ? data : JSON.parse(data), undefined, indent);
 
-  [[/&/g, '&amp;'], [/</g, '&lt;'], [/>/g, '&gt;']].forEach(function(rep){
+  [
+    [/&/g, '&amp;'],
+    [/</g, '&lt;'],
+    [/>/g, '&gt;']
+  ].forEach(function (rep) {
     data = String.prototype.replace.apply(data, rep);
   });
 
-  return data.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, function(m){
+  return data.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, function (m) {
     var color = '1e297e';
     if (/^"/.test(m)) {
       color = ['440a4d', '0d660a'][/:$/.test(m) ? 0 : 1];
@@ -1063,32 +1104,35 @@ function highlight(data, indent){
  */
 var lineChart = {
   settings: {
-    id             : '#monitor',
-    width          : 580,
-    height         : 270,
-    ticks          : 5,
-    tension        : 0.8,
-    padding        : 10,
-    queueLength    : 20,
+    id: '#monitor',
+    width: 580,
+    height: 270,
+    ticks: 5,
+    tension: 0.8,
+    padding: 10,
+    queueLength: 20,
     transitionDelay: 3000,
-    fancyDelay     : 1000,
-    tickFormat     : '%H:%M:%S',
-    series         : ['cpu', 'memory'],
-    colors         : {
-      line: {cpu: 'rgba(0, 200, 0, 1)', memory: 'rgba(200, 200, 0, 1)'},
-      dot : '#ff5400'
+    fancyDelay: 1000,
+    tickFormat: '%H:%M:%S',
+    series: ['cpu', 'memory'],
+    colors: {
+      line: {
+        cpu: 'rgba(0, 200, 0, 1)',
+        memory: 'rgba(200, 200, 0, 1)'
+      },
+      dot: '#ff5400'
     }
   },
-  data    : [],
-  eles    : {},
-  destroy : function(){
+  data: [],
+  eles: {},
+  destroy: function () {
     this.eles.path && this.eles.path.interrupt().transition();
     this.eles.xAxis && this.eles.xAxis.interrupt().transition();
     d3.timer.flush();
     this.data = [];
     this.eles = {};
   },
-  next    : function(forceQuit){
+  next: function (forceQuit) {
     var ng = !this.eles.svg;
     if (ng && forceQuit) {
       return;
@@ -1108,14 +1152,14 @@ var lineChart = {
 
     this.eles.x.domain([this.data[1].time, this.data[st.queueLength - 1].time]);
 
-    st.series.forEach(function(key){
+    st.series.forEach(function (key) {
       lineChart.eles[key + 'LineEl']
         .attr('d', lineChart.eles[key + 'Line'])
         .attr('transform', null);
     });
 
     if (ng) {
-      return setTimeout(function(ctx){
+      return setTimeout(function (ctx) {
         ctx.next(true);
       }, 10, this);
     }
@@ -1125,7 +1169,7 @@ var lineChart = {
       .duration(st.transitionDelay)
       .ease('linear')
       .attr('transform', 'translate(' + this.eles.x(this.data[0].time) + ', ' + st.padding + ')')
-      .each('end', function(){
+      .each('end', function () {
         lineChart.next(true);
       });
 
@@ -1136,13 +1180,13 @@ var lineChart = {
 
     this.data.shift();
   },
-  _graph  : function(){
+  _graph: function () {
     var st = this.settings;
     st.gWidth = st.width;
     st.gHeight = st.height - 50;
 
     var series = '<ul>';
-    st.series.forEach(function(key){
+    st.series.forEach(function (key) {
       series += '<li style="color:' + st.colors.line[key] + '">' + key + '</li>';
     });
     series += '</ul>';
@@ -1195,15 +1239,15 @@ var lineChart = {
     this.eles.path = this.eles.g.append('g')
       .attr('transform', 'translate(0, ' + st.padding + ')');
 
-    st.series.forEach(function(key){
+    st.series.forEach(function (key) {
       lineChart.eles[key + 'Line'] = d3.svg
         .line()
         .interpolate('cardinal')
         .tension(st.tension)
-        .x(function(d){
+        .x(function (d) {
           return lineChart.eles.x(d.time || Date.now());
         })
-        .y(function(d){
+        .y(function (d) {
           return lineChart.eles.y(!d.usage ? 0 : d.usage[key]);
         });
 

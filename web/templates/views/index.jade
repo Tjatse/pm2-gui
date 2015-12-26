@@ -1,0 +1,38 @@
+extends ../layouts/default
+
+block head
+  link(rel='stylesheet', href='/css/jquery.fullPage.css')
+  link(rel='stylesheet', href='/css/index.css')
+
+block content
+  #fullpage
+    .section
+      .repo.bounceInDown
+        a(href='https://github.com/Tjatse/pm2-gui', target='_blank') Github Repo
+        span
+      .polar-usage
+      .system-info
+      .procs-hint-container.hide
+        div 
+          = 'Apps('
+          span 0
+          = ')'
+    .section.moveDown
+      .procs
+      #procs_action
+
+  .spinner
+    div
+    div
+    div
+    div
+    div
+
+  include ../partials/tmpls
+
+block js
+  script(src='js/socket.io.js')
+  script(src='js/d3.min.js')
+  script(src='js/jquery.fullPage.min.js')
+  script(src='js/fanavi.min.js')
+  script(src='js/index.html.js')

@@ -48,12 +48,15 @@ function startWebServer(confFile) {
     port: options.port
   });
 
-  monitor._sockio = socketIO(server);
+  monitor.sockio = socketIO(server);
   monitor.run();
   console.info('Web server is listening on 0.0.0.0:' + options.port);
 };
 
 function dashboard(confFile) {
+  Log({
+    level: 1000
+  });
   var monitor = slave({
     confFile: confFile
   });

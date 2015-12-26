@@ -1,6 +1,5 @@
 var express = require('express'),
   session = require('express-session'),
-  swig = require('swig'),
   path = require('path'),
   http = require('http'),
   Monitor = require('../lib/monitor'),
@@ -10,9 +9,8 @@ module.exports = runServer;
 
 function runServer(options) {
   var app = express();
-  app.set('view engine', 'html');
-  app.set('views', path.join(__dirname, 'views'));
-  app.engine('html', swig.renderFile);
+  app.set('view engine', 'jade');
+  app.set('views', path.join(__dirname, 'templates/views'));
   app.use(express.static(path.join(__dirname, 'public')));
   app.use(session({
     secret: 'pm2@gui',
