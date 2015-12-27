@@ -2,7 +2,7 @@
 node="$(which node)"
 pidfile="pm2-gui.pid"
 prefixINFO="\033[1;32m[INFO]\033[0m"
-prefixWARN="\033[1;33m[WARNING]\033[0m"
+prefixWARN="\033[1;33m[WARN]\033[0m"
 
 function isRunning() {
   if [ ! -f $pidfile ];
@@ -69,13 +69,14 @@ EOF
 
 case "$1" in
   start)
-    server "$@";
+    server "$@";  # bash < v4.1 did not support ;&
     ;;
-
   agent)
     server "$@";
     ;;
-
+  mon)
+    server "$@";
+    ;;
   stop)
     isRunning;
     if [ 0 -eq $? ];

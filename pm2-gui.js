@@ -68,6 +68,10 @@ function startAgent(confFile) {
   });
 
   var options = monitor.options;
+  if (options.agent && options.agent.offline) {
+    console.error('Agent is offline, can not start it.');
+    return process.exit(0);
+  }
   options.port = options.port || 8088;
   var sockio = socketIO();
   sockio.listen(options.port);
@@ -76,13 +80,27 @@ function startAgent(confFile) {
 }
 
 function dashboard(confFile) {
+  var monitor = slave({
+      confFile: confFile
+    }),
+    options = monitor.options;
+
+  if (options.agent && options.agent.offline) {
+    console.error('Agent is offline, can not start it.');
+    return process.exit(0);
+  }
+
+  options.port = options.port || 8088;
+  var sockio = socketIO();
+  sockio.listen(options.port);
+  monitor.sockio = sockio;
+/*
   Log({
     level: 1000
   });
-  var monitor = slave({
-    confFile: confFile
-  });
-  monitor.dashboard();
+*/
+  monitor.run();
+  monitor.dashboard(options);
 }
 
 function exitGraceful(code, signal) {
