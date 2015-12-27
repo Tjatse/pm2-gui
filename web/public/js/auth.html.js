@@ -1,12 +1,12 @@
 var btn, pwd, light, timer;
 
-$(window).ready(function(){
+$(window).ready(function () {
   light = $('span');
   pwd = $('input:password');
   pwd.focus();
 
   // Login.
-  pwd.keyup(function(e){
+  pwd.keyup(function (e) {
     if (e.keyCode == 13) {
       login();
     }
@@ -17,7 +17,7 @@ $(window).ready(function(){
 });
 
 // Login event.
-function login(){
+function login() {
   // Called one time.
   if (btn.hasClass('active')) {
     return;
@@ -31,16 +31,16 @@ function login(){
   // Post data to server.
   lightUp();
   $.ajax({
-    url     : 'auth_api?t=' + Math.random(),
-    data    : {
-      pwd: val
+    url: 'auth_api?t=' + Math.random(),
+    data: {
+      authorization: val
     },
     dataType: 'json',
-    error   : function(){
+    error: function () {
       info('Can not get response from server, it is an internal error.');
       lightOff();
     },
-    success : function(res){
+    success: function (res) {
       lightOff();
       if (res.error) {
         return info(res.error);
@@ -52,17 +52,17 @@ function login(){
 };
 
 // Beginning of AJAX.
-function lightUp(){
+function lightUp() {
   lightOff();
   btn.addClass('active');
 
-  timer = setInterval(function(){
+  timer = setInterval(function () {
     light.toggleClass('active');
   }, 500);
 }
 
 // Ending of AJAX.
-function lightOff(){
+function lightOff() {
   if (timer) {
     clearInterval(timer);
     timer = null;
@@ -71,53 +71,53 @@ function lightOff(){
 }
 
 // Show tips.
-function info(msg){
+function info(msg) {
   $.sticky({
-    body         : msg,
-    icon         : './img/info.png',
+    body: msg,
+    icon: './img/info.png',
     useAnimateCss: true
   });
 }
 
-function drawLogo(){
+function drawLogo() {
   var w = 80,
-      h = 32;
+    h = 32;
 
   var svg = d3.select('#logo')
     .append('svg')
     .attr('width', w)
     .attr('height', h);
 
-  var filter = svg.append("defs")
-    .append("filter")
-    .attr("id", "dropshadow")
+  var filter = svg.append('defs')
+    .append('filter')
+    .attr('id', 'dropshadow')
 
-  filter.append("feGaussianBlur")
-    .attr("in", "SourceAlpha")
-    .attr("stdDeviation", 1)
-    .attr("result", "blur");
-  filter.append("feOffset")
-    .attr("in", "blur")
-    .attr("dx", 4)
-    .attr("dy", 4)
-    .attr("result", "offsetBlur")
-  filter.append("feFlood")
-    .attr("in", "offsetBlur")
-    .attr("flood-color", "#0a6506")
-    .attr("flood-opacity", "0.9")
-    .attr("result", "offsetColor");
-  filter.append("feComposite")
-    .attr("in", "offsetColor")
-    .attr("in2", "offsetBlur")
-    .attr("operator", "in")
-    .attr("result", "offsetBlur");
+  filter.append('feGaussianBlur')
+    .attr('in', 'SourceAlpha')
+    .attr('stdDeviation', 1)
+    .attr('result', 'blur');
+  filter.append('feOffset')
+    .attr('in', 'blur')
+    .attr('dx', 4)
+    .attr('dy', 4)
+    .attr('result', 'offsetBlur')
+  filter.append('feFlood')
+    .attr('in', 'offsetBlur')
+    .attr('flood-color', '#0a6506')
+    .attr('flood-opacity', '0.9')
+    .attr('result', 'offsetColor');
+  filter.append('feComposite')
+    .attr('in', 'offsetColor')
+    .attr('in2', 'offsetBlur')
+    .attr('operator', 'in')
+    .attr('result', 'offsetBlur');
 
-  var feMerge = filter.append("feMerge");
+  var feMerge = filter.append('feMerge');
 
-  feMerge.append("feMergeNode")
-    .attr("in", "offsetBlur")
-  feMerge.append("feMergeNode")
-    .attr("in", "SourceGraphic");
+  feMerge.append('feMergeNode')
+    .attr('in', 'offsetBlur')
+  feMerge.append('feMergeNode')
+    .attr('in', 'SourceGraphic');
 
   var vis = svg
     .append('g')
@@ -125,9 +125,9 @@ function drawLogo(){
     .attr('height', h);
 
   vis.append('path')
-    .style("fill", "none")
-    .style("stroke", "#fff")
-    .style("stroke-width", 2)
+    .style('fill', 'none')
+    .style('stroke', '#fff')
+    .style('stroke-width', 2)
     .attr('d', 'M24,12 T16,8 T4,16 T16,28 T24,20 T18,20 T28,18 T30,16 T44,24 T48,16 T58,8 L58,28 T62,16 T68,16 T72,16 T76,16')
-    .attr("filter", "url(#dropshadow)");
+    .attr('filter', 'url(#dropshadow)');
 }

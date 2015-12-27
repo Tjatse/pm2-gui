@@ -1,14 +1,14 @@
 // Authorization
-action(function auth(req, res){
+action(function auth(req, res){/*
   if (!req._config.password || (req._config.password === req.session['password'])) {
     return res.redirect('/');
-  }
+  }*/
   res.render('auth', {title: 'Authorization'});
 });
 
 // Index
 action(function(req, res){
-  if (req._config.password && (req._config.password !== req.session['password'])) {
+  if (req._config.agent && (req._config.agent.authorization !== req.session['authorization'])) {
     return res.redirect('/auth');
   }
   res.render('index', {title: 'Monitor'});
@@ -16,13 +16,16 @@ action(function(req, res){
 
 // API
 action(function auth_api(req, res){
-  if (!req.query || !req.query.pwd) {
-    return res.json({error: 'Authorization failed, password is required!'});
+  if(!req._config.agent || !req._config.agent.authorization){
+    return res.json({error: 'Can not found agent[.authorization] config, no need to authorize!'});
+  }
+  if (!req.query || !req.query.authorization) {
+    return res.json({error: 'Authorization is required!'});
   }
 
-  if (req.query.pwd === req._config.password) {
-    req.session['password'] = req.query.pwd;
+  if (req._config.agent && req.query.authorization === req._config.agent.authorization) {
+    req.session['authorization'] = req.query.authorization;
     return res.json({status: 200});
   }
-  return res.json({error: 'Authorization failed, password is incorrect.'});
+  return res.json({error: 'Failed, authorization is incorrect.'});
 });

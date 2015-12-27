@@ -12,9 +12,8 @@ An elegant web & terminal interface for Unitech/PM2.
 - [Features](#feats)
 - [Cautions](#cauts)
 - [Installation](#ins)
-- [CLI](#cli)
-  - [Run Web Interface](#cli_web)
-  - [Curses-like dashboard](#dashboard)
+- [Usage](#usage)
+- [Configuration](#config)
 - [Authorization](#auth)
 - [UI/UX](#ui)
 - [Serving apps locally with nginx and custom domain](#serv)
@@ -41,90 +40,65 @@ An elegant web & terminal interface for Unitech/PM2.
 
 <a name="ins" />
 # Installation
-```
-$ npm install -g pm2-gui
-```
-
-<a name="cli" />
-# CLI
-```
-  Usage: pm2-gui [cmd] [options]
-
-  Commands:
-
-    start [options] [port]  Launch the web server, port default by 8088
-    mon                     curses-like dashboard
-    config                  show all configs
-    set <key> <value>       set config by key-value pairs
-    rm <key>                remove config by key
-
-  Options:
-
-    -h, --help     output usage information
-    -v, --version  output the version number
-
-  Basic Examples:
-
-    Start the web server, by default port (8088):
-    $ pm2-gui start
-
-    Start the web server, by specific port (8090):
-    $ pm2-gui start 8090
-
-    Start the web server, by specific configuration file (pm2-gui.ini):
-    $ pm2-gui start --config
-
-    Start the web server, by specific configuration file:
-    $ pm2-gui start --config my-config.ini
-```
-
-<a name="dashboard" />
-## Curses-like dashboard
-**Only working on unix system**
 ```bash
-  Usage: mon [options]
-
-  Options:
-
-    -h, --help  output usage information
+$ npm install pm2-gui -g
+# or
+$ npm install pm2-gui --production
+$ cd node_modules/pm2-gui
+# or
+$ git clone https://github.com/Tjatse/pm2-gui.git
+$ cd pm2-gui
+$ npm install --production
+$ pm2-gui [cmd] [options]
 ```
 
-<a name="cli_web" />
-## Run Web Interface
+<a name="usage" />
+# Usage
+Run the following command to get usage helps:
 ```bash
-  Usage: start [options] [port]
-
-  Options:
-
-    -h, --help       output usage information
-    --config [file]  pass ".ini" configuration file (with options)
-    --no-debug       hide stdout / stderr information
+$ pm2-gui
 ```
 
-<a name="daemonize" />
-## daemonize
+Directly:
 ```bash
-# start
-$ nohup pm2-gui start > /dev/null 2>&1 & echo $! > /path/to/pm2-gui.pid
-# stop
-$ kill -9 `cat /path/to/pm2-gui.pid`
+$ node pm2-gui.js <cmd> [options]
 ```
 
-<a name="cli_confs" />
-## Configs
+Programmable:
+```javascript
+var pm2GUI = require('pm2-gui');
+pm2GUI.startWebServer([ini_config_file]);
+pm2GUI.startAgent([ini_config_file]);
+pm2GUI.dashboard([ini_config_file]);
+```
+
+<a name="config" />
+# Configuration
+`pm2-gui/pm2-gui.ini`:
 ```ini
 pm2 = ~/.pm2
 refresh = 5000
-debug = false
 port = 8088
+daemonize = false
+
+[log]
+dir = ./logs
+prefix = true
+date = false
+level = log
+
+[agent]
+authorization = AuTh
+
+[remotes]
+; pm_loc = AuTh@127.0.0.1:8088
+; pm_101 = AuTh@192.168.100.129:8088
 ```
 
 <a name="ui" />
 # UI/UX
 - Amazing and smooth animations.
 - High performance.
-
-Some screenshots:
 
 Curses-like dashboard:
 
@@ -134,7 +108,7 @@ Backend (without `--no-debug` option):
 
 ![image](screenshots/term.jpg)
 
-Auth
+Authorization
 
 ![image](screenshots/auth.jpg)
 
@@ -155,7 +129,6 @@ CPU && Memory Usage
 
 ![image](screenshots/usage.jpg)
 
-<a name="ss_logs" />
 Tail Logs
 
 ![image](screenshots/logs.jpg)

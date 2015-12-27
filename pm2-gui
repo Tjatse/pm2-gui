@@ -32,16 +32,29 @@ function status() {
   fi
 }
 
+function server (){
+  isRunning;
+    if [ 0 -eq $? ];
+      then
+        echo -e "$prefixINFO Starting..."
+        $node ./lib/daemon "$@"
+        sleep 1;
+    fi
+    status;
+}
+
 function usage () {
   cat <<-EOF
 
   Usage: $0 <cmd> [options]
 
   Commands:
-    start [config_file]   start the service
+    start [config_file]   start the service, including agent and web server
+    agent [config_file]   start the agent only
     stop                  stop the running service
     restart               restart the service
     mon                   run the curses-like dashboard in terminal
+    status                show the status of service
     logs [log_directory]  view the logs
 
   Examples:
@@ -56,14 +69,11 @@ EOF
 
 case "$1" in
   start)
-    isRunning;
-    if [ 0 -eq $? ];
-      then
-        echo -e "$prefixINFO Starting..."
-        $node ./lib/daemon "$@"
-        sleep 1;
-    fi
-    status;
+    server "$@";
+    ;;
+
+  agent)
+    server "$@";
     ;;
 
   stop)

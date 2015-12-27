@@ -21,15 +21,24 @@ if (path.basename(process.mainModule.filename, '.js') == 'pm2-gui') {
   case 'start':
     startWebServer(file);
     break;
+  case 'agent':
+    startAgent(file);
+    break;
   case 'mon':
     dashboard(file);
     break;
   default:
+    Log({
+      level: 0,
+      prefix: true
+    });
+    console.error('Command', cmd, 'is not supported!')
     break;
   }
 }
 
 exports.startWebServer = startWebServer;
+exports.startAgent = startAgent;
 exports.dashboard = dashboard;
 exports.exitGraceful = exitGraceful;
 
@@ -51,7 +60,20 @@ function startWebServer(confFile) {
   monitor.sockio = socketIO(server);
   monitor.run();
   console.info('Web server is listening on 0.0.0.0:' + options.port);
-};
+}
+
+function startAgent(confFile) {
+  var monitor = slave({
+    confFile: confFile
+  });
+
+  var options = monitor.options;
+  options.port = options.port || 8088;
+  var sockio = socketIO();
+  sockio.listen(options.port);
+  monitor.sockio = sockio;
+  console.info('Socket.io server is listening on 0.0.0.0:' + options.port);
+}
 
 function dashboard(confFile) {
   Log({
@@ -61,7 +83,7 @@ function dashboard(confFile) {
     confFile: confFile
   });
   monitor.dashboard();
-};
+}
 
 function exitGraceful(code, signal) {
   code = code || 0;
@@ -88,7 +110,7 @@ function exitGraceful(code, signal) {
     }
   });
   tryToExit();
-};
+}
 
 function slave(options) {
   process.title = 'pm2-gui slave';
@@ -144,4 +166,4 @@ function slave(options) {
   }
 
   return monitor;
-};
+}
