@@ -1,3 +1,19 @@
+0.1.2
+**Breaking Changes**
+- `.ini` properties.
+
+**Enhancements**
+- Run like a daemonized server.
+- Remoting agents support.
+- Commands.
+- Logger system.
+
+**Bugs**
+- #19
+- #27
+- #28
+- #29
+
 0.1.1
 **Enhancements**
 - Terminal dashboard processes amount.
