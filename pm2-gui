@@ -34,13 +34,13 @@ function status() {
 
 function server (){
   isRunning;
-    if [ 0 -eq $? ];
-      then
-        echo -e "$prefixINFO Starting..."
-        $node ./lib/daemon "$@"
-        sleep 1;
-    fi
-    status;
+  if [ 0 -eq $? ];
+    then
+      echo -e "$prefixINFO Starting..."
+      $node ./lib/daemon "$@"
+      sleep 1;
+  fi
+  status;
 }
 
 function usage () {
@@ -75,7 +75,8 @@ case "$1" in
     server "$@";
     ;;
   mon)
-    server "$@";
+    $node ./lib/daemon "$@";
+    echo -e "$prefixWARN Stopped.";
     ;;
   stop)
     isRunning;

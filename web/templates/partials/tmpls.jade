@@ -61,7 +61,7 @@ script#popupTmp(type='text/html')
           a(href= '#' + tab, aria-controls='info', role='tab', data-toggle='tab')= tab[0].toUpperCase() + tab.slice(1)
     .tab-content
       each attrs, tab in tabs
-        div(id= '#' + tab, class= ('tab-pane ' + (attrs.class || '')), role='tabpanel')
+        div(id= tab, class= ('tab-pane ' + (attrs.class || '')), role='tabpanel')
           if tab == 'info'
             pre 
               != '<%= info %>'

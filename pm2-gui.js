@@ -2,11 +2,14 @@ var chalk = require('chalk'),
   path = require('path'),
   fs = require('fs'),
   _ = require('lodash'),
+  url = require('url'),
   socketIO = require('socket.io'),
   inquirer = require("inquirer"),
+  conf = require('./lib/util/conf'),
   Monitor = require('./lib/monitor'),
   Log = require('./lib/util/log'),
-  Web = require('./web/index');
+  Web = require('./web/index'),
+  layout = require('./lib/blessed-widget/layout');
 
 if (path.basename(process.mainModule.filename, '.js') == 'pm2-gui') {
   var cmd, file;
@@ -60,7 +63,7 @@ function startWebServer(confFile) {
 
   monitor.sockio = socketIO(server);
   monitor.run();
-  console.info('Web server is listening on 0.0.0.0:' + options.port);
+  console.info('Web server is listening on 127.0.0.1:' + options.port);
 }
 
 function startAgent(confFile) {
@@ -89,7 +92,7 @@ function dashboard(confFile) {
   var monitor = slave({
       confFile: confFile
     }),
-    options = monitor.options;
+    options = _.clone(monitor.options);
 
   options.agent = options.agent || {};
   var remotable = options.remotes && _.keys(options.remotes).length > 0;
@@ -122,8 +125,8 @@ function dashboard(confFile) {
   }
   if (!options.agent.offline) {
     q.choices.push(new inquirer.Separator());
-    var short = 'local',
-      connectionString = (options.agent && options.agent.authorization ? options.agent.authorization + '@' : '') + 'localhost:' + options.port;
+    var short = 'localhost',
+      connectionString = (options.agent && options.agent.authorization ? options.agent.authorization + '@' : '') + '127.0.0.1:' + options.port;
     q.choices.push({
       value: connectionString,
       short: short
@@ -140,22 +143,9 @@ function dashboard(confFile) {
   console.log('');
 
   inquirer.prompt(q, function (answers) {
-    var connectionString = answers.socket_server;
-    console.log(connectionString);
-    _connectToDashboard(monitor, options);
-    // TODO:
+    console.log('');
+    _connectToDashboard(monitor, options, _parseConnectionString(answers.socket_server));
   });
-}
-
-function _connectToDashboard(monitor, options) {
-  var sockio = socketIO();
-  sockio.listen(options.port);
-  monitor.sockio = sockio;
-  Log({
-    level: 1000
-  });
-  monitor.run();
-  monitor.dashboard(options);
 }
 
 function exitGraceful(code, signal) {
@@ -239,4 +229,54 @@ function slave(options) {
   }
 
   return monitor;
+}
+
+function _connectToDashboard(monitor, options, connection) {
+  if (!connection || !!~['127.0.0.1', '0.0.0.0', 'localhost'].indexOf(connection.hostname)) {
+    return monitor.connect(_.extend({
+      namespace: conf.NSP.SYS
+    }, options), function (err, socket) {
+      if (err || !socket) {
+        console.warn('Agent is offline, try to start it.');
+        var sockio = socketIO();
+        sockio.listen(options.port);
+        monitor.sockio = sockio;
+        monitor.run();
+      } else {
+        console.info('Agent is online, try to connect it in dashboard directly.');
+        options.sockets = {};
+        var ns = _.trimLeft(conf.NSP.SYS, '/');
+        options.sockets[ns] = socket;
+      }
+
+      layout(options).render(monitor);
+    });
+  }
+
+  layout(connection).render(monitor);
+}
+
+function _parseConnectionString(connectionString) {
+  var connection = {
+    port: 8088,
+    hostname: '127.0.0.1',
+    authorization: ''
+  };
+  var lastAt = connectionString.lastIndexOf('@');
+  if (lastAt >= 0) {
+    connection.authorization = connectionString.slice(0, lastAt);
+    connectionString = connectionString.slice(lastAt + 1);
+  }
+  if (!/^http(s)?:\/\//i.test(connectionString)) {
+    connectionString = 'http://' + connectionString;
+  }
+
+  if (connectionString) {
+    connectionString = url.parse(connectionString);
+    connection.hostname = connectionString.hostname;
+    connection.port = connectionString.port;
+    connection.path = _.trimLeft(connectionString.path, '/');
+    connection.protocol = connectionString.protocol;
+  }
+  return connection;
 }

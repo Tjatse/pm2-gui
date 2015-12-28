@@ -48,8 +48,10 @@ $ cd node_modules/pm2-gui
 # or
 $ git clone https://github.com/Tjatse/pm2-gui.git
 $ cd pm2-gui
+# install dependencies
 $ npm install --production
-$ pm2-gui [cmd] [options]
+# run monitor
+$ pm2-gui <cmd> [options]
 ```
 
 <a name="usage" />
@@ -76,23 +78,57 @@ pm2GUI.dashboard([ini_config_file]);
 # Configuration
 `pm2-gui/pm2-gui.ini`:
 ```ini
+;
+; Home directory of pm2.
+;
 pm2 = ~/.pm2
+;
+; The interval between communications of Monitor.
+;
 refresh = 5000
+;
+; Port of Web server and socket agent.
+;
 port = 8088
+;
+; A valud indicates whether run the pm2-gui damonized or not.
+;
 daemonize = false
 
 [log]
+;
+; Log directory.
+;
 dir = ./logs
+;
+; A value indicates whether display the [INFO], [ERROR].. prefixes before log message or not.
+;
 prefix = true
+;
+; A value indicates whether display the local date string before log message or not.
+;
 date = false
+;
+; Log level, one of debug, log, info, warn, error.
+;
 level = log
 
 [agent]
-authorization = AuTh
-
+;
+; This authorization will be used to authorize socket / web connections if it's set.
+;
+; authorization = AuTh
+;
+; A value indicates whether agent offline or not.
+;
+; offline = false
 [remotes]
-; pm_loc = AuTh@127.0.0.1:8088
-; pm_101 = AuTh@192.168.100.129:8088
+;
+; the dashboard and web server will use this section to connect remoting socket server
+;   server_name = [authorization@]host:port
+;
+; pm2@131 = AuTh@192.168.1.131:9002
+; pm2@172 = 192.168.1.172:9001
 ```
 
 <a name="ui" />
