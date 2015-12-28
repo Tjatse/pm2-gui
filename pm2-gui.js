@@ -81,6 +81,7 @@ function startAgent(confFile) {
   var sockio = socketIO();
   sockio.listen(options.port);
   monitor.sockio = sockio;
+  monitor.run();
   console.info('Socket.io server is listening on 0.0.0.0:' + options.port);
 }
 
