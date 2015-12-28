@@ -3,6 +3,7 @@ var chalk = require('chalk'),
   fs = require('fs'),
   _ = require('lodash'),
   socketIO = require('socket.io'),
+  inquirer = require("inquirer"),
   Monitor = require('./lib/monitor'),
   Log = require('./lib/util/log'),
   Web = require('./web/index');
@@ -68,7 +69,8 @@ function startAgent(confFile) {
   });
 
   var options = monitor.options;
-  if (options.agent && options.agent.offline) {
+  options.agent = options.agent || {};
+  if (options.agent.offline) {
     console.error('Agent is offline, can not start it.');
     return process.exit(0);
   }
@@ -80,25 +82,78 @@ function startAgent(confFile) {
 }
 
 function dashboard(confFile) {
+  // restore cursor;
+  process.on('exit', function () {
+    process.stdout.write('\u001b[?25h');
+  });
   var monitor = slave({
       confFile: confFile
     }),
     options = monitor.options;
 
-  if (options.agent && options.agent.offline) {
-    console.error('Agent is offline, can not start it.');
+  options.agent = options.agent || {};
+  var remotable = options.remotes && _.keys(options.remotes).length > 0;
+
+  if (options.agent.offline && remotable) {
+    console.error('No agent is online, can not start it.');
     return process.exit(0);
   }
 
   options.port = options.port || 8088;
+
+  if (!remotable) {
+    return _connectToDashboard(monitor, options);
+  }
+  console.info('Remoting servers are online, choose one you are intrested in.')
+  var q = {
+      name: 'socket_server',
+      message: 'Which socket server would you wanna connect to',
+      type: 'list',
+      choices: []
+    },
+    maxShortLength = 0;
+  for (var remote in options.remotes) {
+    var connectionString = options.remotes[remote];
+    q.choices.push({
+      value: connectionString,
+      short: remote
+    });
+    maxShortLength = Math.max(maxShortLength, remote.length);
+  }
+  if (!options.agent.offline) {
+    q.choices.push(new inquirer.Separator());
+    var short = 'local',
+      connectionString = (options.agent && options.agent.authorization ? options.agent.authorization + '@' : '') + 'localhost:' + options.port;
+    q.choices.push({
+      value: connectionString,
+      short: short
+    });
+    maxShortLength = Math.max(maxShortLength, short.length);
+  }
+
+  q.choices.forEach(function (c) {
+    if (c.type != 'separator') {
+      c.name = '[' + c.short + Array(maxShortLength - c.short.length + 1).join(' ') + '] ' + c.value;
+    }
+  });
+
+  console.log('');
+
+  inquirer.prompt(q, function (answers) {
+    var connectionString = answers.socket_server;
+    console.log(connectionString);
+    _connectToDashboard(monitor, options);
+    // TODO:
+  });
+}
+
+function _connectToDashboard(monitor, options) {
   var sockio = socketIO();
   sockio.listen(options.port);
   monitor.sockio = sockio;
-/*
   Log({
     level: 1000
   });
-*/
   monitor.run();
   monitor.dashboard(options);
 }
