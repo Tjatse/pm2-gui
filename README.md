@@ -20,7 +20,8 @@ An elegant web & terminal interface for Unitech/PM2.
 
 <a name="feats" />
 # Features
-- Curses-like dashboard
+- Curses-like dashboard.
+- Remoting monitor / web control.
 - All the heartbeats (no matter **monitor** or **tail (logs)**) are automatic destroyed.
 - The `PM2` processes are watched by a subscribed emitter.
 - Communicated with `PM2` through **RPC** socket directly.
@@ -28,10 +29,10 @@ An elegant web & terminal interface for Unitech/PM2.
 - Monitor CPU and Memory usage of server in a real-time.
 - Monitor `PM2` processes in a real-time.
 - PM2 *restart/stop/delete*.
- - *stopWatch* files before *restart/stop/delete*
- - *restartWatch* files before *restart*
+ - *stopWatch* files before *restart/stop/delete*.
+ - *restartWatch* files before *restart*.
 - Supports [ANSI color codes](#ss_logs) by [ansi-html](https://github.com/Tjatse/ansi-html).
-- High performance. In my case, there are near one hundred processes, but `pm2-gui` works fine.
+- High performance. In my case, there are near one hundred processes, but `pm2-gui` works without any suck.
 
 <a name="cauts" />
 # Cautions

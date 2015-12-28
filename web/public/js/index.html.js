@@ -20,21 +20,6 @@ var sysStat,
   scrolled;
 
 /**
- * Initialization.
- */
-$(window).ready(function () {
-
-  prepareDOM();
-
-  initFullPage();
-
-  listenSocket();
-
-  renderFanavi();
-
-});
-
-/**
  * Prepare DOM, cache elements, templates...
  */
 function prepareDOM() {
@@ -98,11 +83,11 @@ function initFullPage() {
 /**
  * Set fullPage enable or disable.
  * @param {Boolean} enable
- * @param {Boolean} exceptScroll
+ * @param {Boolean} unscrollable
  */
-function setFPEnable(enable, exceptScroll) {
+function setFPEnable(enable, unscrollable) {
   $.fn.fullpage.setAllowScrolling(enable);
-  if (!exceptScroll) {
+  if (!unscrollable) {
     $.fn.fullpage.setKeyboardScrolling(enable);
     eles.fpNav[enable ? 'fadeIn' : 'fadeOut']();
   }
@@ -112,15 +97,40 @@ function setFPEnable(enable, exceptScroll) {
  * Connect to socket server.
  */
 function connectSocketServer(ns) {
-  var socket = io('127.0.0.1:8088' + ns + '?token=abc');
-  socket.on('error', info);
+  var uri = GUI.connection.value,
+    index = uri.indexOf('?'),
+    query = '';
+  if (index > 0) {
+    query = uri.slice(index);
+    uri = uri.slice(0, index);
+  }
+  console.log('before', uri, query, ns);
+
+  uri = _.trimRight(uri, '/') + (ns || '') + query;
+  if (!ns) {
+    return io.connect(uri).on('error', onError);
+  }
+  var socket = io.connect(uri);
+  socket.on('error', onError);
   return socket;
+}
+
+/**
+ * Fires on error.
+ * @param  {String} err
+ */
+function onError(err) {
+  if (err == 'unauthorized') {
+    err = 'There was an error with the authentication: ' + err;
+  }
+  info(err);
 }
 
 /**
  * Initialize socket.io client and add listeners.
  */
 function listenSocket() {
+  connectSocketServer();
   sockets.sys = connectSocketServer(NSP.SYS);
   // information from server.
   sockets.sys.on('info', info);

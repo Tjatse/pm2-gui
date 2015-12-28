@@ -1,31 +1,54 @@
+var Monitor = require('../../lib/monitor');
+
 // Authorization
-action(function auth(req, res){/*
-  if (!req._config.password || (req._config.password === req.session['password'])) {
+action(function auth(req, res) {
+  if (!req._config.agent || (req._config.agent.authorization === req.session['authorization'])) {
     return res.redirect('/');
-  }*/
-  res.render('auth', {title: 'Authorization'});
+  }
+  res.render('auth', {
+    title: 'Authorization'
+  });
 });
 
 // Index
-action(function(req, res){
-  if (req._config.agent && (req._config.agent.authorization !== req.session['authorization'])) {
+action(function (req, res) {
+  var auth;
+  if (req._config.agent && ((auth = req._config.agent.authorization) !== req.session['authorization'])) {
     return res.redirect('/auth');
   }
-  res.render('index', {title: 'Monitor'});
+  var q = Monitor.available(req._config),
+    connections = [];
+
+  q.choices.forEach(function (c) {
+    c.value = Monitor.toConnectionString(Monitor.parseConnectionString(c.value));
+    connections.push(c);
+  });
+  res.render('index', {
+    title: 'Monitor',
+    connections: connections
+  });
 });
 
 // API
-action(function auth_api(req, res){
-  if(!req._config.agent || !req._config.agent.authorization){
-    return res.json({error: 'Can not found agent[.authorization] config, no need to authorize!'});
+action(function auth_api(req, res) {
+  if (!req._config.agent || !req._config.agent.authorization) {
+    return res.json({
+      error: 'Can not found agent[.authorization] config, no need to authorize!'
+    });
   }
   if (!req.query || !req.query.authorization) {
-    return res.json({error: 'Authorization is required!'});
+    return res.json({
+      error: 'Authorization is required!'
+    });
   }
 
   if (req._config.agent && req.query.authorization === req._config.agent.authorization) {
     req.session['authorization'] = req.query.authorization;
-    return res.json({status: 200});
+    return res.json({
+      status: 200
+    });
   }
-  return res.json({error: 'Failed, authorization is incorrect.'});
+  return res.json({
+    error: 'Failed, authorization is incorrect.'
+  });
 });

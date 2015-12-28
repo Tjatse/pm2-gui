@@ -2,7 +2,6 @@ var chalk = require('chalk'),
   path = require('path'),
   fs = require('fs'),
   _ = require('lodash'),
-  url = require('url'),
   socketIO = require('socket.io'),
   inquirer = require("inquirer"),
   conf = require('./lib/util/conf'),
@@ -93,59 +92,28 @@ function dashboard(confFile) {
   var monitor = slave({
       confFile: confFile
     }),
-    options = _.clone(monitor.options);
+    options = _.clone(monitor.options),
+    q = Monitor.available(options);
 
-  options.agent = options.agent || {};
-  var remotable = options.remotes && _.keys(options.remotes).length > 0;
-
-  if (options.agent.offline && remotable) {
+  if (!q) {
     console.error('No agent is online, can not start it.');
     return process.exit(0);
   }
 
-  options.port = options.port || 8088;
-
-  if (!remotable) {
-    return _connectToDashboard(monitor, options);
+  var ql = q.choices.length;
+  if (ql == 1) {
+    console.info('There is just one remoting server online, try to connect it.')
+    return _connectToDashboard(monitor, options, Monitor.parseConnectionString(q.choices[0].value));
   }
+
+  q.choices.splice(ql - 1, 0, new inquirer.Separator());
+
   console.info('Remoting servers are online, choose one you are intrested in.')
-  var q = {
-      name: 'socket_server',
-      message: 'Which socket server would you wanna connect to',
-      type: 'list',
-      choices: []
-    },
-    maxShortLength = 0;
-  for (var remote in options.remotes) {
-    var connectionString = options.remotes[remote];
-    q.choices.push({
-      value: connectionString,
-      short: remote
-    });
-    maxShortLength = Math.max(maxShortLength, remote.length);
-  }
-  if (!options.agent.offline) {
-    q.choices.push(new inquirer.Separator());
-    var short = 'localhost',
-      connectionString = (options.agent && options.agent.authorization ? options.agent.authorization + '@' : '') + '127.0.0.1:' + options.port;
-    q.choices.push({
-      value: connectionString,
-      short: short
-    });
-    maxShortLength = Math.max(maxShortLength, short.length);
-  }
-
-  q.choices.forEach(function (c) {
-    if (c.type != 'separator') {
-      c.name = '[' + c.short + Array(maxShortLength - c.short.length + 1).join(' ') + '] ' + c.value;
-    }
-  });
-
   console.log('');
 
   inquirer.prompt(q, function (answers) {
     console.log('');
-    _connectToDashboard(monitor, options, _parseConnectionString(answers.socket_server));
+    _connectToDashboard(monitor, options, Monitor.parseConnectionString(answers.socket_server));
   });
 }
 
@@ -233,51 +201,24 @@ function slave(options) {
 }
 
 function _connectToDashboard(monitor, options, connection) {
-  if (!connection || !!~['127.0.0.1', '0.0.0.0', 'localhost'].indexOf(connection.hostname)) {
-    return monitor.connect(_.extend({
-      namespace: conf.NSP.SYS
-    }, options), function (err, socket) {
-      if (err || !socket) {
-        console.warn('Agent is offline, try to start it.');
-        var sockio = socketIO();
-        sockio.listen(options.port);
-        monitor.sockio = sockio;
-        monitor.run();
-      } else {
-        console.info('Agent is online, try to connect it in dashboard directly.');
-        options.sockets = {};
-        var ns = _.trimLeft(conf.NSP.SYS, '/');
-        options.sockets[ns] = socket;
+  connection = _.extend({}, options, connection);
+  if (!!~['127.0.0.1', '0.0.0.0', 'localhost'].indexOf(connection.hostname)) {
+    return monitor.connect(connection, function (socket) {
+      console.info('Agent is online, try to connect it in dashboard directly.');
+      layout(connection).render(monitor);
+    }, function (err, socket) {
+      if (err == 'unauthorized') {
+        console.error('There was an error with the authentication:', err);
+        return process.exit(0);
       }
-
-      layout(options).render(monitor);
+      console.warn('Agent is offline, try to start it.');
+      var sockio = socketIO();
+      sockio.listen(connection.port);
+      monitor.sockio = sockio;
+      monitor.run();
+      layout(connection).render(monitor);
     });
   }
 
   layout(connection).render(monitor);
-}
-
-function _parseConnectionString(connectionString) {
-  var connection = {
-    port: 8088,
-    hostname: '127.0.0.1',
-    authorization: ''
-  };
-  var lastAt = connectionString.lastIndexOf('@');
-  if (lastAt >= 0) {
-    connection.authorization = connectionString.slice(0, lastAt);
-    connectionString = connectionString.slice(lastAt + 1);
-  }
-  if (!/^http(s)?:\/\//i.test(connectionString)) {
-    connectionString = 'http://' + connectionString;
-  }
-
-  if (connectionString) {
-    connectionString = url.parse(connectionString);
-    connection.hostname = connectionString.hostname;
-    connection.port = connectionString.port;
-    connection.path = _.trimLeft(connectionString.path, '/');
-    connection.protocol = connectionString.protocol;
-  }
-  return connection;
 }
