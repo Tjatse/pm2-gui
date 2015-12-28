@@ -1,6 +1,7 @@
 0.1.2
 **Breaking Changes**
 - `.ini` properties.
+- Daemonize `pm2-gui`
 
 **Enhancements**
 - Run like a daemonized server.
