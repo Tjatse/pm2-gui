@@ -46,7 +46,4 @@ if [ -z $pm2 ]; then
   $npm install pm2 -g
   pm2="$(which pm2)"
 fi
-head "Make sure pm2 is daemonized"
-$pm2 ls
-echo ""
 

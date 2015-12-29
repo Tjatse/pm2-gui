@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 
 SRC=$(cd $(dirname "$0"); pwd)
-pipeFile="/tmp/pm2-gui"
-iniConf="/etc/pm2-gui.ini"
-source "${SRC}/include.sh"
+pipeFile="$SRC/pm2-gui"
+iniConf="$SRC/pm2-gui.ini"
+source "$SRC/include.sh"
 
 cd $fixtures
 
@@ -60,6 +60,10 @@ function stop(){
   [ $line -eq 0 ] || fail "still running"
   success "stopped"
 }
+
+head "Make sure pm2 is daemonized"
+$pm2 ls
+echo ""
 
 initConf;
 stop;
@@ -177,6 +181,7 @@ do
 done
 exec 6>&-
 rm $pipeFile
+rm $iniConf
 safeExit
 
 
