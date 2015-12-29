@@ -1,113 +1,183 @@
 #!/usr/bin/env bash
 
 SRC=$(cd $(dirname "$0"); pwd)
+pipeFile="/tmp/pm2-gui"
+iniConf="/etc/pm2-gui.ini"
 source "${SRC}/include.sh"
 
 cd $fixtures
 
-function port(){
-  local result=""
-  result=`netstat -an | grep "$1" | egrep "tcp" | grep "LISTEN"`
-  echo "$result"
+function initConf(){
+  (
+    cat <<EOF
+pm2 = ~/.pm2
+refresh = 5000
+port = 9000
+daemonize = true
+[log]
+dir = ./logs
+prefix = true
+date = false
+level = debug
+[agent]
+authorization = AuTh
+;offline = true
+[remotes]
+fake_pm2_server = P@sswd@127.0.0.2:7000
+EOF
+  ) > $iniConf
 }
 
-$pg set port 8088 > /dev/null
+function initNoAgentConf(){
+  (
+    cat <<EOF
+pm2 = ~/.pm2
+refresh = 5000
+port = 9000
+daemonize = true
+[log]
+dir = ./logs
+prefix = true
+date = false
+level = debug
+[agent]
+offline = true
+[remotes]
+EOF
+  ) > $iniConf
+}
 
-head "run web server (default port)"
-nohup $pg start > /dev/null 2>&1 &
-pid=$!
+function safeExit(){
+  ps x | grep pm2-gui | cut -c 1-5 | xargs kill -9;
+  sleep 1;
+}
+
+function stop(){
+  head "Stopping web and agent"
+  $pg stop;
+  sleep 1
+  line=`netstat -an | grep 9000 | egrep "tcp" | grep "LISTEN" | wc -l`
+  [ $line -eq 0 ] || fail "still running"
+  success "stopped"
+}
+
+initConf;
+stop;
+
+head "Starting web and agent"
+$pg start $iniConf;
 sleep 1
-ret=$(port 8088)
-[ ! -z "$ret" ] || fail "expect 127.0.0.1:8088 can be connected"
-success "127.0.0.1:8088 should be connected"
+line=`netstat -an | grep 9000 | egrep "tcp" | grep "LISTEN" | wc -l`
+[ $line -eq 1 ] || fail "connect failed"
+success "connected"
 
-kill "$pid"
+head "Accessing via http"
+body=`curl http://127.0.0.1:9000`
+[[ $body =~ "Found" ]] || fail "connect failed"
+success "connected"
+
+head "Checking status"
+line=`$pg status | grep 'running' | wc -l`
+[ $line -gt 0 ] || fail "wrong result"
+success "running"
+
+stop;
+
+head "Starting agent only"
+$pg agent $iniConf;
 sleep 1
+line=`netstat -an | grep 9000 | egrep "tcp" | grep "LISTEN" | wc -l`
+[ $line -eq 1 ] || fail "connect failed"
+success "connected"
 
-ret=$(port 8088)
-[ -z "$ret" ] || fail "expect 127.0.0.1:8088 can not be connected"
-success "127.0.0.1:8088 should be disconnected"
+head "Accessing via http"
+body=`curl http://127.0.0.1:9000`
+[ -z $body ] || fail "still accessible"
+success "refused"
 
-head "run web server (customized port: 9000)"
-nohup $pg start 9000 > /dev/null 2>&1 &
-pid=$!
-sleep 1
-ret=$(port 9000)
-[ ! -z "$ret" ] || fail "expect 127.0.0.1:9000 can be connected"
-success "127.0.0.1:9000 should be connected"
+stop;
 
-kill "$pid"
-sleep 1
+head "Checking status"
+line=`$pg status | grep 'stopped' | wc -l`
+[ $line -gt 0 ] || fail "wrong result"
+success "stopped"
 
-ret=$(port 9000)
-[ -z "$ret" ] || fail "expect 127.0.0.1:9000 can not be connected"
-success "127.0.0.1:9000 should be disconnected"
-
-head "run web server (--config verify)"
-ret=`$pg start --config not_exist.ini | grep "does not exist" | wc -c`
-[ "$ret" -gt 0 ] || fail "expect throw out error message"
-success ".ini file does not exist"
-
-head "run web server (--config specific file)"
-nohup $pg start --config pm2-gui-cp > /dev/null 2>&1 &
-pid=$!
-sleep 1
-ret=$(port 27130)
-[ ! -z "$ret" ] || fail "expect 127.0.0.1:27130 can be connected"
-success "127.0.0.1:27130 should be connected"
-
-kill "$pid"
-sleep 1
-
-ret=$(port 27130)
-[ -z "$ret" ] || fail "expect 127.0.0.1:27130 can not be connected"
-success "127.0.0.1:27130 should be disconnected"
-
-val=$(config "refresh:" "^[^0-9]*([0-9]+).*")
-[ "$val" -eq 3000 ] || fail "expect the value of refresh to be 3000, but current is $val"
-success "the value of refresh should be 3000"
-val=$(config "debug:" ".*(true|false).*")
-[ "$val" = false ] || fail "expect the value of debug to be false, but current is $val"
-success "the value of debug should be false"
-val=$(config "pm2:" ".*(\/.+).*")
-[ ! "$val" = "/tmp/.pm2" ] || fail "expect the value of pm2 to be /tmp/.pm2"
-success "the value of pm2 should be /tmp/.pm2"
-
-head "run web server (--config default file)"
-nohup $pg start --config > /dev/null 2>&1 &
-pid=$!
-sleep 1
-ret=$(port 8088)
-[ ! -z "$ret" ] || fail "expect 127.0.0.1:8088 can be connected"
-success "127.0.0.1:8088 should be connected"
-
-kill "$pid"
-sleep 1
-
-ret=$(port 8088)
-[ -z "$ret" ] || fail "expect 127.0.0.1:8088 can not be connected"
-success "127.0.0.1:8088 should be disconnected"
-
-val=$(config "refresh:" "^[^0-9]*([0-9]+).*")
-[ "$val" -eq 5000 ] || fail "expect the value of refresh to be 5000, but current is $val"
-success "the value of refresh should be 3000"
-val=$(config "debug:" ".*(true|false).*")
-[ "$val" = true ] || fail "expect the value of debug to be true, but current is $val"
-success "the value of debug should be true"
-root="~/.pm2"
-if [ ! -z "$PM2_HOME" ]; then
-  root="$PM2_HOME"
-else
-  if [ ! -z "$HOME" ]; then
-    root="$HOME/.pm2"
-  else
-    if [ ! -z "$HOMEPATH" ]; then
-      root="$HOMEPATH/.pm2"
-    fi
-  fi
+head "Logger"
+if [ -f $pipeFile ];then
+  rm $pipeFile
 fi
-val=$(config "pm2:" ".*(\/.+).*")
-[ ! "$val" = "$root" ] || fail "expect the value of pm2 to be $root"
-success "the value of pm2 should be $root"
+mkfifo $pipeFile
+exec 6<>$pipeFile
+$pg logs >&6 &
+read line<&6
+line=`echo $line | grep 'Logs from' | wc -l`
+[ $line -eq 1 ] || fail "is not working"
+exec 6>&-
+rm $pipeFile
+sleep 0.5
 
-$pg set port 8088 > /dev/null
+mkfifo $pipeFile
+exec 6<>$pipeFile
+$pg logs /var/log>&6 &
+read log<&6
+line=`echo $log | grep 'can not be found' | wc -l`
+[ $line -eq 1 ] || fail "is not working"
+success "works fine"
+exec 6>&-
+rm $pipeFile
+safeExit
+
+head "Running dashboard"
+mkfifo $pipeFile
+exec 6<>$pipeFile
+$pg mon $iniConf>&6 &
+count=0
+localAvailable=0
+remoteAvailable=0
+while read log<&6
+do
+  if [ $count -gt 20 ]; then
+    fail 'resolve localhost server failed'
+    break;
+  fi
+  if [ $localAvailable -eq 0 ]; then
+    localAvailable=`echo $log | grep '\[localhost' | wc -l`
+  fi
+  if [ $remoteAvailable -eq 0 ]; then
+    remoteAvailable=`echo $log | grep '\[fake_pm2' | wc -l`
+  fi
+  if [ $localAvailable -gt 0 ] && [ $remoteAvailable -gt 0 ]; then
+    success 'servers available'
+    break;
+  fi
+  count=`expr $count + 1`
+done
+exec 6>&-
+rm $pipeFile
+safeExit
+
+initNoAgentConf
+head "Running dashboard(no agent)"
+mkfifo $pipeFile
+exec 6<>$pipeFile
+$pg mon $iniConf>&6 &
+count=0
+while read log<&6
+do
+  if [ $count -gt 20 ]; then
+    fail 'lookup agent failed'
+    break;
+  fi
+  line=`echo $log | grep 'stopped' | wc -l`
+  if [ $line -eq 1 ]; then
+    success 'no agent online'
+    break;
+  fi
+  count=`expr $count + 1`
+done
+exec 6>&-
+rm $pipeFile
+safeExit
+
+
+

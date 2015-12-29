@@ -31,23 +31,12 @@ block content
   include ../partials/tmpls
 
 block js
+  script.
+    var GUI = {};
+    GUI.connections = !{JSON.stringify(connections)};
   script(src='js/socket.io.js')
   script(src='js/d3.min.js')
   script(src='js/jquery.fullPage.min.js')
   script(src='js/fanavi.min.js')
   script(src='js/index.html.js')
-  script.
-    var GUI = {};
-    GUI.connections = !{JSON.stringify(connections)};
-    $(window).ready(function () {
-      if (!Array.isArray(GUI.connections) || GUI.connections.length == 0) {
-        info('No agent is online, can not start it.');
-      } else {
-        GUI.connection = GUI.connections[GUI.connections.length - 1];
-      }
-      prepareDOM();
-      initFullPage();
-      listenSocket();
-      renderFanavi();
-    });
 

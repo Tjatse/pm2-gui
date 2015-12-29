@@ -1,28 +1,17 @@
 #!/usr/bin/env bash
 
-node="`type -P node`"
-nodeVersion="`$node -v`"
-
-pg="`type -P node` `pwd`/bin/pm2-gui"
-
+node="$(which node)"
+nodeVersion="$($node -v)"
+pg="$PWD/pm2-gui"
 fixtures="test/fixtures"
-
-function config(){
-  local result=""
-  if [[ "$OSTYPE" =~ ^darwin ]]; then
-    result=`$pg config | grep "$1" | sed -E "s/$2/\1/"`
-  else
-    result=`$pg config | grep "$1" | sed -r "s/$2/\1/"`
-  fi
-  echo "$result"
-}
+pm2="$(which pm2)"
 
 function success {
   echo -e "\033[32m  ✔ $1\033[0m"
 }
 
 function fail {
-  echo -e "######## \033[31m  ✘ $1\033[0m"
+  echo -e "\033[31m  ✘ $1\033[0m"
   ps aux | grep pm2-gui | grep node | xargs kill -9
   exit 1
 }
@@ -51,3 +40,13 @@ function should {
 function head {
   echo -e "\x1B[1;35m$1\x1B[0m"
 }
+
+if [ -z $pm2 ]; then
+  npm="$(which npm)"
+  $npm install pm2 -g
+  pm2="$(which pm2)"
+fi
+head "Make sure pm2 is daemonized"
+$pm2 ls
+echo ""
+

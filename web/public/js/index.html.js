@@ -19,6 +19,17 @@ var sysStat,
   popupProc,
   scrolled;
 
+$(window).ready(function () {
+  if (!Array.isArray(GUI.connections) || GUI.connections.length == 0) {
+    info('No agent is online, can not start it.');
+  } else {
+    GUI.connection = GUI.connections[GUI.connections.length - 1];
+  }
+  prepareDOM();
+  initFullPage();
+  listenSocket();
+  renderFanavi();
+});
 /**
  * Prepare DOM, cache elements, templates...
  */

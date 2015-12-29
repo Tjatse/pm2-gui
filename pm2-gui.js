@@ -99,10 +99,11 @@ function dashboard(confFile) {
     console.error('No agent is online, can not start it.');
     return process.exit(0);
   }
-
   var ql = q.choices.length;
   if (ql == 1) {
-    console.info('There is just one remoting server online, try to connect it.')
+    if (q.choices[0].short != 'localhost') {
+      console.info('There is just one remoting server online, try to connect it.')
+    }
     return _connectToDashboard(monitor, options, Monitor.parseConnectionString(q.choices[0].value));
   }
 
