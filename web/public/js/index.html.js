@@ -117,8 +117,10 @@ function connectSocketServer(ns) {
   }
 
   uri = _.trimRight(uri, '/') + (ns || '') + query;
-  console.log('connecting ', uri);
-  var socket = io.connect(uri);
+  var socket = io.connect(uri, {
+    forceNew: true,
+    timeout: 3000
+  });
   socket.on('error', onError);
   socket.on('connect_error', onError);
   return socket;
@@ -129,9 +131,10 @@ function connectSocketServer(ns) {
  * @param  {String} err
  */
 function onError(err) {
+  this.io.close();
   if (err == 'unauthorized') {
     err = 'There was an error with the authentication: ' + err;
-  }else{
+  } else {
     err = 'Can not connect to the server due to ' + err;
   }
   info(err);
@@ -294,6 +297,7 @@ function polarUsage() {
     });
 
   // Initialize polar.
+  $('.polar-usage').find('svg').remove();
   var svg = d3.select('.polar-usage').style({
       height: height + 'px',
       width: width + 'px'
@@ -404,9 +408,10 @@ function polarUsage() {
  * Add server chooser to the UI.
  */
 function addChooser(options) {
-  if (!Array.isArray(GUI.connections) || GUI.connections.length == 1) {
+  if (addChooser._added == true || !Array.isArray(GUI.connections) || GUI.connections.length == 1) {
     return;
   }
+  addChooser._added = true;
   var width = 100,
     height = 30,
     style = {
@@ -457,7 +462,6 @@ function addChooser(options) {
  */
 function changeConnection(connection) {
   for (var ns in sockets) {
-    console.log('disconnect', ns);
     sockets[ns].disconnect();
     sockets[ns].close();
     delete sockets[ns];
