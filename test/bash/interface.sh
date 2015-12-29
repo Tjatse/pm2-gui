@@ -76,9 +76,12 @@ line=`netstat -an | grep 9000 | egrep "tcp" | grep "LISTEN" | wc -l`
 success "connected"
 
 head "Accessing via http"
-body=`curl http://127.0.0.1:9000`
-[[ $body =~ "Found" ]] || fail "connect failed"
-success "connected"
+wget -q --spider "http://localhost:9000"
+if [ $? -eq 0 ]; then
+  success "connected"
+else
+  fail "connect failed"
+fi
 
 head "Checking status"
 line=`$pg status | grep 'running' | wc -l`
@@ -95,9 +98,12 @@ line=`netstat -an | grep 9000 | egrep "tcp" | grep "LISTEN" | wc -l`
 success "connected"
 
 head "Accessing via http"
-body=`curl http://127.0.0.1:9000`
-[ -z $body ] || fail "still accessible"
-success "refused"
+wget -q --spider "http://localhost:9000"
+if [ $? -eq 0 ]; then
+  fail "still accessible"
+else
+  success "refused"
+fi
 
 stop;
 
