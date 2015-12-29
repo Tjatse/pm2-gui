@@ -131,7 +131,6 @@ function connectSocketServer(ns) {
  * @param  {String} err
  */
 function onError(err) {
-  this.io.close();
   if (err == 'unauthorized') {
     err = 'There was an error with the authentication: ' + err;
   } else {
@@ -463,7 +462,7 @@ function addChooser(options) {
 function changeConnection(connection) {
   for (var ns in sockets) {
     sockets[ns].disconnect();
-    sockets[ns].close();
+    sockets[ns].io.close();
     delete sockets[ns];
   }
 
