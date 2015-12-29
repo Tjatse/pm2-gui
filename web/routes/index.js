@@ -1,4 +1,5 @@
-var Monitor = require('../../lib/monitor');
+var Monitor = require('../../lib/monitor'),
+  _ = require('lodash');
 
 // Authorization
 action(function auth(req, res) {
@@ -16,7 +17,10 @@ action(function (req, res) {
   if (req._config.agent && ((auth = req._config.agent.authorization) !== req.session['authorization'])) {
     return res.redirect('/auth');
   }
-  var q = Monitor.available(req._config),
+  var options = _.clone(req._config),
+    q = Monitor.available(_.extend(options, {
+      blank: '&nbsp;'
+    })),
     connections = [];
 
   q.choices.forEach(function (c) {

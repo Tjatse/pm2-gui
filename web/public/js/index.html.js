@@ -115,14 +115,12 @@ function connectSocketServer(ns) {
     query = uri.slice(index);
     uri = uri.slice(0, index);
   }
-  console.log('before', uri, query, ns);
 
   uri = _.trimRight(uri, '/') + (ns || '') + query;
-  if (!ns) {
-    return io.connect(uri).on('error', onError);
-  }
+  console.log('connecting ', uri);
   var socket = io.connect(uri);
   socket.on('error', onError);
+  socket.on('connect_error', onError);
   return socket;
 }
 
@@ -133,6 +131,8 @@ function connectSocketServer(ns) {
 function onError(err) {
   if (err == 'unauthorized') {
     err = 'There was an error with the authentication: ' + err;
+  }else{
+    err = 'Can not connect to the server due to ' + err;
   }
   info(err);
 }
@@ -141,7 +141,7 @@ function onError(err) {
  * Initialize socket.io client and add listeners.
  */
 function listenSocket() {
-  connectSocketServer();
+  sockets._root = connectSocketServer();
   sockets.sys = connectSocketServer(NSP.SYS);
   // information from server.
   sockets.sys.on('info', info);
@@ -392,6 +392,78 @@ function polarUsage() {
 
     changed && refresh();
   });
+
+  addChooser({
+    width: width,
+    height: height,
+    radius: radius
+  });
+}
+
+/**
+ * Add server chooser to the UI.
+ */
+function addChooser(options) {
+  if (!Array.isArray(GUI.connections) || GUI.connections.length == 1) {
+    return;
+  }
+  var width = 100,
+    height = 30,
+    style = {
+      width: 100,
+      height: height,
+      left: (options.width - width) / 2,
+      top: (options.height - height) / 2 + 50
+    };
+
+  var chooser = $('<div>', {
+    'class': 'chooser dropdown',
+    css: style
+  });
+
+  var conns = _.clone(GUI.connections);
+  conns.splice(conns.length - 1, 0, '-');
+  var html = '<button id="dropdownChooser" class="btn btn-primary btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true"><i class="glyphicon glyphicon-random"></i> CHANGE <span class="caret"></span></button>';
+  html += '<ul class="dropdown-menu" aria-labelledby="dropdownChooser">';
+  conns.forEach(function (conn) {
+    if (conn == '-') {
+      html += '<li role = "separator" class="divider"></li>';
+    } else {
+      html += '<li ' + (GUI.connection.value == conn.value ? 'class="active"' : '') + '><a href="javascript:void(0);" data-value="' + conn.value + '">' + conn.name + '</a></li>';
+    }
+  });
+  html += '</ul>';
+  chooser.html(html);
+  chooser.on('click', 'a', function () {
+    var ele = $(this),
+      val = ele.data('value');
+    if (val && val != GUI.connection.value) {
+      GUI.connection = {
+        name: ele.text(),
+        value: val
+      };
+      chooser.find('li.active').removeClass('active');
+      ele.parent().addClass('active');
+      changeConnection();
+    }
+  });
+  chooser.appendTo('.polar-usage');
+}
+
+/**
+ * Change the connection.
+ * @param  {[type]} connection [description]
+ * @return {[type]}            [description]
+ */
+function changeConnection(connection) {
+  for (var ns in sockets) {
+    console.log('disconnect', ns);
+    sockets[ns].disconnect();
+    sockets[ns].close();
+    delete sockets[ns];
+  }
+
+  listenSocket();
 }
 
 /**
