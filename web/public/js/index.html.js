@@ -109,7 +109,7 @@ function setFPEnable(enable, unscrollable) {
  */
 function connectSocketServer(ns) {
   var uri = GUI.connection.value;
-  if(GUI.connection.short == 'localhost'){
+  if (GUI.connection.short == 'localhost') {
     uri = uri.replace(/(127\.0.0\.1|localhost|0\.0\.0\.0)/, location.hostname);
   }
   var index = uri.indexOf('?'),
@@ -429,7 +429,9 @@ function addChooser(options) {
   });
 
   var conns = _.clone(GUI.connections);
-  conns.splice(conns.length - 1, 0, '-');
+  if (conns[conns.length - 1].short == 'localhost') {
+    conns.splice(conns.length - 1, 0, '-');
+  }
   var html = '<button id="dropdownChooser" class="btn btn-primary btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true"><i class="glyphicon glyphicon-random"></i> CHANGE <span class="caret"></span></button>';
   html += '<ul class="dropdown-menu" aria-labelledby="dropdownChooser">';
   conns.forEach(function (conn) {
@@ -454,6 +456,10 @@ function addChooser(options) {
       ele.parent().addClass('active');
       changeConnection();
     }
+  }).on('show.bs.dropdown', function () {
+    setFPEnable(false, false);
+  }).on('hide.bs.dropdown', function () {
+    setFPEnable(true, false);
   });
   chooser.appendTo('.polar-usage');
 }

@@ -110,8 +110,9 @@ function dashboard(confFile) {
     }
     return _connectToDashboard(monitor, options, Monitor.parseConnectionString(q.choices[0].value));
   }
-
-  q.choices.splice(ql - 1, 0, new inquirer.Separator());
+  if (!options.agent || !options.agent.offline) {
+    q.choices.splice(ql - 1, 0, new inquirer.Separator());
+  }
 
   console.info('Remoting servers are online, choose one you are intrested in.')
   console.log('');
