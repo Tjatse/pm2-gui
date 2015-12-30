@@ -1,4 +1,4 @@
-0.1.2
+#0.1.2
 **Breaking Changes**
 - `.ini` properties.
 - Daemonize `pm2-gui`
@@ -7,6 +7,7 @@
 - Run like a daemonized server.
 - Remoting agents support.
 - Commands.
+- Tailing logs.
 - Logger system.
 
 **Bugs**
@@ -15,15 +16,15 @@
 - #28
 - #29
 
-0.1.1
+#0.1.1
 **Enhancements**
 - Terminal dashboard processes amount.
 
-0.1.0
+#0.1.0
 **Enhancements**
 - Terminal dashboard.
 
-0.0.9
+#0.0.9
 **Breaking Changes**
 - Using `.ini` config file instead of `.json`.
 

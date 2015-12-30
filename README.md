@@ -6,7 +6,7 @@ An elegant web & terminal interface for Unitech/PM2.
 > Compatible with PM2 v0.12.7+
 > If you wanna update to pm2-gui@latest, make sure you've read the [change logs](CHANGELOG.md).
 
-![image](screenshots/pm2-web.gif)
+![image](screenshots/pm2-gui.gif)
 
 # Guide
 - [Features](#feats)
@@ -46,13 +46,12 @@ $ npm install pm2-gui -g
 # or
 $ npm install pm2-gui --production
 $ cd node_modules/pm2-gui
-# or
+# or (recommends)
 $ git clone https://github.com/Tjatse/pm2-gui.git
 $ cd pm2-gui
-# install dependencies
 $ npm install --production
 # run monitor
-$ pm2-gui <cmd> [options]
+$ ./pm2-gui <cmd> [options]
 ```
 
 <a name="usage" />
@@ -77,60 +76,7 @@ pm2GUI.dashboard([ini_config_file]);
 
 <a name="config" />
 # Configuration
-`pm2-gui/pm2-gui.ini`:
-```ini
-;
-; Home directory of pm2.
-;
-pm2 = ~/.pm2
-;
-; The interval between communications of Monitor.
-;
-refresh = 5000
-;
-; Port of Web server and socket agent.
-;
-port = 8088
-;
-; A valud indicates whether run the pm2-gui damonized or not.
-;
-daemonize = false
-
-[log]
-;
-; Log directory.
-;
-dir = ./logs
-;
-; A value indicates whether display the [INFO], [ERROR].. prefixes before log message or not.
-;
-prefix = true
-;
-; A value indicates whether display the local date string before log message or not.
-;
-date = false
-;
-; Log level, one of debug, log, info, warn, error.
-;
-level = log
-
-[agent]
-;
-; This authorization will be used to authorize socket / web connections if it's set.
-;
-; authorization = AuTh
-;
-; A value indicates whether agent offline or not.
-;
-; offline = false
-[remotes]
-;
-; the dashboard and web server will use this section to connect remoting socket server
-;   server_name = [authorization@]host:port
-;
-; pm2@131 = AuTh@192.168.1.131:9002
-; pm2@172 = 192.168.1.172:9001
-```
+Edit the `pm2-gui/pm2-gui.ini` file or copy the [config example](./pm2-gui.ini) to `/etc/pm2-gui.ini` (starting with `pm2-gui start /etc/pm2-gui.ini`):
 
 <a name="ui" />
 # UI/UX
@@ -139,17 +85,12 @@ level = log
 
 Curses-like dashboard:
 
-![image](screenshots/pm2-gui.gif)
-
-Backend (without `--no-debug` option):
-
-![image](screenshots/term.jpg)
+![image](screenshots/dashboard.jpg)
 
 Authorization
 
 ![image](screenshots/auth.jpg)
 
-<a name="ss_home" />
 Home
 
 ![image](screenshots/home.jpg)
@@ -164,7 +105,7 @@ Describe Complete Information
 
 CPU && Memory Usage
 
-![image](screenshots/usage.jpg)
+![image](screenshots/monitor.jpg)
 
 Tail Logs
 
@@ -180,7 +121,7 @@ map $http_upgrade $connection_upgrade {
 }
 
 upstream pm2-gui {
-    server 127.0.0.1:8000;
+    server 127.0.0.1:8088;
 }
 
 server {
