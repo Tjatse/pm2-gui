@@ -5,7 +5,7 @@ An elegant web & terminal interface for Unitech/PM2.
 
 > Compatible with PM2 v0.12.7+
 > If you wanna update to pm2-gui@latest, make sure you've read the [change logs](CHANGELOG.md).
-> You can track lifecycle by [pm2-ant](/Tjatse/pm2-gui)
+> You can track lifecycle by [pm2-ant](https://github.com/Tjatse/pm2-ant)
 
 ![image](screenshots/pm2-gui.gif)
 
@@ -18,6 +18,8 @@ An elegant web & terminal interface for Unitech/PM2.
 - [Authorization](#auth)
 - [UI/UX](#ui)
 - [Serving apps locally with nginx and custom domain](#serv)
+
+![image](screenshots/design.jpg)
 
 <a name="feats" />
 # Features
