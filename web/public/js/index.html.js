@@ -108,8 +108,11 @@ function setFPEnable(enable, unscrollable) {
  * Connect to socket server.
  */
 function connectSocketServer(ns) {
-  var uri = GUI.connection.value,
-    index = uri.indexOf('?'),
+  var uri = GUI.connection.value;
+  if(GUI.connection.short == 'localhost'){
+    uri = uri.replace(/(127\.0.0\.1|localhost|0\.0\.0\.0)/, location.hostname);
+  }
+  var index = uri.indexOf('?'),
     query = '';
   if (index > 0) {
     query = uri.slice(index);
@@ -433,7 +436,7 @@ function addChooser(options) {
     if (conn == '-') {
       html += '<li role = "separator" class="divider"></li>';
     } else {
-      html += '<li ' + (GUI.connection.value == conn.value ? 'class="active"' : '') + '><a href="javascript:void(0);" data-value="' + conn.value + '">' + conn.name + '</a></li>';
+      html += '<li ' + (GUI.connection.value == conn.value ? 'class="active"' : '') + '><a href="javascript:void(0);" data-value="' + conn.value + '" data-short="' + conn.short + '">' + conn.name + '</a></li>';
     }
   });
   html += '</ul>';
@@ -444,7 +447,8 @@ function addChooser(options) {
     if (val && val != GUI.connection.value) {
       GUI.connection = {
         name: ele.text(),
-        value: val
+        value: val,
+        short: ele.data('short')
       };
       chooser.find('li.active').removeClass('active');
       ele.parent().addClass('active');
