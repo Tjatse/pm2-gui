@@ -30,13 +30,13 @@ script#procTmp(type='text/html')
         li.proc-ops
           ul
             li
-              i.glyphicon.glyphicon-refresh(data-toggle='tooltip', data-placement='top', title='Restart')
+              i.glyphicon.glyphicon-refresh(data-toggle='tooltip', data-placement!='<%= index == 0 ? "bottom" : "top" %>', title='Restart')
             != '<% if(proc.pm2_env.status == "online"){ %>'
             li
-              i.glyphicon.glyphicon-ban-circle(data-toggle='tooltip', data-placement='top', title='Stop')
+              i.glyphicon.glyphicon-ban-circle(data-toggle='tooltip', data-placement!='<%= index == 0 ? "bottom" : "top" %>', title='Stop')
             != '<% } %>'
             li
-              i.glyphicon.glyphicon-trash(data-toggle='tooltip', data-placement='top', title='Delete')
+              i.glyphicon.glyphicon-trash(data-toggle='tooltip', data-placement!='<%= index == 0 ? "bottom" : "top" %>', title='Delete')
       ul.proc-content
         li.proc-file
           != '<%- (proc.pm2_env.pm_exec_path.length > 35 ? "...":"") + proc.pm2_env.pm_exec_path.slice(-35) %>'

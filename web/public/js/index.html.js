@@ -656,15 +656,16 @@ function updateProcsLayout(noAnimation) {
  */
 function createProcs(_procs, noproc, noAnimation) {
   var html = '';
-  _procs.forEach(function (p) {
+  _procs.forEach(function (p, i) {
     html += tmps.proc({
       proc: p,
-      noDiv: false
+      noDiv: false,
+      index: i
     });
   });
-
-  // Attach events of process.
-  attachProcEvents($(html).appendTo(eles.procs));
+  $(html).appendTo(eles.procs)
+    // Attach events of process.
+  attachProcEvents();
 
   // Flip in if necessary.
   !noAnimation && flipProcs();
@@ -700,8 +701,10 @@ function updateProcs(_procs, noAnimation) {
   // Find elements and replace them new ones.
   eles.procs.find(_procs.map(function (p) {
     return '#proc_' + p.pm_id;
-  }).join(',')).each(function () {
-    var _id = parseInt(this.id.substr(5)),
+  }).join(',')).each(function (i) {
+    var ele = $(this),
+      placement = ele.find('.proc-ops i').eq(0).data('placement'),
+      _id = parseInt(ele.attr('id').substr(5)),
       proc = _.find(_procs, function (p) {
         return p.pm_id == _id;
       });
@@ -709,20 +712,26 @@ function updateProcs(_procs, noAnimation) {
     // HTML
     var procHTML = tmps.proc({
       proc: proc,
-      noDiv: true
+      noDiv: true,
+      index: placement !== 'top' ? 0 : 1
+    });
+    var procEle = $(procHTML);
+    procEle.data({
+      'event-avgrund': null,
+      'event-click': null
     });
 
     var ele = $(this);
     // Animate it or not.
     if (!noAnimation) {
       animate(ele, 'flipOutX', function () {
-        var newProc = $(procHTML);
-        ele.replaceWith(newProc);
-        animate(newProc, 'flipInX', startTimer);
-        attachProcEvents(newProc);
+        ele.replaceWith(procEle);
+        attachProcEvents();
+        animate(procEle, 'flipInX', startTimer);
       });
     } else {
-      ele.replaceWith(procHTML);
+      ele.replaceWith(procEle);
+      attachProcEvents();
     }
   });
 }
@@ -810,37 +819,42 @@ function destroySlimScroll() {
 }
 
 /**
- * Bind process events.
- * @param {jQuery} o
+ * Attach events to process layout.
  */
-function procEvents(o) {
-  o.find('.proc-ops').on('click', 'i', function () {
-    var ele = $(this),
-      method = ele.data('original-title').toLowerCase(),
-      pm_id = parseInt(ele.closest('.proc').attr('id').substr(5));
-
-    var ops = ele.closest('.proc-ops');
-    $('<div class="load"></div>').css({
-      opacity: 0.01
-    }).appendTo(ops);
-
-    ops.find('ul').fadeOut().next().animate({
-      opacity: 1
-    });
-
-    sockets.sys.emit('action', method, pm_id);
-  }).end().find('[data-toggle="tooltip"]').tooltip({
-    container: 'body'
-  });
+function attachProcEvents() {
+  bindPopup();
+  procEvents();
 }
 
 /**
- * Attach events to process layout.
- * @param {jQuery} o
+ * Bind process events.
  */
-function attachProcEvents(o) {
-  bindPopup(o);
-  procEvents(o);
+function procEvents() {
+  eles.procs.find('.proc-ops i').each(function () {
+    var ele = $(this);
+    if (ele.data('event-click') == 'BOUND') {
+      return;
+    }
+    ele.data('event-click', 'BOUND').click(function () {
+      var ele = $(this),
+        method = (ele.data('original-title') || ele.attr('title')).toLowerCase(),
+        pm_id = parseInt(ele.closest('.proc').attr('id').substr(5));
+
+      var ops = ele.closest('.proc-ops');
+      $('<div class="load"></div>').css({
+        opacity: 0.01
+      }).appendTo(ops);
+
+      ops.find('ul').fadeOut().next().animate({
+        opacity: 1
+      });
+
+      sockets.sys.emit('action', method, pm_id);
+    });
+  });
+  eles.procs.find('[data-toggle="tooltip"]').tooltip({
+    container: 'body'
+  });
 }
 
 /**
@@ -848,27 +862,39 @@ function attachProcEvents(o) {
  * @param {jQuery} o
  */
 function bindPopup(o) {
-  o.find('.proc-name').avgrund({
-    width: 640,
-    height: 350,
-    showClose: true,
-    holderClass: 'proc-popup',
-    showCloseText: 'CLOSE',
-    onBlurContainer: '.section',
-    onLoad: function (ele) {
-      popupShown = true;
-      setFPEnable(false, false);
-      showPopupTab(getProcByEle(ele));
-    },
-    onUnload: function (ele) {
-      scrolled = false;
-      popupShown = false;
-      setFPEnable(true, false);
-      destroyTail();
-      destroyMonitor();
-      popupProc = null;
-    },
-    template: '<div id="popup"><div class="load"></div></div>'
+  eles.procs.find('.proc-name').each(function () {
+    var ele = $(this);
+    if (ele.data('event-avgrund') == 'BOUND') {
+      return;
+    }
+    ele.data('event-avgrund', 'BOUND').avgrund({
+      width: 640,
+      height: 350,
+      showClose: true,
+      holderClass: 'proc-popup',
+      showCloseText: 'CLOSE',
+      onBlurContainer: '.section',
+      onLoad: function (ele) {
+        if (popupShown) {
+          return;
+        }
+        popupShown = true;
+        setFPEnable(false, false);
+        showPopupTab(getProcByEle(ele));
+      },
+      onUnload: function (ele) {
+        if (!popupShown) {
+          return;
+        }
+        scrolled = false;
+        popupShown = false;
+        setFPEnable(true, false);
+        destroyTail();
+        destroyMonitor();
+        popupProc = null;
+      },
+      template: '<div id="popup"><div class="load"></div></div>'
+    });
   });
 }
 
