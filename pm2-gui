@@ -1,6 +1,9 @@
 #!/bin/bash
 node="$(which node)"
-SRC=$(cd $(dirname "$0"); pwd)
+SRC="$0"
+DIR="$(cd $(dirname "$0"); pwd)"
+REALSRC="$DIR/$(readlink "$SRC")"
+SRC="$(cd $(dirname $REALSRC); pwd)"
 pidfile="$SRC/pm2-gui.pid"
 prefixINFO="\033[1;32m[INFO]\033[0m"
 prefixWARN="\033[1;33m[WARN]\033[0m"
@@ -47,7 +50,7 @@ function server (){
 function usage () {
   cat <<-EOF
 
-  Usage: $0 <cmd> [options]
+  Usage: $(basename $0) <cmd> [options]
 
   Commands:
     start [config_file]   start the service, including agent and web server
@@ -59,11 +62,11 @@ function usage () {
     logs [log_directory]  view the logs
 
   Examples:
-    $0 start
-    $0 start /path/to/my-pm2-gui.ini
-    $0 mon
-    $0 logs
-    $0 logs /path/to/logs
+    $(basename $0) start
+    $(basename $0) start /path/to/my-pm2-gui.ini
+    $(basename $0) mon
+    $(basename $0) logs
+    $(basename $0) logs /path/to/logs
 
 EOF
 }
