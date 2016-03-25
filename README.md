@@ -46,6 +46,7 @@ An elegant web & terminal interface for Unitech/PM2.
 # Installation
 ```bash
 $ npm install pm2-gui -g
+$ pm2-gui <cmd> [options]
 # or
 $ npm install pm2-gui --production
 $ cd node_modules/pm2-gui
