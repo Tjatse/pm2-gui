@@ -2,8 +2,13 @@
 node="$(which node)"
 SRC="$0"
 DIR="$(cd $(dirname "$0"); pwd)"
-REALSRC="$DIR/$(readlink "$SRC")"
-SRC="$(cd $(dirname $REALSRC); pwd)"
+REALSRC="$(readlink "$SRC")"
+if [ ! -z $REALSRC ];
+  then
+    SRC="$(cd $(dirname $DIR/$REALSRC); pwd)"
+else
+  SRC="$DIR"
+fi
 pidfile="$SRC/pm2-gui.pid"
 prefixINFO="\033[1;32m[INFO]\033[0m"
 prefixWARN="\033[1;33m[WARN]\033[0m"
