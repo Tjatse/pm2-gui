@@ -1,12 +1,22 @@
+# 0.1.4-rc.1
+**Bugs**
+- clean ANSI.
+
+**Enhancements**
+- `readonly` property.
+- Hide connection string.
+- Code style: standard.
+- Update dependecies
+
 # 0.1.4-alpha
 **Bugs**
-- `keepANSI` bug
-- Get real path of symbolic links when `npm install -g`
+- `keepANSI` bug.
+- Get real path of symbolic links when `npm install -g`.
 
 # 0.1.2
 **Breaking Changes**
 - `.ini` properties.
-- Daemonize `pm2-gui`
+- Daemonize `pm2-gui`.
 
 **Enhancements**
 - Run like a daemonized server.
