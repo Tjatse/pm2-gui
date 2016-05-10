@@ -28,12 +28,13 @@ action(function (req, res) {
   })
   res.render('index', {
     title: 'Monitor',
-    connections: connections
+    connections: connections,
+    readonly: !!req._config.readonly
   })
 })
 
 // API
-action(function auth_api (req, res) {
+action(function auth_api (req, res) { // eslint-disable-line camelcase
   if (!req._config.agent || !req._config.agent.authorization) {
     return res.json({
       error: 'Can not found agent[.authorization] config, no need to authorize!'

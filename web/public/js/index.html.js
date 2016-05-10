@@ -19,7 +19,7 @@ var sysStat,
   popupProc,
   scrolled;
 
-$(window).ready(function () {
+$(window).ready(function() {
   if (!Array.isArray(GUI.connections) || GUI.connections.length == 0) {
     info('No agent is online, can not start it.');
   } else {
@@ -45,9 +45,9 @@ function prepareDOM() {
   eles.procsAction = $('#procs_action');
 
   // Enable/Disable when mouseenter/mouseleave processes list.
-  eles.procs.hover(function () {
+  eles.procs.hover(function() {
     !popupShown && setFPEnable(false, true);
-  }, function () {
+  }, function() {
     !popupShown && setFPEnable(true, true);
   });
 
@@ -67,10 +67,10 @@ function initFullPage() {
     navigation: true,
     navigationPosition: 'right',
     navigationTooltips: ['System Stat', 'Processes'],
-    afterLoad: function () {
+    afterLoad: function() {
       pageLoaded = true;
     },
-    onLeave: function (index, nextIndex, direction) {
+    onLeave: function(index, nextIndex, direction) {
       pageIndex = nextIndex;
       pageLoaded = false;
 
@@ -187,15 +187,15 @@ function listenSocket() {
     $('.spinner').remove();
   }
 
-  sockets.sys.on('pm2_ver', function (ver) {
+  sockets.sys.on('pm2_ver', function(ver) {
     $('.repo > span').text('PM2 v' + ver);
   });
 
   // Show alert when stopping process by pm_id failed.
-  sockets.sys.on('action', function (id, errMsg) {
+  sockets.sys.on('action', function(id, errMsg) {
     info(errMsg);
-    $('#proc_' + id).find('.proc-ops').find('.load').fadeOut(function () {
-      $(this).prev().fadeIn().end().fadeOut(function () {
+    $('#proc_' + id).find('.proc-ops').find('.load').fadeOut(function() {
+      $(this).prev().fadeIn().end().fadeOut(function() {
         $(this).remove();
       });
     });
@@ -206,6 +206,9 @@ function listenSocket() {
  * Render the fanavi component.
  */
 function renderFanavi() {
+  if (GUI.readonly) {
+    return;
+  }
   var icons = [{
     icon: 'img/restart.png',
     title: 'Restart All'
@@ -237,7 +240,7 @@ function renderFanavi() {
       hideTooltip: true
     })
     .load(icons)
-    .on('click', function (index, data) {
+    .on('click', function(index, data) {
       sockets.sys.emit('action', ['restart', 'stop', 'save', 'delete'][index], 'all');
     });
 }
@@ -257,7 +260,7 @@ function resetFanavi() {
   } else if (procs.data.length == 0 && isVisible) {
     eles.procsAction.stop().animate({
       opacity: 0.01
-    }, function () {
+    }, function() {
       $(this).css('display', 'none');
     });
   }
@@ -278,9 +281,9 @@ function polarUsage() {
   // Usage colors - green to red.
   var color = d3.scale.linear()
     .range(['hsl(-270,50%,50%)', 'hsl(0,50%,50%)'])
-    .interpolate(function (a, b) {
+    .interpolate(function(a, b) {
       var i = d3.interpolateString(a, b);
-      return function (t) {
+      return function(t) {
         return d3.hsl(i(t));
       };
     });
@@ -288,13 +291,13 @@ function polarUsage() {
   // Transform percentage to angle.
   var arc = d3.svg.arc()
     .startAngle(0)
-    .endAngle(function (d) {
+    .endAngle(function(d) {
       return d.value * 2 * Math.PI;
     })
-    .innerRadius(function (d) {
+    .innerRadius(function(d) {
       return d.index * radius;
     })
-    .outerRadius(function (d) {
+    .outerRadius(function(d) {
       return (d.index + spacing) * radius;
     });
 
@@ -334,7 +337,7 @@ function polarUsage() {
   // arcTween
   function arcTween(d) {
     var i = d3.interpolateNumber(d.previousValue, d.value);
-    return function (t) {
+    return function(t) {
       d.value = i(t);
       return arc(d);
     };
@@ -356,11 +359,11 @@ function polarUsage() {
   // Refresh system states.
   function refresh() {
     field = field
-      .each(function (d) {
+      .each(function(d) {
         this._value = d.value;
       })
       .data(fields)
-      .each(function (d) {
+      .each(function(d) {
         d.previousValue = this._value;
       });
 
@@ -368,20 +371,20 @@ function polarUsage() {
       .transition()
       .ease('elastic')
       .attrTween('d', arcTween)
-      .style('fill', function (d) {
+      .style('fill', function(d) {
         return color(d.value);
       });
 
     field.select('text')
-      .attr('dy', function (d) {
+      .attr('dy', function(d) {
         return d.value < .5 ? '0' : '10px';
       })
-      .text(function (d) {
+      .text(function(d) {
         return d.text;
       })
       .transition()
       .ease('elastic')
-      .attr('transform', function (d) {
+      .attr('transform', function(d) {
         return 'rotate(' + 360 * d.value + ') ' +
           'translate(0,' + -(d.index + spacing / 2) * radius + ') ' +
           'rotate(' + (d.value < .5 ? -90 : 90) + ')'
@@ -389,7 +392,7 @@ function polarUsage() {
   }
 
   // When receiving data from server, refresh polar.
-  sockets.sys.on('system_stat', function (data) {
+  sockets.sys.on('system_stat', function(data) {
     if (pageIndex != 1) {
       return;
     }
@@ -434,7 +437,7 @@ function addChooser(options) {
   }
   var html = '<button id="dropdownChooser" class="btn btn-primary btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true"><i class="glyphicon glyphicon-random"></i> CHANGE <span class="caret"></span></button>';
   html += '<ul class="dropdown-menu" aria-labelledby="dropdownChooser">';
-  conns.forEach(function (conn) {
+  conns.forEach(function(conn) {
     if (conn == '-') {
       html += '<li role = "separator" class="divider"></li>';
     } else {
@@ -443,7 +446,7 @@ function addChooser(options) {
   });
   html += '</ul>';
   chooser.html(html);
-  chooser.on('click', 'a', function () {
+  chooser.on('click', 'a', function() {
     var ele = $(this),
       val = ele.data('value');
     if (val && val != GUI.connection.value) {
@@ -456,9 +459,9 @@ function addChooser(options) {
       ele.parent().addClass('active');
       changeConnection();
     }
-  }).on('show.bs.dropdown', function () {
+  }).on('show.bs.dropdown', function() {
     setFPEnable(false, false);
-  }).on('hide.bs.dropdown', function () {
+  }).on('hide.bs.dropdown', function() {
     setFPEnable(true, false);
   });
   chooser.appendTo('.polar-usage');
@@ -486,7 +489,7 @@ function changeConnection(connection) {
 function onProcsChange(_procs) {
   // Stora processes.
   procs = {
-    data: _procs.filter(function (p) {
+    data: _procs.filter(function(p) {
       return !!p;
     }),
     tick: Date.now()
@@ -589,13 +592,13 @@ function updateProcsLayout(noAnimation) {
 
   // Read existing processes' Uids.
   var rps = [];
-  eles.procs.find('div.proc').each(function () {
+  eles.procs.find('div.proc').each(function() {
     rps.push(parseInt(this.id.substr(5)));
   });
   // Processes that waiting to be created.
   var cps = procs.data;
   // Processes that should be deleted.
-  var dps = _.difference(rps, cps.map(function (p) {
+  var dps = _.difference(rps, cps.map(function(p) {
     return p.pm_id;
   }));
   // Processes that should be updated.
@@ -606,17 +609,17 @@ function updateProcsLayout(noAnimation) {
 
   if (rps.length > 0) {
     // Remove existing.
-    cps = cps.filter(function (p) {
+    cps = cps.filter(function(p) {
       return !~rps.indexOf(p.pm_id);
     });
 
     // Compare with previous processes to grep `ups`.
     if (prevProcs) {
-      rps.forEach(function (pm_id) {
-        var proc1 = _.find(prevProcs.data, function (p) {
+      rps.forEach(function(pm_id) {
+        var proc1 = _.find(prevProcs.data, function(p) {
             return p.pm_id == pm_id;
           }),
-          proc2 = _.find(procs.data, function (p) {
+          proc2 = _.find(procs.data, function(p) {
             return p.pm_id == pm_id;
           });
 
@@ -656,7 +659,7 @@ function updateProcsLayout(noAnimation) {
  */
 function createProcs(_procs, noproc, noAnimation) {
   var html = '';
-  _procs.forEach(function (p, i) {
+  _.sortBy(_procs, 'pm_id').forEach(function(p, i) {
     html += tmps.proc({
       proc: p,
       noDiv: false,
@@ -699,13 +702,13 @@ function createProcs(_procs, noproc, noAnimation) {
  */
 function updateProcs(_procs, noAnimation) {
   // Find elements and replace them new ones.
-  eles.procs.find(_procs.map(function (p) {
+  eles.procs.find(_procs.map(function(p) {
     return '#proc_' + p.pm_id;
-  }).join(',')).each(function (i) {
+  }).join(',')).each(function(i) {
     var ele = $(this),
       placement = ele.find('.proc-ops i').eq(0).data('placement'),
       _id = parseInt(ele.attr('id').substr(5)),
-      proc = _.find(_procs, function (p) {
+      proc = _.find(_procs, function(p) {
         return p.pm_id == _id;
       });
 
@@ -724,7 +727,7 @@ function updateProcs(_procs, noAnimation) {
     var ele = $(this);
     // Animate it or not.
     if (!noAnimation) {
-      animate(ele, 'flipOutX', function () {
+      animate(ele, 'flipOutX', function() {
         ele.replaceWith(procEle);
         attachProcEvents();
         animate(procEle, 'flipInX', startTimer);
@@ -743,9 +746,9 @@ function updateProcs(_procs, noAnimation) {
  */
 function removeProcs(pm_ids, noAnimation) {
   // Find elements and remove them directly.
-  eles.procs.find(pm_ids.map(function (id) {
+  eles.procs.find(pm_ids.map(function(id) {
     return '#proc_' + id;
-  }).join(',')).each(function () {
+  }).join(',')).each(function() {
     var ele = $(this);
     ele.next().remove();
     ele.remove();
@@ -788,7 +791,7 @@ function updateUptime() {
     return;
   }
   var now = Date.now();
-  spans.each(function () {
+  spans.each(function() {
     var ele = $(this);
     ele.text(fromNow(Math.ceil((now - ele.data('ctime')) / 1000), true));
   });
@@ -830,12 +833,12 @@ function attachProcEvents() {
  * Bind process events.
  */
 function procEvents() {
-  eles.procs.find('.proc-ops i').each(function () {
+  eles.procs.find('.proc-ops i').each(function() {
     var ele = $(this);
     if (ele.data('event-click') == 'BOUND') {
       return;
     }
-    ele.data('event-click', 'BOUND').click(function () {
+    ele.data('event-click', 'BOUND').click(function() {
       var ele = $(this),
         method = (ele.data('original-title') || ele.attr('title')).toLowerCase(),
         pm_id = parseInt(ele.closest('.proc').attr('id').substr(5));
@@ -862,7 +865,7 @@ function procEvents() {
  * @param {jQuery} o
  */
 function bindPopup(o) {
-  eles.procs.find('.proc-name').each(function () {
+  eles.procs.find('.proc-name').each(function() {
     var ele = $(this);
     if (ele.data('event-avgrund') == 'BOUND') {
       return;
@@ -874,7 +877,7 @@ function bindPopup(o) {
       holderClass: 'proc-popup',
       showCloseText: 'CLOSE',
       onBlurContainer: '.section',
-      onLoad: function (ele) {
+      onLoad: function(ele) {
         if (popupShown) {
           return;
         }
@@ -882,7 +885,7 @@ function bindPopup(o) {
         setFPEnable(false, false);
         showPopupTab(getProcByEle(ele));
       },
-      onUnload: function (ele) {
+      onUnload: function(ele) {
         if (!popupShown) {
           return;
         }
@@ -914,9 +917,7 @@ function showPopupTab(proc, delayed) {
 
   // Resort keys.
   var clonedProc = {};
-  Object.keys(proc).sort(function (a, b) {
-    return a.charCodeAt(0) - b.charCodeAt(0);
-  }).forEach(function (key) {
+  _.sortBy(Object.keys(proc)).forEach(function(key) {
     // Omit memory, just keep the original data.
     if (key == 'monit') {
       var monit = proc[key];
@@ -942,7 +943,7 @@ function showPopupTab(proc, delayed) {
   });
 
   // Bing tab change event.
-  popup.find('li').click(function () {
+  popup.find('li').click(function() {
     var ele = $(this);
     if (ele.hasClass('active')) {
       return;
@@ -992,7 +993,7 @@ function tailLogs() {
   if (!sockets.log) {
     sockets.log = connectSocketServer(NSP.LOG);
     sockets.log.on('log', appendLogs);
-    sockets.log.on('connect', function () {
+    sockets.log.on('connect', function() {
       sockets.log.emit('tail', popupProc.pm_id);
     });
   } else {
@@ -1055,7 +1056,7 @@ function monitorProc() {
   if (!sockets.proc) {
     sockets.proc = connectSocketServer(NSP.PROC);
     sockets.proc.on('proc', appendData);
-    sockets.proc.on('connect', function () {
+    sockets.proc.on('connect', function() {
       sockets.proc.emit('proc', popupProc.pid);
     });
   } else {
@@ -1076,7 +1077,7 @@ function appendData(proc) {
     var now = proc.time || Date.now(),
       len = lineChart.settings.queueLength;
 
-    lineChart.data = d3.range(len).map(function (n) {
+    lineChart.data = d3.range(len).map(function(n) {
       return {
         time: now - (len - n) * 3000,
         usage: {
@@ -1120,7 +1121,7 @@ function destroyMonitor() {
  */
 function getProcByEle(ele) {
   var id = parseInt(ele.data('pmid'));
-  return _.find(procs.data, function (p) {
+  return _.find(procs.data, function(p) {
     return p.pm_id == id;
   });
 }
@@ -1133,7 +1134,7 @@ function getProcByEle(ele) {
  */
 function animate(o, a, cb) {
   a += ' animated';
-  o.removeClass(a).addClass(a).one('webkitAnimationEnd mozAnimationEnd MSAnimationEnd oanimationend animationend', function () {
+  o.removeClass(a).addClass(a).one('webkitAnimationEnd mozAnimationEnd MSAnimationEnd oanimationend animationend', function() {
     var ele = $(this);
     ele.removeClass(a)
     cb && cb.call(ele);
@@ -1214,11 +1215,11 @@ function highlight(data, indent) {
     [/&/g, '&amp;'],
     [/</g, '&lt;'],
     [/>/g, '&gt;']
-  ].forEach(function (rep) {
+  ].forEach(function(rep) {
     data = String.prototype.replace.apply(data, rep);
   });
 
-  return data.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, function (m) {
+  return data.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, function(m) {
     var color = '1e297e';
     if (/^"/.test(m)) {
       color = ['440a4d', '0d660a'][/:$/.test(m) ? 0 : 1];
@@ -1257,14 +1258,14 @@ var lineChart = {
   },
   data: [],
   eles: {},
-  destroy: function () {
+  destroy: function() {
     this.eles.path && this.eles.path.interrupt().transition();
     this.eles.xAxis && this.eles.xAxis.interrupt().transition();
     d3.timer.flush();
     this.data = [];
     this.eles = {};
   },
-  next: function (forceQuit) {
+  next: function(forceQuit) {
     var ng = !this.eles.svg;
     if (ng && forceQuit) {
       return;
@@ -1284,14 +1285,14 @@ var lineChart = {
 
     this.eles.x.domain([this.data[1].time, this.data[st.queueLength - 1].time]);
 
-    st.series.forEach(function (key) {
+    st.series.forEach(function(key) {
       lineChart.eles[key + 'LineEl']
         .attr('d', lineChart.eles[key + 'Line'])
         .attr('transform', null);
     });
 
     if (ng) {
-      return setTimeout(function (ctx) {
+      return setTimeout(function(ctx) {
         ctx.next(true);
       }, 10, this);
     }
@@ -1301,7 +1302,7 @@ var lineChart = {
       .duration(st.transitionDelay)
       .ease('linear')
       .attr('transform', 'translate(' + this.eles.x(this.data[0].time) + ', ' + st.padding + ')')
-      .each('end', function () {
+      .each('end', function() {
         lineChart.next(true);
       });
 
@@ -1312,13 +1313,13 @@ var lineChart = {
 
     this.data.shift();
   },
-  _graph: function () {
+  _graph: function() {
     var st = this.settings;
     st.gWidth = st.width;
     st.gHeight = st.height - 50;
 
     var series = '<ul>';
-    st.series.forEach(function (key) {
+    st.series.forEach(function(key) {
       series += '<li style="color:' + st.colors.line[key] + '">' + key + '</li>';
     });
     series += '</ul>';
@@ -1371,15 +1372,15 @@ var lineChart = {
     this.eles.path = this.eles.g.append('g')
       .attr('transform', 'translate(0, ' + st.padding + ')');
 
-    st.series.forEach(function (key) {
+    st.series.forEach(function(key) {
       lineChart.eles[key + 'Line'] = d3.svg
         .line()
         .interpolate('cardinal')
         .tension(st.tension)
-        .x(function (d) {
+        .x(function(d) {
           return lineChart.eles.x(d.time || Date.now());
         })
-        .y(function (d) {
+        .y(function(d) {
           return lineChart.eles.y(!d.usage ? 0 : d.usage[key]);
         });
 

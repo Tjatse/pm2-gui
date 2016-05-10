@@ -115,8 +115,7 @@ function dashboard (confFile) {
 
   console.info('Remoting servers are online, choose one you are intrested in.')
   console.log('')
-
-  inquirer.prompt(q, function (answers) {
+  inquirer.prompt(q).then(function (answers) {
     console.log('')
     _connectToDashboard(monitor, options, Monitor.parseConnectionString(answers.socket_server))
   })
