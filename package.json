@@ -56,9 +56,12 @@
     "standard": "*"
   },
   "standard": {
-    "ignore": [],
+    "ignore": [
+      "web/public/"
+    ],
     "globals": [
-      "action"
+      "action",
+      "__route_root"
     ]
   },
   "homepage": "https://github.com/Tjatse/pm2-gui"

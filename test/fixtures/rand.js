@@ -1,3 +1,3 @@
-setInterval(function(){
-  console.log(Math.random());
-}, 3000);
+setInterval(function () {
+  console.log(Math.random())
+}, 3000)
