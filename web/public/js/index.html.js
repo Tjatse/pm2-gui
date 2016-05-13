@@ -110,7 +110,7 @@ function setFPEnable(enable, unscrollable) {
 function connectSocketServer(ns) {
   var uri = GUI.connection.value;
   if (GUI.connection.short == 'localhost') {
-    uri = uri.replace(/(127\.0.0\.1|localhost|0\.0\.0\.0)/, location.hostname);
+    uri = uri.replace(/^http:\/\/[^\?\/]+/, location.host);
   }
   var index = uri.indexOf('?'),
     query = '';
@@ -120,6 +120,7 @@ function connectSocketServer(ns) {
   }
 
   uri = _.trimRight(uri, '/') + (ns || '') + query;
+
   var socket = io.connect(uri, {
     forceNew: true,
     timeout: 3000
