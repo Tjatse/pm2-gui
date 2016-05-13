@@ -117,8 +117,8 @@ Tail Logs
 
 <a name="serv" />
 # Serving apps locally with nginx and custom domain
-[simple](examples/nginx/pm.example.com.conf)
-[advantage](examples/nginx/pm2.example.com.conf)
+- [simple](examples/nginx/pm.example.com.conf)
+- [advantage](examples/nginx/pm2.example.com.conf)
 
 ## Test
 ```bash
