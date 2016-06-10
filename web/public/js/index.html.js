@@ -624,12 +624,12 @@ function updateProcsLayout(noAnimation) {
             return p.pm_id == pm_id;
           });
 
-        if (proc1 && proc2 &&
-          (proc1.pm2_env.status != proc2.pm2_env.status ||
-            proc1.pm2_env.pm_uptime != proc2.pm2_env.pm_uptime ||
+          if (proc1 && proc2 &&
+            (proc1.monit.cpu != proc2.monit.cpu ||
+            getMem(proc1.monit.memory) != getMem(proc2.monit.memory) ||
             proc1.pm2_env.restart_time != proc2.pm2_env.restart_time)) {
-          ups.push(proc2);
-        }
+            ups.push(proc2);
+          }
       });
     }
   }
