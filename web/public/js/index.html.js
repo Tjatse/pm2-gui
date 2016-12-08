@@ -10,9 +10,22 @@ var sysStat,
   tmps = {},
   eles = {},
   NSP = {
-    SYS: '/sys',
-    PROC: '/proc',
-    LOG: '/log'
+    SYS: '/system',
+    LOG: '/log',
+    PROCESS: '/proccess'
+  },
+  SOCKET_EVENTS = {
+    ERROR: 'error',
+    CONNECT: 'connect',
+    CONNECT_ERROR: 'connect_error',
+    DATA: 'data',
+    DATA_PROCESSES: 'data.processes',
+    DATA_SYSTEM_STATS: 'data.sysstat',
+    DATA_PM2_VERSION: 'data.pm2version',
+    DATA_ACTION: 'data.action',
+    PULL_LOGS: 'pull.log',
+    PULL_PROCESS: 'pull.process',
+    PULL_ACTION: 'pull.action'
   },
   timer,
   popupShown,
@@ -125,8 +138,8 @@ function connectSocketServer(ns) {
     forceNew: true,
     timeout: 3000
   });
-  socket.on('error', onError);
-  socket.on('connect_error', onError);
+  socket.on(SOCKET_EVENTS.ERROR, onError);
+  socket.on(SOCKET_EVENTS.CONNECT_ERROR, onError);
   return socket;
 }
 
@@ -150,16 +163,16 @@ function listenSocket() {
   sockets._root = connectSocketServer();
   sockets.sys = connectSocketServer(NSP.SYS);
   // information from server.
-  sockets.sys.on('info', info);
+  sockets.sys.on(SOCKET_EVENTS.ERROR, info);
   // processes
-  sockets.sys.on('procs', onProcsChange);
+  sockets.sys.on(SOCKET_EVENTS.DATA_PROCESSES, onProcsChange);
 
   // The first time to request system state.
-  sockets.sys.on('system_stat', onSysStat);
+  sockets.sys.on(SOCKET_EVENTS.DATA_SYSTEM_STATS, onSysStat);
 
   function onSysStat(data) {
     // Remove listen immediately.
-    sockets.sys.removeEventListener('system_stat', onSysStat);
+    sockets.sys.removeEventListener(SOCKET_EVENTS.DATA_SYSTEM_STATS, onSysStat);
 
     // Store system states.
     sysStat = data;
@@ -188,12 +201,12 @@ function listenSocket() {
     $('.spinner').remove();
   }
 
-  sockets.sys.on('pm2_ver', function(ver) {
+  sockets.sys.on(SOCKET_EVENTS.DATA_PM2_VERSION, function(ver) {
     $('.repo > span').text('PM2 v' + ver);
   });
 
   // Show alert when stopping process by pm_id failed.
-  sockets.sys.on('action', function(id, errMsg) {
+  sockets.sys.on(SOCKET_EVENTS.DATA_ACTION, function(id, errMsg) {
     info(errMsg);
     $('#proc_' + id).find('.proc-ops').find('.load').fadeOut(function() {
       $(this).prev().fadeIn().end().fadeOut(function() {
@@ -242,7 +255,7 @@ function renderFanavi() {
     })
     .load(icons)
     .on('click', function(index, data) {
-      sockets.sys.emit('action', ['restart', 'stop', 'save', 'delete'][index], 'all');
+      sockets.sys.emit(SOCKET_EVENTS.PULL_ACTION, ['restart', 'stop', 'save', 'delete'][index], 'all');
     });
 }
 
@@ -393,7 +406,7 @@ function polarUsage() {
   }
 
   // When receiving data from server, refresh polar.
-  sockets.sys.on('system_stat', function(data) {
+  sockets.sys.on(SOCKET_EVENTS.DATA_SYSTEM_STATS, function(data) {
     if (pageIndex != 1) {
       return;
     }
@@ -853,7 +866,7 @@ function procEvents() {
         opacity: 1
       });
 
-      sockets.sys.emit('action', method, pm_id);
+      sockets.sys.emit(SOCKET_EVENTS.PULL_ACTION, method, pm_id);
     });
   });
   eles.procs.find('[data-toggle="tooltip"]').tooltip({
@@ -993,9 +1006,10 @@ function tailLogs() {
   }
   if (!sockets.log) {
     sockets.log = connectSocketServer(NSP.LOG);
-    sockets.log.on('log', appendLogs);
-    sockets.log.on('connect', function() {
-      sockets.log.emit('tail', popupProc.pm_id);
+    sockets.log.on(SOCKET_EVENTS.ERROR, appendLogs);
+    sockets.log.on(SOCKET_EVENTS.DATA, appendLogs);
+    sockets.log.on(SOCKET_EVENTS.CONNECT, function() {
+      sockets.log.emit(SOCKET_EVENTS.PULL_LOGS, popupProc.pm_id);
     });
   } else {
     sockets.log.connect();
@@ -1027,7 +1041,7 @@ function appendLogs(log) {
     !scrolled && (scrolled = poffset < offset - 30);
     scrollable = true;
   }
-  $(log.msg).appendTo(lo);
+  $(log.msg || log.error).appendTo(lo);
 
   if (scrollable) {
     lo.parent().slimScroll({
@@ -1055,10 +1069,11 @@ function monitorProc() {
     return;
   }
   if (!sockets.proc) {
-    sockets.proc = connectSocketServer(NSP.PROC);
-    sockets.proc.on('proc', appendData);
-    sockets.proc.on('connect', function() {
-      sockets.proc.emit('proc', popupProc.pid);
+    sockets.proc = connectSocketServer(NSP.PROCESS);
+    sockets.proc.on(SOCKET_EVENTS.ERROR, appendData);
+    sockets.proc.on(SOCKET_EVENTS.DATA, appendData);
+    sockets.proc.on(SOCKET_EVENTS.CONNECT, function() {
+      sockets.proc.emit(SOCKET_EVENTS.PULL_PROCESS, popupProc.pid);
     });
   } else {
     sockets.proc.connect();
@@ -1089,8 +1104,8 @@ function appendData(proc) {
     });
   }
   // handle error
-  if (proc.msg) {
-    delete proc.msg;
+  if (proc.error) {
+    delete proc.error;
     proc.time = Date.now();
     proc.usage = {
       cpu: 0,
@@ -1149,6 +1164,9 @@ function animate(o, a, cb) {
 function info(msg) {
   if (msg instanceof Error) {
     msg = msg.message;
+  }
+  if (_.isObject(msg)) {
+    msg = msg.error
   }
   $.sticky({
     body: msg,
