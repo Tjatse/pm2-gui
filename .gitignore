@@ -1,3 +1,5 @@
 node_modules
 logs
 *.pid
+examples/*.js
+bower_components/

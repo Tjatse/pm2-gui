@@ -1,0 +1,17 @@
+{
+  "asi": true,
+  "browser": true,
+  "eqeqeq": true,
+  "eqnull": true,
+  "expr": true,
+  "jquery": true,
+  "latedef": "nofunc",
+  "laxbreak": true,
+  "nonbsp": true,
+  "strict": false,
+  "globalstrict": true,
+  "undef": true,
+  "unused": true,
+  "esversion": 6,
+  "predef": ["$", "jQuery", "localStorage", "window", "document", "location", "console", "moment", "_", "Focuxy"]
+}
