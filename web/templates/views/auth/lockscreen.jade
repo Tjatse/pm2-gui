@@ -1,0 +1,38 @@
+extends ../../layouts/default
+
+block head
+  - Vars.bodyClassName = 'hold-transition lockscreen';
+
+block body
+  .lockscreen-wrapper
+    .lockscreen-logo
+      a(href='/')!= Vars.logo.full
+
+    if isSignOut
+      .lockscreen-name.text-yellow.text-capitalize!= user.full
+    .lockscreen-item
+      .lockscreen-image
+        img(src='/img/portrait.png', alt='')
+      if isSignOut
+        .lockscreen-credentials
+          p.text-muted
+            i.fa.fa-spinner.fa-spin.margin-r-5
+            | Signing out, please be patient.
+      else
+        form.lockscreen-credentials(method='post', action='/auth/signin')
+          .input-group
+            input.form-control(type='password', autocomplete='off', name='pwd', maxlength=10, placeholder='Authentication code', required='required')
+            .input-group-btn
+              button.btn(type='submit')
+                i.fa.fa-arrow-right.text-muted
+          input(type='hidden', name='redirect', value!= redirectTo)
+    if error
+      .help-block.text-center.text-red!= error
+    .lockscreen-footer.text-center.text-muted
+      include ../../partials/copyright
+
+block js
+  script(src='/vendor/jquery-slimscroll/jquery.slimscroll.min.js')
+  script(src='/vendor/AdminLTE/js/app.min.js')
+      
+      

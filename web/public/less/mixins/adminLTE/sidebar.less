@@ -1,0 +1,22 @@
+.control-sidebar,
+.control-sidebar-bg {
+  width: @control-sidebar-width;
+  right: -@control-sidebar-width;
+}
+
+.control-sidebar-open {
+  .control-sidebar-bg,
+  .control-sidebar {
+    right: 0;
+  }
+}
+
+@media (min-width: 768px) {
+  .control-sidebar-open {
+    .content-wrapper,
+    .right-side,
+    .main-footer {
+      margin-right: @control-sidebar-width;
+    }
+  }
+}

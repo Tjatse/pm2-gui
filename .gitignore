@@ -1,5 +1,11 @@
-node_modules
-logs
+
 *.pid
-examples/*.js
+.idea/
 bower_components/
+examples/*.js
+logs/
+node_modules/
+web/public/js/dist/
+web/public/js/babel/
+web/public/css/
+web/public/vendor

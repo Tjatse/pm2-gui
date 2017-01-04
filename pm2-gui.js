@@ -7,10 +7,10 @@ var _ = require('lodash')
 var socketIO = require('socket.io')
 var inquirer = require('inquirer')
 
-var Monitor = require('./lib/monitor')
-var Log = require('./lib/util/log')
+var Monitor = require('./libs/monitor')
+var Log = require('./libs/util/log')
+var Layout = require('./libs/blessed-widget/layout')
 var Web = require('./web/index')
-var Layout = require('./lib/blessed-widget/layout')
 
 var regLocal = /^(127\.0\.0\.1|0\.0\.0\.0|localhost)$/i
 
@@ -65,7 +65,7 @@ function startWebServer (confFile) {
   // express server
   var server = Web({
     middleware: function (req, res, next) {
-      req._config = options
+      res.locals.config = options
       next()
     },
     port: options.port
@@ -75,7 +75,6 @@ function startWebServer (confFile) {
     origins: options.origins || '*:*'
   })
   monitor.run()
-  console.info('Web server is listening on 127.0.0.1:' + options.port)
 }
 
 /**

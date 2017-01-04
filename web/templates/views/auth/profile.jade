@@ -1,0 +1,40 @@
+extends ../../layouts/dashboard
+include ../../partials/mixin
+
+block head
+
+block beforeWrapper
+  - Vars.breadcrumb.push({label: 'Profile', note: 'biography', icon: 'fa fa-info-circle'});
+
+block body
+  .row
+    .col-md-5
+      .box.box-primary
+        .box-body.box-profile
+          img.profile-user-img.img-responsive.img-circle(src='/img/portrait.png', alt='')
+          h3.profile-username.text-center= user.nick
+          p.text-muted.text-center= user.fullname
+
+          ul.list-group.list-group-unbordered
+            li.list-group-item
+              b Last Actived
+              span.pull-right.label.bg-green.datetime= user.activedAt
+
+          a.btn.btn-danger.btn-block(href='/auth/signout') Sign Out
+    .col-md-6
+      .box.box-warning
+        +boxHeader(false, 'About...', false, false)
+        .box-body
+          strong.text-uppercase
+            i.ion.ion-network.margin-r-5
+            | branch
+          p.text-muted
+            != Vars.logo.full
+            | &nbsp;
+            span.text-maroon= 'v' + profile.version
+          strong.text-uppercase
+            i.fa.fa-file-text-o.margin-r-5
+            | description
+          p.text-muted
+            = profile.description
+      

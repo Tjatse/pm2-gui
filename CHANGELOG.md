@@ -1,3 +1,19 @@
+# 0.2.0
+**Bugs**
+- caught process exceptions
+
+**Enhancements**
+- Refactor
+- Humanize config
+- Update dependencies
+- Read logs from event bus
+- Add thanks
+
+**Breaking Changes**
+- Uniform socket.io namespaces
+- UI/UX
+
+
 # 0.1.4-rc.1
 **Bugs**
 - clean ANSI.

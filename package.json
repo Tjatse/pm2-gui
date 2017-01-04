@@ -4,7 +4,11 @@
   "description": "An elegant web & terminal interface for Unitech/PM2.",
   "main": "./pm2-gui.js",
   "scripts": {
-    "test": "NODE_ENV=test bash test/index.sh"
+    "start": "node --harmony index.js",
+    "test": "NODE_ENV=test bash test/index.sh",
+    "grunt": "./node_modules/.bin/grunt",
+    "compress": "npm run grunt compress",
+    "bower": "npm run grunt bowerComponents"
   },
   "bin": {
     "pm2-gui": "./pm2-gui"
@@ -38,24 +42,41 @@
     "ansi-html": "~0.0.6",
     "async": "^1.5.2",
     "blessed": "^0.1.81",
+    "body-parser": "^1.15.2",
     "chalk": "^1.1.3",
     "commander": "^2.9.0",
+    "compression": "^1.6.2",
     "express": "^4.13.4",
     "express-session": "^1.13.0",
     "inquirer": "^1.0.3",
     "jade": "^1.11.0",
     "lodash": "^4.12.0",
-    "ms": "^0.7.2",
     "pidusage": "^1.0.8",
     "pm2-axon": "^2.0.11",
     "pm2-axon-rpc": "^0.3.6",
+    "rc": "^1.1.6",
     "socket.io": "^1.4.8",
     "socket.io-client": "^1.4.8",
     "windows-cpu": "^0.1.4"
   },
   "devDependencies": {
     "babel-core": "^6.18.2",
-    "babel-preset-es2015": "^6.18.0"
+    "babel-preset-es2015": "^6.18.0",
+    "bower-npm-resolver": "^0.7.0",
+    "grunt": "^1.0.1",
+    "grunt-babel": "^6.0.0",
+    "grunt-bower-task": "^0.4.0",
+    "grunt-contrib-clean": "^1.0.0",
+    "grunt-contrib-copy": "^1.0.0",
+    "grunt-contrib-csslint": "^2.0.0",
+    "grunt-contrib-cssmin": "^1.0.2",
+    "grunt-contrib-jshint": "^1.1.0",
+    "grunt-contrib-less": "^1.4.0",
+    "grunt-contrib-uglify": "^2.0.0",
+    "grunt-contrib-watch": "^1.0.0",
+    "grunt-webpack": "^1.0.18",
+    "webpack": "^1.14.0",
+    "webpack-dev-server": "^1.16.2"
   },
   "standard": {
     "ignore": [

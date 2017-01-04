@@ -46,7 +46,7 @@ function server (){
   if [ 0 -eq $? ];
     then
       echo -e "$prefixINFO Starting..."
-      $node $SRC/lib/daemon "$@"
+      $node $SRC/libs/daemon "$@"
       sleep 1;
   fi
   status;
@@ -84,7 +84,7 @@ case "$1" in
     server "$@";
     ;;
   mon)
-    $node $SRC/lib/daemon "$@";
+    $node $SRC/libs/daemon "$@";
     status;
     ;;
   stop)

@@ -1,0 +1,49 @@
+mixin renderMenu(menu, hasChild)
+  a(href= menu.href || 'javascript:;')
+    i(class= menu.icon)
+    span.text-capitalize!= menu.label
+    if hasChild
+      span.pull-right-container
+        i.fa.fa-angle-left.pull-right
+    else if menu.badge
+      span.pull-right-container
+        small.pull-right(class= menu.badge.css)!= menu.badge.label
+
+aside.main-sidebar
+  section.sidebar
+    .user-panel
+      .pull-left.image
+        img.img-circle(src='/img/portrait.png', alt='')
+      .pull-left.info
+        p= user.nick
+        a.text-capitalize(href='/auth/profile')
+          i.fa.fa-circle.text-success
+          = user.full
+    ul.sidebar-menu
+      - var homeMenu = {icon: 'fa fa-home', label: 'Home', href: '/', note: 'dashboard of all'};
+      - Vars.breadcrumb = [];
+      - Vars.sidebar = {'main navigation': [homeMenu], 'servers': [{label: '<i class="fa fa-spin fa-spinner margin-r-5"></i>Loading...'}]}
+      each menus, menuHeader in Vars.sidebar
+        li.header.text-uppercase= menuHeader
+        if Array.isArray(menus) && menus.length > 0
+          each menu in menus
+            - var hasChild = Array.isArray(menu.items) && menu.items.length > 0;
+            - var navPrefix = '/' + menu.label;
+            - var isActive = Vars.navigator && (Vars.navigator === navPrefix || Vars.navigator.indexOf(navPrefix + '/') === 0);
+            if isActive
+              - Vars.breadcrumb.push(menu);
+            if hasChild
+              li.treeview(class= isActive ? 'active' : '')
+                +renderMenu(menu, hasChild)
+                ul.treeview-menu
+                  each item in menu.items
+                    - var itemNavPrefix = navPrefix + '/' + item.label;
+                    - isActive = Vars.navigator && (Vars.navigator === itemNavPrefix || Vars.navigator.indexOf(itemNavPrefix + '/') === 0);
+                    if isActive
+                      - Vars.breadcrumb.push(item);
+                    li(class= isActive ? 'active' : '')
+                      - item.icon = 'fa fa-circle-o';
+                      +renderMenu(item)
+            else
+              li(class= isActive ? 'active' : '')
+                +renderMenu(menu)

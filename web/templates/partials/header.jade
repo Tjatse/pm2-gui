@@ -1,0 +1,112 @@
+header.main-header
+  a.logo.text-orange(href='/')
+    span.logo-mini!= Vars.logo.short
+    span.logo-lg!= Vars.logo.full
+  nav.navbar.navbar-static-top
+    a.sidebar-toggle(href='javascript:;', data-toggle='offcanvas', role='button')
+      span.sr-only Toggle navigation
+      span.icon-bar
+      span.icon-bar
+      span.icon-bar
+    p.navbar-text.hidden-xs
+      i.fa.fa-quote-left.text-muted
+      | &nbsp;A species of Happiness&nbsp;
+      i.fa.fa-quote-right.text-muted
+    .navbar-custom-menu
+      ul.nav.navbar-nav
+        li.dropdown.messages-menu
+          a.dropdown-toggle(href='javascript:;', data-toggle='dropdown')
+            i.fa.fa-envelope-o
+            span.label.label-success 1
+          ul.dropdown-menu
+            li.header
+              | You have&nbsp;
+              b.text-yellow 1
+              | &nbsp;unread nofication
+            li
+              ul.menu
+                li
+                  a(href='javascript:;')
+                    .pull-left
+                      img(src='/img/icon-48.png')
+                    h4
+                      = Vars.logo.text
+                      small
+                        i.fa.fa-clock-o
+                        | &nbsp;1 minutes ago
+                    p
+                      | All in one.
+            li.footer
+              a.text-uppercase(href='javascript:;') view all
+        li.dropdown.notifications-menu
+          a.dropdown-toggle(href='javascript:;', data-toggle='dropdown')
+            i.fa.fa-bell-o
+            span.label.label-warning 2
+          ul.dropdown-menu
+            li.header
+              | You have&nbsp;
+              b.text-yellow 2
+              | &nbsp;unread nofications
+            li
+              ul.menu
+                li
+                  a(href='javascript:;')
+                    i.ion.ion-ios-cloud-download-outline.text-aqua
+                    | 3 unstable restarts
+                li
+                  a(href='javascript:;')
+                    i.ion.ion-ios-cloud-upload-outline.text-aqua
+                    | Succeed to pull and restart 2# on serv1
+        li.dropdown.tasks-menu
+          a.dropdown-toggle(href='javascript:;', data-toggle='dropdown')
+            i.fa.fa-line-chart
+            span.label.label-danger 2
+          ul.dropdown-menu
+            li.header
+              b.text-red 2
+              | &nbsp;servers
+            li
+              ul.menu
+                li
+                  a(href='javascript:;')
+                    h3
+                      | SUM
+                      small.pull-right 20%
+                    .progress.xs
+                      .progress-bar.progress-bar-red(style='width: 20%', role='progressbar', aria-valuenow='20', aria-valuemin='0' aria-valuemax='100')
+                        span.sr-only 20% Completed
+                li
+                  a(href='javascript:;')
+                    h3
+                      | AVG
+                      small.pull-right 110%
+                    .progress.xs
+                      .progress-bar.progress-bar-green(style='width: 100%', role='progressbar', aria-valuenow='100', aria-valuemin='0' aria-valuemax='100')
+                        span.sr-only 110% Completed
+        li.dropdown.user.user-menu
+          a.dropdown-toggle(href='javascript:;', data-toggle='dropdown')
+            img.user-image(src='/img/portrait.png', alt='')
+            span.hidden-xs= user.nick
+          ul.dropdown-menu
+            li.user-header
+              img.img-circle(src='/img/portrait.png', alt='')
+              p
+                span.text-uppercase= user.full
+                small.datetime
+                  = user.activedAt
+            li.user-body
+              .row
+                .col-sm-12.text-center
+                  .text-fuchsia
+                    i.fa.fa-hand-pointer-o.margin-r-5
+                    | The Important Contributor
+            li.user-footer
+              if user.anony
+                .row
+                  .col-sm-12.text-center
+                    .text-muted Visit as an anonymous user
+              else
+                .pull-left
+                  a.btn.btn-default.btn-flat(href='/auth/profile') Profile
+                .pull-right
+                  a.btn.btn-default.btn-flat.bg-maroon(href='/auth/signout') Signout
