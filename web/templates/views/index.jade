@@ -1,63 +1,43 @@
-extends ../layouts/dashboard
-include ../partials/mixin
+extends ../layouts/default
 
 block head
-  - Vars.navigator = '/Home';
-  
-block body
-  .callout.callout-warning(class= error ? '' : 'hide')
-    h4 WARNING!!!
-    p!= error || ''
+  link(rel='stylesheet', href='/css/jquery.fullPage.css')
+  link(rel='stylesheet', href='/css/index.css')
 
-  .row
-    .col-md-3.col-sm-6.col-xs-12
-      .info-box
-        span.info-box-icon.bg-green
-          i.fa.fa-server
+block content
+  #fullpage
+    .section
+      .repo.bounceInDown
+        a(href='https://github.com/Tjatse/pm2-gui', target='_blank') Github Repo
+        span
+      .polar-usage
+      .system-info
+      .procs-hint-container.hide
+        div 
+          = 'Apps('
+          span 0
+          = ')'
+    .section.moveDown
+      .procs
+      #procs_action
 
-        .info-box-content
-          span.info-box-text servers
-          span.info-box-number 12
+  .spinner
+    div
+    div
+    div
+    div
+    div
+  input#authorization(type="hidden")= authorization
+  include ../partials/tmpls
 
-          .progress
-            .progress-bar.bg-green-active(style='width: 20%')
-          span.progress-description 20% Available
-    .col-md-3.col-sm-6.col-xs-12
-      .info-box
-        span.info-box-icon.bg-yellow
-          i.ion.ion-network
-        .info-box-content
-          span.info-box-text version
-          span.info-box-number v0.0.0
-        .info-box-content
-          .info-box-text.text-muted quering...
-  .row
-    .col-xs-12
-      .box.box-primary
-        +boxHeader('ion-ios-pulse-strong', 'Stats of servers', true, false)
-        .box-body
-          .table-responsive
-            table.table.no-margin
-              thead
-                tr
-                  th NAME
-                  th SOCKET
-                  th STATUS
-              tbody
-                each conn in connections
-                  tr
-                    td
-                      a(href= '/server/' + conn.short)= conn.short
-                    td= conn.value
-                    td
-                      span.label.bg-green-active checking...
-        .box-footer.clearfix
-          button.btn.btn-sm.btn-primary.btn-flat.pull-right(disabled) Refresh Stats
 block js
   script.
-    GUI.socketConfigs = !{JSON.stringify(socketConfigs)}
-  script(src='/vendor/colorbrewer/colorbrewer.js')
-  script(src='/vendor/humanize-plus/humanize.min.js')
-  script(src='/vendor/chart.js/Chart.js')
-  script(src='/js/dist/libs/jquery.sparkline.min.js')
-  script(src='/js/dist/views/index.min.js')
+    var GUI = {};
+    GUI.connections = !{JSON.stringify(connections)};
+    GUI.readonly = '#{readonly}' === 'true'
+  script(src='js/socket.io.js')
+  script(src='js/d3.min.js')
+  script(src='js/jquery.fullPage.min.js')
+  script(src='js/fanavi.min.js')
+  script(src='js/index.html.js')
+

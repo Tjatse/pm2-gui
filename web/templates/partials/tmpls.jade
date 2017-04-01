@@ -1,0 +1,67 @@
+script#sysInfoTmp(type='text/html')
+  dl
+    - var props = ['cpu', 'arch', 'uptime', 'memory'];
+    each prop in props
+      dt= prop.toUpperCase() + (prop == 'cpu' ? 's' : '')
+      dd!= '<%- data.' + prop + ' %>'
+
+script#noProcTmp(type='text/html')
+  .proc.proc-empty
+    .proc-col.proc-status
+      i.glyphicon.glyphicon-info-sign
+    .proc-col.proc-info
+      ul.proc-title
+        li.proc-alert(data-pmid!='<%- proc.pm_id %>') Ops...
+      ul.proc-content
+        li.proc-file No process found!
+
+script#procTmp(type='text/html')
+  | <% var mode = proc.pm2_env.exec_mode.replace(/^(cluster|fork)_mode$/, "$1") %>
+  div(id!='proc_<%- proc.pm_id %>', class!="proc<%- proc.pm2_env.status == 'online' ? '':' proc-stop' %>")
+    .proc-col.proc-status
+      i(data-toggle='tooltip', data-placement='left', title!='<%- proc.pm2_env.status %>', class!="glyphicon glyphicon-<%- proc.pm2_env.status == 'online' ? 'ok':'remove' %>-sign")
+    .proc-col.proc-info
+      ul.proc-title
+        li.proc-name(data-pmid!='<%- proc.pm_id %>')!= '<%- proc.name %>'
+        li
+          sup!= '<%- proc.pm_id %>'
+        li.proc-ops
+          | <% if(!GUI.readonly){ %>
+          ul
+            li
+              i.glyphicon.glyphicon-refresh(data-toggle='tooltip', data-placement!='<%= index == 0 ? "bottom" : "top" %>', title='Restart')
+            != '<% if(proc.pm2_env.status == "online"){ %>'
+            li
+              i.glyphicon.glyphicon-ban-circle(data-toggle='tooltip', data-placement!='<%= index == 0 ? "bottom" : "top" %>', title='Stop')
+            != '<% } %>'
+            li
+              i.glyphicon.glyphicon-trash(data-toggle='tooltip', data-placement!='<%= index == 0 ? "bottom" : "top" %>', title='Delete')
+          | <% } %>
+      ul.proc-content
+        li.proc-file!= '<%- (proc.pm2_env.pm_exec_path.length > 35 ? "...":"") + proc.pm2_env.pm_exec_path.slice(-35) %>'
+        li(class!='proc-mode proc-mode-<%- mode %>')
+          span!= '<%- mode %>'
+        li.proc-mem!= '<%- getMem(proc.monit.memory) %>'
+        li.proc-restart!= '<%- proc.pm2_env.restart_time %>'
+        li.proc-uptime
+          | [
+          span(data-ctime!='<%- proc.pm2_env.pm_uptime %>', data-running!="<%- proc.pm2_env.status == 'online' ? 'YES':'NO' %>") 0s
+          | ]
+  | <% if(!noDiv){ %>
+  .proc-div
+  | <% } %>
+
+script#popupTmp(type='text/html')
+  div(role='tabpanel')
+    - var tabs = {info: {class: 'active'}, monitor: {class: 'graph'}, log: {}};
+    ul.nav.nav-tabs(role='tablist')
+      each attrs, tab in tabs
+        li(class= attrs.class, role='presentation')
+          a(href= '#' + tab, aria-controls='info', role='tab', data-toggle='tab')= tab[0].toUpperCase() + tab.slice(1)
+    .tab-content
+      each attrs, tab in tabs
+        div(id= tab, class= ('tab-pane ' + (attrs.class || '')), role='tabpanel')
+          if tab == 'info'
+            pre!= '<%= info %>'
+          else
+            .load

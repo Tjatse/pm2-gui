@@ -1,0 +1,18 @@
+extends ../layouts/default
+
+block head
+  link(rel='stylesheet', href='css/auth.css')
+
+block variables
+  - bodyClassName = 'carbon';
+block content
+  .auth-form
+    #logo(title='PM2 GUI')
+    input(placeholder='Authorization', type='password', maxlength='20', autocomplete='off')
+    a(href='#')
+    span
+
+block js
+  script(src='js/socket.io.js')
+  script(src='js/d3.min.js')
+  script(src='js/auth.html.js')

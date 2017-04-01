@@ -1,20 +1,25 @@
-'use strict'
-
 var _ = require('lodash')
+var Monitor = require('../../lib/monitor')
 
-var Monitor = require('../../libs/monitor')
-var conf = require('../../libs/util/conf')
-
-action(function (req, res) {
-  var config = res.locals.config
-  var agent = config.agent
-  if (agent && agent.authorization && (!req.session.user || agent.authorization !== req.session.user.passwd)) {
-    return res.redirect('/auth/signout')
+// Authorization
+action(function auth (req, res) {
+  if (!req._config.agent || (req._config.agent.authorization === req.session['authorization'])) {
+    return res.redirect('/')
   }
-  var q = Monitor.available(_.extend({
-    blank: '',
-    notFormatName: true
-  }, config))
+  res.render('auth', {
+    title: 'Authorization'
+  })
+})
+
+// Index
+action(function (req, res) {
+  if (req._config.agent && (req._config.agent.authorization !== req.session['authorization'])) {
+    return res.redirect('/auth')
+  }
+  var options = _.clone(req._config)
+  var q = Monitor.available(_.extend(options, {
+    blank: '&nbsp;'
+  }))
   var connections = []
 
   q.choices.forEach(function (c) {
@@ -24,10 +29,30 @@ action(function (req, res) {
   res.render('index', {
     title: 'Monitor',
     connections: connections,
-    readonly: agent && !!agent.readonly,
-    socketConfigs: {
-      events: conf.SOCKET_EVENTS,
-      namespaces: conf.NSP
-    }
+    readonly: !!req._config.readonly
+  })
+})
+
+// API
+action(function auth_api (req, res) { // eslint-disable-line camelcase
+  if (!req._config.agent || !req._config.agent.authorization) {
+    return res.json({
+      error: 'Can not found agent[.authorization] config, no need to authorize!'
+    })
+  }
+  if (!req.query || !req.query.authorization) {
+    return res.json({
+      error: 'Authorization is required!'
+    })
+  }
+
+  if (req._config.agent && req.query.authorization === req._config.agent.authorization) {
+    req.session['authorization'] = req.query.authorization
+    return res.json({
+      status: 200
+    })
+  }
+  return res.json({
+    error: 'Failed, authorization is incorrect.'
   })
 })

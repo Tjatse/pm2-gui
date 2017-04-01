@@ -1,0 +1,181 @@
+/*****************
+      COMMON
+******************/
+
+html,
+body {
+  background-color: #000;
+  font-family: Consolas, Menlo, Monaco, monospace;
+  letter-spacing: 0.5px;
+  height: 100%;
+  -webkit-text-size-adjust: none;
+  background: transparent url(/img/carbon.png) 0 0 repeat;
+}
+
+.load {
+  background: url(/img/ajax-loading.gif) no-repeat center center;
+  width: 20px;
+  height: 20px;
+  display: block;
+}
+
+
+/*****************
+   END OF COMMON
+******************/
+
+
+/*****************
+      LOGIN
+******************/
+
+.auth-form {
+  text-align: center;
+  width: 400px;
+  height: 200px;
+  position: absolute;
+  margin-top: -100px;
+  margin-left: -200px;
+  top: 50%;
+  left: 50%;
+  animation: bounceInDown 1s;
+  -moz-animation: bounceInDown 1s;
+  -o-animation: bounceInDown 1s;
+  -webkit-animation: bounceInDown 1s;
+}
+
+.auth-form > * {
+  outline: none;
+  position: absolute;
+  left: 50%;
+  border: 0;
+}
+
+.auth-form div {
+  top: 0;
+  width: 80px;
+  height: 32px;
+  margin-left: -40px;
+  font-size: 32px;
+  font-weight: bold;
+  color: #20D3EF;
+  position: absolute;
+  animation: shake 1s;
+  -moz-animation: shake 1s;
+  -o-animation: shake 1s;
+  -webkit-animation: shake 1s;
+  animation-delay: 1s;
+  -moz-animation-delay: 1s;
+  -o-animation-delay: 1s;
+  -webkit-animation-delay: 1s;
+}
+
+.auth-form input {
+  top: 50px;
+  margin-left: -150px;
+  padding: 0 10px;
+  width: 300px;
+  height: 38px;
+  line-height: 38px;
+  color: #f0f0f0;
+  text-shadow: 1px 1px 1px #000;
+  background: rgba(0, 0, 0, 0.16);
+  border-radius: 4px;
+  -webkit-box-shadow: inset 0 1px 4px #000, 0 1px #444;
+  -moz-box-shadow: inset 0 1px 4px #000, 0 1px #444;
+  -o-box-shadow: inset 0 1px 4px #000, 0 1px #444;
+  box-shadow: inset 0 1px 4px #000, 0 1px #444;
+}
+
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0px 1000px #ccc inset;
+}
+
+.auth-form a {
+  margin-left: -24px;
+  border-radius: 24px;
+  top: 104px;
+  text-decoration: none;
+  width: 56px;
+  height: 56px;
+  display: block;
+  background-color: #000;
+  border-radius: 29px;
+  box-shadow: 0px 1px 0px 0px rgba(250, 250, 250, 0.1), inset 0px 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+.auth-form a:before,
+.auth-form a:after {
+  display: block;
+  width: 48px;
+  height: 48px;
+  border-radius: 24px;
+  position: absolute;
+  left: 4px;
+  top: 4px;
+}
+
+.auth-form a:before {
+  content: '';
+  top: 2px;
+  box-shadow: 0px 3px 0px 0px rgba(0, 0, 0, .1), 0px 5px 10px 0px rgba(0, 0, 0, .9), inset 0px 1px 1px 0px rgba(250, 250, 250, .2), inset 0px -12px 35px 0px rgba(0, 0, 0, .5);
+  background-color: rgb(50, 50, 50);
+}
+
+.auth-form a:active:before,
+.auth-form a.active:before {
+  box-shadow: 0px 3px 0px 0px rgba(0, 0, 0, .1), 0px 5px 10px 0px rgba(0, 0, 0, .9), inset 0px 1px 1px 0px rgba(250, 250, 250, .2), inset 0px -12px 35px 0px rgba(0, 0, 0, .9);
+  background-color: rgb(40, 40, 40);
+  top: 4px;
+}
+
+.auth-form a:after {
+  content: '\e127';
+  font-family: 'Glyphicons Halflings';
+  font-size: 20px;
+  line-height: 48px;
+  top: 2px;
+  color: #0d5202;
+  transition: color 500ms ease;
+  -o-transition: color 500ms ease;
+  -moz-transition: color 500ms ease;
+  -webkit-transition: color 500ms ease;
+}
+
+.auth-form a:hover:after {
+  color: #19af00;
+}
+
+.auth-form a:active:after,
+.auth-form a.active:after {
+  color: #a4ff95;
+  top: 4px;
+}
+
+.auth-form > span {
+  display: block;
+  width: 8px;
+  height: 8px;
+  border-radius: 4px;
+  top: 64px;
+  left: 82%;
+  background-color: #ff0000;
+  box-shadow: inset 0px 1px 0px 0px rgba(250, 250, 250, 0.5), 0px 0px 4px 2px #fa9191;
+  transition: background-color 300ms, box-shadow 500ms;
+  -o-transition: background-color 300ms, box-shadow 500ms;
+  -moz-transition: background-color 300ms, box-shadow 500ms;
+  -webkit-transition: background-color 300ms, box-shadow 500ms;
+}
+
+.auth-form > span.active {
+  box-shadow: inset 0px 1px 0px 0px rgba(250, 250, 250, 0.5), 0px 0px 4px 2px #32b703;
+  background-color: #489825;
+}
+
+
+/*****************
+   END OF LOGIN
+******************/
