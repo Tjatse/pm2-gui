@@ -22,6 +22,7 @@ An elegant web & terminal interface for Unitech/PM2.
 ![image](screenshots/design.jpg)
 
 <a name="feats" />
+
 # Features
 - Curses-like dashboard.
 - Remoting monitor / web control.
@@ -38,11 +39,13 @@ An elegant web & terminal interface for Unitech/PM2.
 - High performance. In my case, there are near one hundred processes, but `pm2-gui` works without any suck.
 
 <a name="cauts" />
+
 # Cautions
 - Web Interface is wrote by CSS3 && HTML5, so view it with the latest version of the browser (WebGL, Animation, WebSocket supports), e.g. Chrome, Safari and Firefox.
 - I've never test it on Internet Explorer / Windows.
 
 <a name="ins" />
+
 # Installation
 ```bash
 $ npm install pm2-gui -g
@@ -59,6 +62,7 @@ $ ./pm2-gui <cmd> [options]
 ```
 
 <a name="usage" />
+
 # Usage
 Run the following command to get usage helps:
 ```bash
@@ -79,10 +83,12 @@ pm2GUI.dashboard([ini_config_file]);
 ```
 
 <a name="config" />
+
 # Configuration
 Edit the `pm2-gui/pm2-gui.ini` file or copy the [config example](./pm2-gui.ini) to `/etc/pm2-gui.ini` (starting with `pm2-gui start /etc/pm2-gui.ini`):
 
 <a name="ui" />
+
 # UI/UX
 - Amazing and smooth animations.
 - High performance.
@@ -116,6 +122,7 @@ Tail Logs
 ![image](screenshots/logs.jpg)
 
 <a name="serv" />
+
 # Serving apps locally with nginx and custom domain
 - [simple](examples/nginx/pm.example.com.conf)
 - [advantage](examples/nginx/pm2.example.com.conf)
