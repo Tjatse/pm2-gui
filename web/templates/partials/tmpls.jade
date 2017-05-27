@@ -41,6 +41,7 @@ script#procTmp(type='text/html')
         li.proc-file!= '<%- (proc.pm2_env.pm_exec_path.length > 35 ? "...":"") + proc.pm2_env.pm_exec_path.slice(-35) %>'
         li(class!='proc-mode proc-mode-<%- mode %>')
           span!= '<%- mode %>'
+        li.proc-cpu!= '<%- proc.monit.cpu + "%" %>'
         li.proc-mem!= '<%- getMem(proc.monit.memory) %>'
         li.proc-restart!= '<%- proc.pm2_env.restart_time %>'
         li.proc-uptime

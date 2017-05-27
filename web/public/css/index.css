@@ -493,6 +493,11 @@ END OF REPO && VER
   width: 35px;
 }
 
+.proc-info ul.proc-content li.proc-cpu {
+  color: #cc0000;
+  width: 35px;
+}
+
 .proc-info ul.proc-content li.proc-restart {
   color: #f0ad4e;
   width: 30px;
