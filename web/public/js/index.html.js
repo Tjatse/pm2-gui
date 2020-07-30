@@ -165,7 +165,8 @@ function listenSocket() {
   // information from server.
   sockets.sys.on(SOCKET_EVENTS.ERROR, info);
   // processes
-  sockets.sys.on(SOCKET_EVENTS.DATA_PROCESSES, onProcsChange);
+  sockets.process = connectSocketServer (NSP.PROCESS);
+  sockets.process.on (SOCKET_EVENTS.DATA_PROCESSES, onProcsChange)
 
   // The first time to request system state.
   sockets.sys.on(SOCKET_EVENTS.DATA_SYSTEM_STATS, onSysStat);
