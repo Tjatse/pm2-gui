@@ -75,7 +75,7 @@ function startWebServer (confFile) {
     origins: options.origins || '*:*'
   })
   monitor.run()
-  console.info('Web server is listening on 127.0.0.1:' + options.port)
+  console.info(`Web server is listening on ${options.origins}:` + options.port)
 }
 
 /**
@@ -218,11 +218,11 @@ function slave (options) {
 
   return monitor
 
-  function shutdown (code, signal) {
+  function shutdown (signal) {
     console.info('Shutting down....')
     monitor.quit()
     console.info('Completed!')
-    exitGraceful(code, '-f')
+    exitGraceful(0, '-f')
   }
 
   function restart () {

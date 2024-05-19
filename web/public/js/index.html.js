@@ -1023,7 +1023,7 @@ function tailLogs() {
  */
 function appendLogs(log) {
   // Check process and pm_id should be equalled.
-  if (!popupProc || popupProc.pm_id != log.pm_id) {
+  if (!popupProc || popupProc.pm_id != log.id) {
     return;
   }
 
@@ -1042,7 +1042,9 @@ function appendLogs(log) {
     !scrolled && (scrolled = poffset < offset - 30);
     scrollable = true;
   }
-  $(log.msg || log.error).appendTo(lo);
+  let a = document.createElement('pre');
+a.innerText = (log.text || log.error);
+document.querySelector('#log').appendChild(a);
 
   if (scrollable) {
     lo.parent().slimScroll({
