@@ -1,147 +1,142 @@
-pm2-gui [![NPM version](https://badge.fury.io/js/pm2-gui.svg)](http://badge.fury.io/js/pm2-gui) [![Build Status](https://travis-ci.org/Tjatse/pm2-gui.svg?branch=master)](https://travis-ci.org/Tjatse/pm2-gui)
+pm2-gui [![NPM version](https://badge.fury.io/js/pm2-gui.svg)](http://badge.fury.io/js/pm2-gui)
 =======
 
-An elegant web & terminal interface for Unitech/PM2.
+An elegant web and terminal interface for [PM2](https://pm2.keymetrics.io/).
 
-> Compatible with PM2 v0.12.7+
-
-> If you wanna update to pm2-gui@latest, make sure you've read the [change logs](CHANGELOG.md).
-
-> You can track lifecycle by [pm2-ant](https://github.com/Tjatse/pm2-ant)
+> Compatible with **PM2 5.x, 6.x, and 7.x** (Node.js 18+)
 
 ![image](screenshots/pm2-gui.gif)
 
+# What's new in 0.2.0
+
+- Uses the official **PM2 programmatic API** instead of legacy axon RPC sockets
+- Modernized web dashboard (responsive layout, dark theme, process table, detail modal)
+- Saved project folders with native folder picker and per-user local storage
+- Updated stack: Socket.IO 4, Pug templates, Express 4
+- Fixed process monitor socket event mismatch from the legacy UI
+
 # Guide
-- [Features](#feats)
-- [Cautions](#cauts)
-- [Installation](#ins)
+
+- [Features](#features)
+- [Requirements](#requirements)
+- [Installation](#installation)
 - [Usage](#usage)
-- [Configuration](#config)
-- [Authorization](#auth)
-- [UI/UX](#ui)
-- [Serving apps locally with nginx and custom domain](#serv)
+- [Configuration](#configuration)
+- [Authorization](#authorization)
+- [UI](#ui)
 
-![image](screenshots/design.jpg)
-
-<a name="feats"></a>
+<a name="features"></a>
 # Features
 
-- Curses-like dashboard.
-- Remoting monitor / web control.
-- All the heartbeats (no matter **monitor** or **tail (logs)**) are automatic destroyed.
-- The `PM2` processes are watched by a subscribed emitter.
-- Communicated with `PM2` through **RPC** socket directly.
-- Socket.io between client and server.
-- Monitor CPU and Memory usage of server in a real-time.
-- Monitor `PM2` processes in a real-time.
-- PM2 *restart/stop/delete*.
- - *stopWatch* files before *restart/stop/delete*.
- - *restartWatch* files before *restart*.
-- Supports [ANSI color codes](#ss_logs) by [ansi-html](https://github.com/Tjatse/ansi-html).
-- High performance. In my case, there are near one hundred processes, but `pm2-gui` works without any suck.
+- Web dashboard for monitoring and controlling PM2 processes
+- Add and save project folders (native folder picker, stored per OS user)
+- Auto-start saved projects when pm2-gui launches
+- Curses-like terminal dashboard (`pm2-gui mon`)
+- Real-time system CPU and memory stats
+- Real-time process list with restart/stop/delete/save actions
+- Per-process detail view with info, live CPU/memory chart, and log tailing
+- Remote agent mode for monitoring multiple hosts
+- ANSI-colored logs via [ansi-html](https://github.com/Tjatse/ansi-html)
 
-<a name="cauts"></a>
-# Cautions
+<a name="requirements"></a>
+# Requirements
 
-- Web Interface is wrote by CSS3 && HTML5, so view it with the latest version of the browser (WebGL, Animation, WebSocket supports), e.g. Chrome, Safari and Firefox.
-- I've never test it on Internet Explorer / Windows.
+- Node.js **18+**
+- [pnpm](https://pnpm.io/) (for development and running from source)
+- PM2 installed and running (`pnpm add -g pm2` then `pm2 ls`)
 
-<a name="ins"></a>
+<a name="installation"></a>
 # Installation
 
+### Global install
+
 ```bash
-$ npm install pm2-gui -g
-$ pm2-gui <cmd> [options]
-# or
-$ npm install pm2-gui --production
-$ cd node_modules/pm2-gui
-# or (recommends)
-$ git clone https://github.com/Tjatse/pm2-gui.git
-$ cd pm2-gui
-$ npm install --production
-# run monitor
-$ ./pm2-gui <cmd> [options]
+pnpm add -g pm2-gui
+pm2-gui start
 ```
+
+You can also install globally with npm if you prefer:
+
+```bash
+npm install pm2-gui -g
+pm2-gui start
+```
+
+### From source
+
+This repo uses **pnpm** (`pnpm-lock.yaml`). Install dependencies with pnpm, not npm.
+
+```bash
+git clone https://github.com/Tjatse/pm2-gui.git
+cd pm2-gui
+pnpm install
+pnpm start
+```
+
+User-specific saved project folders are stored outside the repo (e.g. `~/Library/Application Support/pm2-gui` on macOS).
 
 <a name="usage"></a>
 # Usage
 
-Run the following command to get usage helps:
 ```bash
-$ pm2-gui
+pm2-gui start [config.ini]   # Web server + monitor (default port 8088)
+pm2-gui agent [config.ini]   # Socket.IO agent only (remote monitoring)
+pm2-gui mon [config.ini]     # Terminal dashboard
 ```
 
-Directly:
-```bash
-$ node pm2-gui.js <cmd> [options]
-```
+Programmatic API:
 
-Programmable:
 ```javascript
-var pm2GUI = require('pm2-gui');
-pm2GUI.startWebServer([ini_config_file]);
-pm2GUI.startAgent([ini_config_file]);
-pm2GUI.dashboard([ini_config_file]);
+const pm2GUI = require('pm2-gui')
+pm2GUI.startWebServer('./pm2-gui.ini')
+pm2GUI.startAgent('./pm2-gui.ini')
+pm2GUI.dashboard('./pm2-gui.ini')
 ```
 
-<a name="config"></a>
+<a name="configuration"></a>
 # Configuration
 
-Edit the `pm2-gui/pm2-gui.ini` file or copy the [config example](./pm2-gui.ini) to `/etc/pm2-gui.ini` (starting with `pm2-gui start /etc/pm2-gui.ini`):
+Edit `pm2-gui.ini` (or pass a custom path):
+
+```ini
+pm2 = ~/.pm2
+port = 8088
+refresh = 5s
+process_refresh = 3s
+readonly = false
+
+[agent]
+; authorization = your-secret-token
+
+[remotes]
+; server1 = auth-token@192.168.1.10:8088
+```
+
+<a name="authorization"></a>
+# Authorization
+
+Set `[agent].authorization` in the config file. Clients must pass `?auth=TOKEN` when connecting via Socket.IO, and complete the web login form for HTTP access.
 
 <a name="ui"></a>
-# UI/UX
+# UI
 
-- Amazing and smooth animations.
-- High performance.
+Open `http://127.0.0.1:8088` after starting the server.
 
-Curses-like dashboard:
+The dashboard shows:
 
-![image](screenshots/dashboard.jpg)
+- Host metrics (CPU, memory, uptime)
+- Saved project folders (add via native folder picker, start with one click)
+- Process table with status badges and inline actions
+- Process detail modal with info, live monitor chart, and log streaming
 
-Authorization
-
-![image](screenshots/auth.jpg)
-
-Home
-
-![image](screenshots/home.jpg)
-
-Processes
-
-![image](screenshots/procs.jpg)
-
-Describe Complete Information
-
-![image](screenshots/info.jpg)
-
-CPU && Memory Usage
-
-![image](screenshots/monitor.jpg)
-
-Tail Logs
-
-![image](screenshots/logs.jpg)
-
-<a name="serv"></a>
-
-# Serving apps locally with nginx and custom domain
-- [simple](examples/nginx/pm.example.com.conf)
-- [advanced](examples/nginx/pm2.example.com.conf)
+Legacy screenshots are still available in [`screenshots/`](screenshots/).
 
 ## Test
+
 ```bash
-$ npm test
+pnpm test
 ```
 
 ## License
-(The MIT License)
 
-Copyright (c) 2014-2016 Tjatse
-
-Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the 'Software'), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
+MIT — Copyright (c) 2014-2016 Tjatse

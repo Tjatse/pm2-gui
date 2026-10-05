@@ -1,9 +1,11 @@
 {
   "name": "pm2-gui",
-  "version": "0.1.4",
-  "description": "An elegant web & terminal interface for Unitech/PM2.",
+  "version": "0.6.18",
+  "description": "An elegant web & terminal interface for PM2.",
   "main": "./pm2-gui.js",
   "scripts": {
+    "start": "node pm2-gui.js start",
+    "postinstall": "node scripts/postinstall.js",
     "test": "NODE_ENV=test bash test/index.sh"
   },
   "bin": {
@@ -31,31 +33,30 @@
   "bugs": {
     "url": "https://github.com/Tjatse/pm2-gui/issues"
   },
-  "engines": [
-    "node >= 0.10.0"
-  ],
-  "dependencies": {
-    "ansi-html": "~0.0.6",
-    "async": "^1.5.2",
-    "blessed": "^0.1.81",
-    "chalk": "^1.1.3",
-    "commander": "^2.9.0",
-    "express": "^4.13.4",
-    "express-session": "^1.13.0",
-    "inquirer": "^1.0.3",
-    "jade": "^1.11.0",
-    "lodash": "^4.12.0",
-    "ms": "^0.7.2",
-    "pidusage": "^1.0.8",
-    "pm2-axon": "^2.0.11",
-    "pm2-axon-rpc": "^0.3.6",
-    "socket.io": "^1.4.8",
-    "socket.io-client": "^1.4.8",
-    "windows-cpu": "^0.1.4"
+  "engines": {
+    "node": ">=22.13.0"
   },
-  "devDependencies": {
-    "babel-core": "^6.18.2",
-    "babel-preset-es2015": "^6.18.0"
+  "dependencies": {
+    "adm-zip": "^0.6.1",
+    "ansi-html": "^0.0.9",
+    "async": "^3.2.6",
+    "bcryptjs": "^3.0.3",
+    "better-sqlite3": "^13.0.3",
+    "blessed": "^0.1.81",
+    "chalk": "^4.1.2",
+    "express": "^5.2.1",
+    "express-session": "^1.19.0",
+    "inquirer": "^8.2.7",
+    "lodash": "^4.18.1",
+    "ms": "^2.1.3",
+    "multer": "^2.4.0",
+    "otplib": "^13.5.0",
+    "pidusage": "^4.0.1",
+    "pm2": "^7.0.4",
+    "pug": "^3.0.4",
+    "qrcode": "^1.5.4",
+    "socket.io": "^4.8.4",
+    "socket.io-client": "^4.8.4"
   },
   "standard": {
     "ignore": [
@@ -65,5 +66,6 @@
       "action"
     ]
   },
-  "homepage": "https://github.com/Tjatse/pm2-gui"
+  "homepage": "https://github.com/Tjatse/pm2-gui",
+  "packageManager": "pnpm@12.9.1+sha512.06b055fff5cd20dc12781de173ced3310ce0951bf2ec620211a16045d5444d5c93a663210764ef29a653a610459ba0368f0e74f84d80c54723cf95aae7bc0d6d"
 }

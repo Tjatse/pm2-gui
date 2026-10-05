@@ -1,0 +1,494 @@
+extends ../layouts/default
+
+block content
+  .app#app
+    header.app-header
+      .brand
+        img.brand-logo(src='/img/pm2.webp', alt='PM2', width='48', height='48')
+        .brand-text
+          h1
+            | PM2 Monitor
+            if guiVersion
+              span.brand-version= 'v' + guiVersion
+          p.brand-subtitle#pm2-version Connecting...
+      .header-actions
+        if connections.length > 1
+          select#agent-select.agent-select
+            each conn in connections
+              option(value=conn.value, selected=conn.short === 'localhost')= conn.short
+        nav.toolbar(aria-label='Dashboard actions')
+          button.btn.btn-toolbar#settings-btn(type='button', title='Settings', aria-label='Settings')
+            svg(viewBox='0 0 24 24', width='24', height='24', aria-hidden='true')
+              path(fill='none', stroke='currentColor', stroke-width='1.75', stroke-linecap='round', stroke-linejoin='round', d='M12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z')
+              path(fill='none', stroke='currentColor', stroke-width='1.75', stroke-linecap='round', stroke-linejoin='round', d='M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9c.36.62 1.02 1 1.74 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z')
+          if !readonly
+            button.btn.btn-toolbar#self-update-btn(type='button', title='Update pm2-gui from laptop', aria-label='Update pm2-gui from laptop')
+              svg(viewBox='0 0 24 24', width='24', height='24', aria-hidden='true')
+                path(fill='none', stroke='currentColor', stroke-width='1.75', stroke-linecap='round', stroke-linejoin='round', d='M12 3v12M8 11l4 4 4-4')
+                path(fill='none', stroke='currentColor', stroke-width='1.75', stroke-linecap='round', stroke-linejoin='round', d='M4 19h16')
+            span.toolbar-divider(aria-hidden='true')
+            button.btn.btn-toolbar.btn-toolbar-accent#add-project-btn(type='button', title='Add project folder', aria-label='Add project folder')
+              svg(viewBox='0 0 24 24', width='24', height='24', aria-hidden='true')
+                path(fill='none', stroke='currentColor', stroke-width='1.75', stroke-linecap='round', stroke-linejoin='round', d='M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7z')
+                path(fill='none', stroke='currentColor', stroke-width='1.75', stroke-linecap='round', d='M12 11v6M9 14h6')
+            button.btn.btn-toolbar#start-projects-btn(type='button', title='Start all saved', aria-label='Start all saved')
+              svg(viewBox='0 0 24 24', width='24', height='24', aria-hidden='true')
+                path(fill='currentColor', d='M8 5.14v13.72a1 1 0 0 0 1.5.86l11-6.86a1 1 0 0 0 0-1.72l-11-6.86a1 1 0 0 0-1.5.86z')
+            button.btn.btn-toolbar(type='button', data-action='restart', data-id='all', title='Restart all', aria-label='Restart all')
+              svg(viewBox='0 0 24 24', width='24', height='24', aria-hidden='true')
+                path(fill='none', stroke='currentColor', stroke-width='1.75', stroke-linecap='round', stroke-linejoin='round', d='M21 12a9 9 0 1 1-2.64-6.36M21 3v6h-6')
+            button.btn.btn-toolbar(type='button', data-action='stop', data-id='all', title='Stop all', aria-label='Stop all')
+              svg(viewBox='0 0 24 24', width='24', height='24', aria-hidden='true')
+                rect(x='6.5', y='6.5', width='11', height='11', rx='1.5', fill='currentColor')
+            button.btn.btn-toolbar(type='button', data-action='save', data-id='all', title='Save dump', aria-label='Save dump')
+              svg(viewBox='0 0 24 24', width='24', height='24', aria-hidden='true')
+                path(fill='none', stroke='currentColor', stroke-width='1.75', stroke-linecap='round', stroke-linejoin='round', d='M17 21H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h8l4 4v12a2 2 0 0 1-2 2z')
+                path(fill='none', stroke='currentColor', stroke-width='1.75', stroke-linecap='round', stroke-linejoin='round', d='M7 21v-8h10v8M7 3v5h8')
+            span.toolbar-divider(aria-hidden='true')
+            button.btn.btn-toolbar.btn-toolbar-danger(type='button', data-action='delete', data-id='all', title='Delete all', aria-label='Delete all')
+              svg(viewBox='0 0 24 24', width='24', height='24', aria-hidden='true')
+                path(fill='none', stroke='currentColor', stroke-width='1.75', stroke-linecap='round', stroke-linejoin='round', d='M4 7h16M10 11v6M14 11v6M6 7l1 12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-12M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2')
+
+    main.app-main
+      section.stats-grid#stats-grid
+        .stat-card
+          .stat-label Hostname
+          .stat-value#stat-hostname —
+        .stat-card
+          .stat-label Platform
+          .stat-value#stat-platform —
+        .stat-card
+          .stat-label CPU Usage
+          .stat-value#stat-cpu —
+          .stat-bar
+            .stat-bar-fill#stat-cpu-bar
+        .stat-card
+          .stat-label Memory
+          .stat-value#stat-memory —
+          .stat-bar
+            .stat-bar-fill#stat-memory-bar
+        .stat-card
+          .stat-label Uptime
+          .stat-value#stat-uptime —
+        .stat-card
+          .stat-label Processes
+          .stat-value#stat-processes 0
+
+      section.processes-section
+        .section-header
+          h2 Processes
+          span.process-count#process-count 0 apps
+        .process-table-wrap
+          table.process-table
+            thead
+              tr
+                th Status
+                th Name
+                th ID
+                th Mode
+                th Port
+                th CPU
+                th Memory
+                th Restarts
+                th Uptime
+                if !readonly
+                  th Actions
+            tbody#process-list
+              tr.loading-row
+                td(colspan=readonly ? 9 : 10)
+                  .loader Loading processes...
+
+    .toast-container#toast-container
+
+    .modal.modal-stack#confirm-modal(hidden)
+      .modal-backdrop(data-close='confirm-cancel')
+      .modal-panel.confirm-panel
+        .modal-header
+          div
+            h3#confirm-title Confirm
+            p#confirm-message
+          button.modal-close(data-close='confirm-cancel', aria-label='Close') ×
+        .modal-body.confirm-body
+          .setup-actions
+            button.btn.btn-primary#confirm-ok(type='button') Confirm
+            button.btn.btn-secondary(type='button', data-close='confirm-cancel') Cancel
+
+    .modal.modal-stack#prompt-modal(hidden)
+      .modal-backdrop(data-close='prompt-cancel')
+      .modal-panel.confirm-panel
+        .modal-header
+          div
+            h3#prompt-title Input required
+            p#prompt-message
+          button.modal-close(data-close='prompt-cancel', aria-label='Close') ×
+        .modal-body.confirm-body
+          input#prompt-input.add-project-input(type='text', autocomplete='off')
+          .setup-actions
+            button.btn.btn-primary#prompt-ok(type='button') Continue
+            button.btn.btn-secondary(type='button', data-close='prompt-cancel') Cancel
+
+    .modal.modal-stack#folder-pick-modal(hidden)
+      .modal-backdrop(data-close='folder-pick-cancel')
+      .modal-panel.folder-pick-panel
+        .modal-header
+          div
+            h3#folder-pick-title Choose project folder
+            p#folder-pick-message
+          button.modal-close(data-close='folder-pick-cancel', aria-label='Close') ×
+        .modal-body.confirm-body
+          .folder-last-source#folder-last-source(hidden)
+            .folder-last-source-meta
+              span.folder-last-source-label Last used source
+              code.folder-last-source-path#folder-last-source-path
+            button.btn.btn-primary#folder-pick-upload-last(type='button') Upload
+          .folder-pick-port#folder-pick-port-wrap(hidden)
+            label.add-project-label(for='folder-pick-port') Port (optional)
+            input#folder-pick-port.add-project-input(
+              type='number',
+              min='1',
+              max='65535',
+              autocomplete='off',
+              placeholder='Leave blank to keep current port'
+            )
+            p.add-project-hint#folder-pick-port-hint Leave blank to keep the current port. Enter a number only if you want to change it.
+          .folder-dropzone#folder-dropzone(tabindex='0')
+            .folder-dropzone-title Drop a folder here
+            p.folder-dropzone-hint Drag the project folder from your computer into this box.
+            p.folder-dropzone-hint.folder-dropzone-status#folder-dropzone-status
+          .setup-actions
+            button.btn.btn-primary#folder-pick-browse(type='button') Browse folder
+            button.btn.btn-secondary(type='button', data-close='folder-pick-cancel') Cancel
+
+    .modal.modal-stack#update-progress-modal(hidden)
+      .modal-backdrop
+      .modal-panel.confirm-panel
+        .modal-header
+          div
+            h3#update-progress-title Updating project
+            p#update-progress-subtitle Preparing upload…
+        .modal-body.confirm-body
+          .upload-progress
+            .upload-progress-track
+              .upload-progress-fill#update-progress-fill
+            .upload-progress-meta
+              span#update-progress-percent 0%
+              span#update-progress-detail
+          p.add-project-hint#update-progress-hint Process actions are paused until this finishes.
+
+    .modal.modal-stack#edit-process-modal(hidden)
+      .modal-backdrop(data-close='edit-process-cancel')
+      .modal-panel.confirm-panel
+        .modal-header
+          div
+            h3#edit-process-title Edit process
+            p#edit-process-subtitle
+          button.modal-close(data-close='edit-process-cancel', aria-label='Close') ×
+        .modal-body.confirm-body
+          label.add-project-label(for='edit-process-name') Display name
+          input#edit-process-name.add-project-input(type='text', autocomplete='off', maxlength='120')
+          label.add-project-label(for='edit-process-port') Port
+          input#edit-process-port.add-project-input(
+            type='number',
+            placeholder='e.g. 3044',
+            min='1',
+            max='65535',
+            autocomplete='off'
+          )
+          p.add-project-hint The display name is the bold label in the process list (not the folder path). Port cannot be 80, 443, 5000, 5001, the pm2-gui port, or another project's port. Saving updates project files and restarts the process.
+          .setup-actions
+            button.btn.btn-primary#edit-process-save(type='button') Save & restart
+            button.btn.btn-secondary(type='button', data-close='edit-process-cancel') Cancel
+
+    .modal.modal-stack#debug-log-modal(hidden)
+      .modal-backdrop(data-close='debug-log')
+      .modal-panel.debug-log-panel
+        .modal-header
+          div
+            h3 Debug log
+            p#debug-log-path Last 100 lines
+          button.modal-close(data-close='debug-log', aria-label='Close') ×
+        .modal-body
+          pre.debug-log-view#debug-log-text
+          .setup-actions
+            button.btn.btn-primary#debug-log-copy(type='button') Copy
+            button.btn.btn-secondary#debug-log-refresh(type='button') Refresh
+            button.btn.btn-secondary(type='button', data-close='debug-log') Close
+
+    .modal#setup-modal(hidden)
+      .modal-backdrop(data-close='setup')
+      .modal-panel.setup-panel
+        .modal-header
+          div
+            h3 Setup required
+            p#setup-summary Checking connection to PM2...
+          button.modal-close(data-close='setup', aria-label='Close') ×
+        .modal-body
+          .setup-status#setup-status
+            .loader Checking setup...
+          ol.setup-steps#setup-steps
+          .setup-actions
+            button.btn.btn-primary#setup-retry(type='button') Retry connection
+            button.btn.btn-secondary#setup-copy(type='button') Copy setup commands
+
+    .modal#settings-modal(hidden)
+      .modal-backdrop(data-close='settings')
+      .modal-panel.settings-panel
+        .modal-header
+          div
+            h3 Settings
+            p#settings-subtitle Preferences are stored in your local SQLite database
+          button.modal-close(data-close='settings', aria-label='Close') ×
+        .modal-tabs#settings-tabs
+          button.tab.active(data-settings-tab='general') General
+          button.tab(data-settings-tab='auth') Authentication
+          button.tab(data-settings-tab='telegram') Telegram
+          button.tab(data-settings-tab='startup') Startup
+          button.tab(data-settings-tab='api') API
+          button.tab(data-settings-tab='security') Security
+        .modal-body.settings-body
+          .tab-panel.active#settings-tab-general
+            label.add-project-label(for='setting-public-host') Public host (for open-service links)
+            input#setting-public-host.add-project-input(type='text', placeholder='192.168.1.50 or nas.local')
+            label.add-project-label(for='setting-public-protocol') Public protocol
+            select#setting-public-protocol.agent-select
+              option(value='http') http
+              option(value='https') https
+            label.add-project-label(for='setting-projects-root') Default projects path
+            input#setting-projects-root.add-project-input(type='text', placeholder='/volume1/web')
+            p.add-project-hint New projects uploaded from your laptop are created as subfolders of this path (e.g. /volume1/web/MyApp).
+            label.add-project-label(for='setting-refresh') System refresh interval
+            input#setting-refresh.add-project-input(type='text', placeholder='5s')
+            label.add-project-label(for='setting-process-refresh') Process metrics interval
+            input#setting-process-refresh.add-project-input(type='text', placeholder='3s')
+            label.settings-check
+              input#setting-readonly(type='checkbox')
+              span Read-only mode (hide process actions)
+            hr.settings-divider
+            h4 Debug
+            .settings-debug-row
+              label.settings-check
+                input#setting-debug-enabled(type='checkbox')
+                span Debug mode (verbose logging)
+              button.btn.btn-secondary#setting-debug-view-log(type='button', hidden) View log
+            p.add-project-hint When enabled, save settings, then use View log to see the last 100 lines of pm2-gui.log (copyable).
+            hr.settings-divider
+            h4 Update pm2-gui
+            p.add-project-hint Upload this project's files from your laptop. Overwrites the install directory, runs npm install, then restarts via synology-start.sh.
+            button.btn.btn-secondary#setting-self-update(type='button') Update pm2-gui from laptop
+            p.add-project-hint#settings-data-dir
+
+          .tab-panel#settings-tab-auth
+            label.settings-check
+              input#setting-auth-enabled(type='checkbox')
+              span Enable authentication
+            label.settings-check
+              input#setting-require-2fa(type='checkbox')
+              span Enforce 2FA for all users
+            label.add-project-label(for='setting-session-hours') Session timeout (hours)
+            input#setting-session-hours.add-project-input(type='number', min='1', max='720')
+            label.add-project-label(for='setting-max-attempts') Max login attempts
+            input#setting-max-attempts.add-project-input(type='number', min='1', max='50')
+            label.add-project-label(for='setting-lockout') Lockout minutes
+            input#setting-lockout.add-project-input(type='number', min='1', max='1440')
+            hr.settings-divider
+            h4 Create user
+            .add-project-row
+              input#setting-new-username.add-project-input(type='text', placeholder='Username')
+              input#setting-new-password.add-project-input(type='password', placeholder='Password (min 8)')
+              button.btn.btn-secondary#setting-create-user(type='button') Add
+            ul.settings-user-list#settings-user-list
+
+          .tab-panel#settings-tab-telegram
+            label.settings-check
+              input#setting-tg-enabled(type='checkbox')
+              span Enable Telegram notifications
+            label.add-project-label(for='setting-tg-token') Bot token
+            input#setting-tg-token.add-project-input(type='password', placeholder='123456:ABC...', autocomplete='off')
+            label.add-project-label(for='setting-tg-chat') Chat ID
+            input#setting-tg-chat.add-project-input(type='text', placeholder='e.g. 123456789')
+            .settings-checks
+              label.settings-check
+                input#setting-tg-restart(type='checkbox')
+                span Notify on restart
+              label.settings-check
+                input#setting-tg-error(type='checkbox')
+                span Notify on error
+              label.settings-check
+                input#setting-tg-stop(type='checkbox')
+                span Notify on stop
+              label.settings-check
+                input#setting-tg-exit(type='checkbox')
+                span Notify on exit
+              label.settings-check
+                input#setting-tg-online(type='checkbox')
+                span Notify on online
+            button.btn.btn-secondary#setting-tg-test(type='button') Send test message
+
+          .tab-panel#settings-tab-startup
+            h4 Start pm2-gui on boot
+            p.add-project-hint#startup-status-text Detecting environment…
+            label.add-project-label(for='setting-startup-app-dir') App directory on Synology
+            input#setting-startup-app-dir.add-project-input(type='text', placeholder='/volume1/web/pm2-gui')
+            label.add-project-label(for='setting-startup-user-home') User home on Synology
+            input#setting-startup-user-home.add-project-input(type='text', placeholder='/var/services/homes/YOUR_USERNAME')
+            p.add-project-hint Saved to the local DB and .pm2-gui-boot.env (not committed). Leave blank to auto-detect from the Task Scheduler user. Use Synology paths only — never Mac /Users/... paths.
+            .startup-meta#startup-meta
+            .setup-actions
+              button.btn.btn-primary#setting-startup-create(type='button') Create / update boot task
+              button.btn.btn-secondary#setting-startup-copy(type='button') Copy command
+            p.add-project-hint If automatic creation fails (common without DSM admin rights), use the manual steps below.
+            ol.setup-steps#startup-instructions
+            .startup-result#startup-result(hidden)
+
+          .tab-panel#settings-tab-api
+            h4 API access
+            p.add-project-hint Generate an API key for machine clients (Cursor agents, scripts, curl). Send it as #[code Authorization: Bearer <key>] or #[code X-API-Key].
+            p.add-project-hint Base URL example: #[code http://172.16.0.200:8088/api/v1]
+            .api-key-status#api-key-status
+              p.add-project-hint No API key configured yet.
+            ul.settings-user-list#api-key-list
+            .setup-actions
+              button.btn.btn-primary#setting-api-key-generate(type='button') Generate API key
+              button.btn.btn-danger#setting-api-key-revoke-all(type='button') Revoke all keys
+            .api-key-created#api-key-created(hidden)
+              label.add-project-label Copy this key now — it will not be shown again
+              input#setting-api-key-value.add-project-input(type='text', readonly, autocomplete='off')
+              .setup-actions
+                button.btn.btn-secondary#setting-api-key-copy(type='button') Copy key
+                button.btn.btn-secondary#setting-api-key-copy-env(type='button') Copy .env line
+              p.add-project-hint Put it in your local #[code .env] (see #[code .env.example]):
+              pre.api-key-env-preview#api-key-env-preview
+            hr.settings-divider
+            h4 Useful endpoints
+            pre.api-endpoint-list
+              | GET  /api/v1/health
+              | GET  /api/v1/status
+              | GET  /api/v1/processes
+              | GET  /api/v1/processes/:pmId/logs?lines=100&stream=err
+              | POST /api/v1/processes/:pmId/actions   {"action":"restart"}
+              | GET  /api/v1/projects
+              | GET  /api/v1/logs/dashboard?lines=100
+
+          .tab-panel#settings-tab-security
+            h4 Change password
+            label.add-project-label(for='setting-cur-password') Current password
+            input#setting-cur-password.add-project-input(type='password', autocomplete='current-password')
+            label.add-project-label(for='setting-new-password') New password
+            input#setting-new-password.add-project-input(type='password', autocomplete='new-password')
+            button.btn.btn-secondary#setting-change-password(type='button') Update password
+            hr.settings-divider
+            h4 Two-factor authentication (TOTP)
+            p.add-project-hint Use Google Authenticator, 1Password, or Authy.
+            .setup-actions
+              button.btn.btn-secondary#setting-2fa-begin(type='button') Set up 2FA
+              button.btn.btn-danger#setting-2fa-disable(type='button') Disable 2FA
+            .settings-2fa-setup#settings-2fa-setup(hidden)
+              img#setting-2fa-qr(alt='2FA QR code', width='180', height='180')
+              p.add-project-hint#setting-2fa-secret
+              label.add-project-label(for='setting-2fa-code') Confirm with a code
+              .add-project-row
+                input#setting-2fa-code.add-project-input(type='text', inputmode='numeric', maxlength='8')
+                button.btn.btn-primary#setting-2fa-confirm(type='button') Confirm
+            hr.settings-divider
+            button.btn.btn-secondary#setting-logout(type='button') Sign out
+
+          .setup-actions.settings-footer
+            button.btn.btn-primary#settings-save(type='button') Save settings
+            button.btn.btn-secondary(type='button', data-close='settings') Close
+
+    .modal#add-project-modal(hidden)
+      .modal-backdrop(data-close='add-project')
+      .modal-panel.add-project-panel
+        .modal-header
+          div
+            h3 Add project folder
+            p Enter the absolute path on this server (e.g. /volume1/web/my-app)
+          button.modal-close(data-close='add-project', aria-label='Close') ×
+        .modal-body
+          label.add-project-label(for='add-project-path') Project folder path
+          .add-project-row
+            input#add-project-path.add-project-input(
+              type='text',
+              placeholder='/volume1/web/my-app',
+              autocomplete='off',
+              spellcheck='false'
+            )
+            button.btn.btn-secondary#add-project-browse(type='button', title='Open native folder picker when available') Browse
+          p.add-project-hint On Synology, type an absolute path such as /volume1/web/my-app. Do not add the pm2-gui folder itself — it is already running as this dashboard.
+          label.add-project-label(for='add-project-port') Service port (optional)
+          input#add-project-port.add-project-input(
+            type='number',
+            placeholder='e.g. 3000',
+            min='1',
+            max='65535',
+            autocomplete='off'
+          )
+          p.add-project-hint Optional. Leave blank to detect PORT / SYNC_WEB_PORT from the project. If set, files are updated to that port. Cannot use 80, 443, 5000, 5001, the pm2-gui port, or another project's port.
+          .setup-actions
+            button.btn.btn-primary#add-project-submit(type='button') Add project
+            button.btn.btn-secondary(type='button', data-close='add-project') Cancel
+
+    .modal#process-modal(hidden)
+      .modal-backdrop(data-close='modal')
+      .modal-panel
+        .modal-header
+          div
+            h3#modal-title Process
+            p#modal-subtitle
+          button.modal-close(data-close='modal', aria-label='Close') ×
+        .modal-tabs
+          button.tab.active(data-tab='info') Info
+          button.tab(data-tab='monitor') Monitor
+          button.tab(data-tab='log') Logs
+        .modal-body
+          .tab-panel.active#tab-info
+            pre#modal-info
+          .tab-panel#tab-monitor
+            canvas#monitor-chart(width='640', height='220')
+            .monitor-legend
+              span.legend-cpu CPU
+              span.legend-mem Memory
+          .tab-panel#tab-log
+            .log-panel
+              button.btn.btn-icon.log-copy-btn#modal-log-copy(
+                type='button',
+                title='Copy last 50 lines',
+                aria-label='Copy last 50 lines'
+              )
+                svg(viewBox='0 0 24 24', width='16', height='16', aria-hidden='true')
+                  path(
+                    fill='currentColor',
+                    d='M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z'
+                  )
+              pre.log-view#modal-log Waiting for logs...
+
+  input#project-update-folder(
+    type='file',
+    webkitdirectory,
+    directory,
+    multiple,
+    hidden,
+    style='display:none'
+  )
+  input#project-create-folder(
+    type='file',
+    webkitdirectory,
+    directory,
+    multiple,
+    hidden,
+    style='display:none'
+  )
+
+  input#authorization(type='hidden', value=authorization || '')
+  script.
+    window.GUI = {
+      connections: !{JSON.stringify(connections)},
+      readonly: #{readonly ? 'true' : 'false'},
+      publicHost: !{JSON.stringify((web && web.public_host) || '')},
+      publicProtocol: !{JSON.stringify((web && web.public_protocol) || '')},
+      projectsRoot: !{JSON.stringify((web && web.projects_root) || '')},
+      authEnabled: #{authEnabled ? 'true' : 'false'},
+      user: !{JSON.stringify(user || null)}
+    };
+  script(src='/socket.io/socket.io.js')
+  script(src='/js/app.js?v=0.6.18')

@@ -1,0 +1,38 @@
+extends ../layouts/default
+
+block head
+  link(rel='stylesheet', href='/css/auth.css')
+
+block content
+  .auth-page
+    .auth-card
+      .auth-brand
+        img.brand-logo(src='/img/pm2.webp', alt='PM2', width='56', height='56')
+        h1 PM2 Monitor
+        if needsSetup
+          p Create the first admin account
+        else
+          p Sign in to continue
+      form.auth-form#auth-form
+        if needsSetup
+          label(for='auth-username') Admin username
+          input#auth-username(type='text', autocomplete='username', required, maxlength='64')
+          label(for='auth-password') Password (min 8 characters)
+          input#auth-password(type='password', autocomplete='new-password', required, minlength='8', maxlength='128')
+          label(for='auth-password2') Confirm password
+          input#auth-password2(type='password', autocomplete='new-password', required, minlength='8', maxlength='128')
+          button.btn.btn-primary(type='submit') Create admin
+        else
+          label(for='auth-username') Username
+          input#auth-username(type='text', autocomplete='username', required, maxlength='64')
+          label(for='auth-password') Password
+          input#auth-password(type='password', autocomplete='current-password', required, maxlength='128')
+          .auth-totp#auth-totp(hidden)
+            label(for='auth-totp-input') Authentication code
+            input#auth-totp-input(type='text', inputmode='numeric', autocomplete='one-time-code', maxlength='8', placeholder='6-digit code')
+          button.btn.btn-primary#auth-submit(type='submit') Sign in
+        p.auth-error#auth-error(hidden)
+      input#auth-mode(type='hidden', value=needsSetup ? 'setup' : 'login')
+
+block js
+  script(src='/js/auth.js?v=0.4.0')

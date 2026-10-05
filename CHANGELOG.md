@@ -1,3 +1,21 @@
+# 0.2.0
+
+**Breaking Changes**
+- Requires Node.js 18+ and PM2 5.x+
+- Replaced legacy axon RPC integration with the official PM2 programmatic API
+- Replaced Jade/jQuery/D3 frontend with a modern Pug + vanilla JS dashboard
+- Socket.IO upgraded from v1 to v4
+
+**Enhancements**
+- Responsive dark-theme web UI with process table and detail modal
+- Live CPU/memory chart per process (fixed legacy `pull.process` event bug)
+- PM2 log streaming via `log:out` / `log:err` bus events
+- Session secret configurable via `PM2_GUI_SESSION_SECRET`
+
+**Bugs**
+- Fixed `delete` action guard referencing wrong variable in `lib/pm.js`
+- Fixed Socket.IO v4 namespace socket iteration
+
 # 0.1.4-rc.1
 **Bugs**
 - clean ANSI.

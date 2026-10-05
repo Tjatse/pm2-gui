@@ -11,11 +11,13 @@ var Monitor = require('./lib/monitor')
 var Log = require('./lib/util/log')
 var Web = require('./web/index')
 var Layout = require('./lib/blessed-widget/layout')
+var projectsStore = require('./lib/projects-store')
+var userData = require('./lib/user-data')
 
 var regLocal = /^(127\.0\.0\.1|0\.0\.0\.0|localhost)$/i
 
 // cli
-if (path.basename(process.mainModule.filename, '.js') === 'pm2-gui') {
+if (path.basename(require.main.filename, '.js') === 'pm2-gui') {
   var cmd = 'start'
   var file
   var processArgvLen = process.argv.length
@@ -58,10 +60,14 @@ exports.exitGraceful = exitGraceful
  * @return {N/A}
  */
 function startWebServer (confFile) {
+  userData.ensureUserDataDir()
   var monitor = slave({
     confFile: confFile
   })
   var options = monitor.options
+  try {
+    require('./lib/runtime').setMonitor(monitor)
+  } catch (err) {}
   // express server
   var server = Web({
     middleware: function (req, res, next) {
@@ -72,10 +78,37 @@ function startWebServer (confFile) {
   })
   // socket.io server
   monitor.sockio = socketIO(server, {
-    origins: options.origins || '*:*'
+    cors: {
+      origin: options.origins || '*'
+    }
   })
+  if (server.sessionMiddleware) {
+    monitor.sockio.engine.use(server.sessionMiddleware)
+  }
   monitor.run()
   console.info('Web server is listening on 127.0.0.1:' + options.port)
+  console.info('User projects stored in:', projectsStore.getDataDir())
+  try {
+    console.info('SQLite database:', require('./lib/db').getDbPath())
+  } catch (err) {}
+
+  projectsStore.autoStartAll({ pm2Home: options.pm2 }, function (err, results) {
+    if (!results || results.length === 0) {
+      return
+    }
+    results.forEach(function (result) {
+      if (result.status === 'started') {
+        console.info('[projects] Started', result.project.name, 'from', result.project.path)
+      } else if (result.status === 'already_running') {
+        console.info('[projects] Already running', result.project.name)
+      } else if (result.status === 'error') {
+        console.warn('[projects] Failed to start', result.project.name + ':', result.error)
+      }
+    })
+    if (err) {
+      console.warn('[projects] Some saved projects could not be started:', err.message)
+    }
+  })
 }
 
 /**
@@ -96,7 +129,9 @@ function startAgent (confFile) {
   // socket.io server
   var sockio = socketIO()
   sockio.listen(options.port, {
-    origins: options.origins || '*:*'
+    cors: {
+      origin: options.origins || '*'
+    }
   })
   monitor.sockio = sockio
   monitor.run()
@@ -151,7 +186,9 @@ function dashboard (confFile) {
  * @return {N/A}
  */
 function exitGraceful (code, signal) {
-  code = code || 0
+  if (typeof code !== 'number') {
+    code = 0
+  }
   if (signal !== '-f') {
     console.debug('Slave has exited, code: ' + code + ', signal: ' + (signal || 'N/A'))
   }
@@ -219,10 +256,11 @@ function slave (options) {
   return monitor
 
   function shutdown (code, signal) {
+    var exitCode = typeof code === 'number' ? code : 0
     console.info('Shutting down....')
     monitor.quit()
     console.info('Completed!')
-    exitGraceful(code, '-f')
+    exitGraceful(exitCode, '-f')
   }
 
   function restart () {
@@ -264,7 +302,9 @@ function _connectToDashboard (monitor, options, connection) {
         // start socket.io server.
         var sockio = socketIO()
         sockio.listen(connection.port, {
-          origins: options.origins || '*:*'
+          cors: {
+            origin: options.origins || '*'
+          }
         })
         // run monitor
         monitor.sockio = sockio
